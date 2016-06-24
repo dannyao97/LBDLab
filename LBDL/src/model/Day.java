@@ -1,8 +1,7 @@
 package model;
 
-import java.text.*;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 
 /**
  * Contains information regarding the who can come on a certain date.
@@ -13,7 +12,7 @@ import java.util.Date;
 public class Day
 {
    /** The date this day represents */
-   private Date date;
+   protected Calendar date = Calendar.getInstance();
    /** Determine if this day can take more students */
    protected boolean available;
    /** The schools coming this day */
@@ -30,9 +29,8 @@ public class Day
     * 
     * @param date The date on the calendar.
     */
-   public Day(Date date, int column)
+   public Day(int column)
    {
-      this.date = date;
       this.schools = new ArrayList<School>();
       this.maxStudents = 110;
       this.numStudents = 0;

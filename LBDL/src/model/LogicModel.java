@@ -4,6 +4,7 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Observable;
+import java.util.*;
 
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -14,15 +15,20 @@ import org.apache.poi.ss.usermodel.CreationHelper;
 
 /**
  * Logic model performs logic and notifies the GUI.
- * 
+ *
  * @author Daniel Yao
  * @year 2016
  */
 public class LogicModel extends Observable
 {
-   /** The workbook that is read. */
+
+   /**
+    * The workbook that is read.
+    */
    XSSFWorkbook wb;
-   /** The current excel spreadsheet. */
+   /**
+    * The current excel spreadsheet.
+    */
    XSSFSheet sheet;
 
    protected ArrayList<Day> dayList;
@@ -33,8 +39,19 @@ public class LogicModel extends Observable
    }
 
    /**
+    * Notifies the gui with the given object.
+    *
+    * @param obj Object to give the gui
+    */
+   public void notify(Object obj)
+   {
+      setChanged();
+      notifyObservers(obj);
+   }
+
+   /**
     * Read the provided excel file.
-    * 
+    *
     * @param filename The name of the file.
     */
    public void readExcelFile(String filename)
@@ -42,7 +59,8 @@ public class LogicModel extends Observable
       try
       {
          readXLFile(filename);
-      } catch (IOException | InvalidFormatException e)
+      }
+      catch (IOException | InvalidFormatException e)
       {
          e.printStackTrace();
       }
@@ -72,10 +90,12 @@ public class LogicModel extends Observable
          {
             tmp = sheet.getRow(i).getPhysicalNumberOfCells();
             if (tmp > numCols)
+            {
                numCols = tmp;
+            }
          }
       }
-      
+
       //Initialize available days from first row of sheet
       initializeDayList(sheet.getRow(0), numCols);
 
@@ -110,26 +130,51 @@ public class LogicModel extends Observable
 
    /**
     * Initialize all the days that are offered.
-    * 
+    *
     * @param xlRow The row with the days.
     * @param numCols The total number of columns
     */
    private void initializeDayList(XSSFRow xlRow, int numCols)
    {
-      /** First date starts with column 9 */
+      //First date starts at column 9
       int index = 9;
-      int col = 0;
+      //HARDCODED 27 dates. MUST CHANGE IF MORE DATES ADDED
+      int numDates = 27;
       SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
       XSSFCell cell;
-      
+
       cell = xlRow.getCell(index);
-      String cellDate = cell.toString();
-      System.out.println("." + cellDate.substring(cellDate.indexOf(" "), cellDate.length()).trim() + ".");
+      //Value of the entire cell
+      String cellStr = cell.toString();
+      //The date extracted from the cell in mm/dd format
+      String cellDate = cellStr.substring(cellStr.indexOf(" "), cellStr.length()).trim();
+      //Get array of month/day
+      String[] dateArr = cellDate.split("/");
+
+      if (dateArr.length != 2)
+      {
+         notify("Bad cell format: Sheet: " + xlRow.getSheet().getSheetName()
+                 + "| Cell(" + xlRow.getRowNum() + ", " + index + ")");
+      }
+      else
+      {
+         Day newDate = new Day(index);
+         //Get the month
+         int month = Integer.valueOf(cellDate.split("/")[0]);
+         //Get the day
+         int day = Integer.valueOf(cellDate.split("/")[1]);
+         //Get the current year
+         int year = Calendar.getInstance().get(Calendar.YEAR);
+         //Set the date for the day
+         newDate.date.set(year, month, day);
+         
+         System.out.println(newDate.date.get(Calendar.DAY_OF_MONTH));
+      }
    }
 
    /**
     * NOT IMPLEMENTED YET Write output to the specified file.
-    * 
+    *
     * @param outputFile The name of the output file.
     */
    public void writeExcelFile(String outputFile)
@@ -137,7 +182,8 @@ public class LogicModel extends Observable
       try
       {
          writeXLFile("testOutput.xlsx");
-      } catch (IOException e)
+      }
+      catch (IOException e)
       {
          e.printStackTrace();
       }

@@ -1,7 +1,6 @@
 package model;
 
 import java.util.*;
-import java.text.*;
 
 /**
  * Representation of a School that would attend.
