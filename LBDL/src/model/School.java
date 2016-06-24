@@ -11,21 +11,21 @@ import java.util.*;
 public class School
 {
    /** Number of students to bring */
-   private int numStudents;
+   protected int numStudents;
    /** The list of available dates */
-   private ArrayList<Date> availDates;
+   protected ArrayList<Date> availDates;
    /** The School name */
-   private String name;
+   protected String name;
    /** Determine if the school can split */
-   private boolean split;
+   protected boolean split;
    /** Holds how school will divide up students */
-   private ArrayList<Integer> splitNums;
+   protected ArrayList<Integer> splitNums;
    /** Priority of the school */
-   private int priority;
+   protected int priority;
    /** Any comments left by the school */
-   private String comments;
+   protected String comments;
    /** If school visited last year */
-   private boolean visited;
+   protected boolean visited;
 
    /**
     * Creates a School object to represent a school.

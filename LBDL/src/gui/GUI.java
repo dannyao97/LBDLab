@@ -38,6 +38,7 @@ public class GUI extends javax.swing.JFrame implements Observer
    public GUI(LogicModel model)
    {
       this.model = model;
+      this.model.addObserver(this);
       //Set the layout of the gui
       SpringLayout springLayout = new SpringLayout();
       this.getContentPane().setLayout(springLayout);      
@@ -172,7 +173,7 @@ public class GUI extends javax.swing.JFrame implements Observer
    @Override
    public void update(Observable o, Object arg)
    {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      System.out.println((String)arg);
    }
 
    /**

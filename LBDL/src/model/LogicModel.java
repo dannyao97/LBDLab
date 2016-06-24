@@ -1,8 +1,6 @@
 package model;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Observable;
 import java.util.*;
 
@@ -21,21 +19,16 @@ import org.apache.poi.ss.usermodel.CreationHelper;
  */
 public class LogicModel extends Observable
 {
-
-   /**
-    * The workbook that is read.
-    */
+   /* The workbook that is read. */
    XSSFWorkbook wb;
-   /**
-    * The current excel spreadsheet.
-    */
+   /* The current excel spreadsheet. */
    XSSFSheet sheet;
-
-   protected ArrayList<Day> dayList;
+   /* The map of available days. Column index is the key */
+   protected HashMap<Integer, Day> dayList;
 
    public LogicModel()
    {
-      dayList = new ArrayList<Day>();
+      dayList = new HashMap<>();
    }
 
    /**
@@ -98,7 +91,7 @@ public class LogicModel extends Observable
 
       //Initialize available days from first row of sheet
       initializeDayList(sheet.getRow(0), numCols);
-
+      
       // For every row in the sheet starting from row 2
       for (int row = 1; row < numRows; row++)
       {
@@ -138,37 +131,44 @@ public class LogicModel extends Observable
    {
       //First date starts at column 9
       int index = 9;
-      //HARDCODED 27 dates. MUST CHANGE IF MORE DATES ADDED
-      int numDates = 27;
-      SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+      //HARDCODED 27 dates. Last date col = 9 + 27
+      int numDates = 36;
+      //The current cell
       XSSFCell cell;
-
-      cell = xlRow.getCell(index);
       //Value of the entire cell
-      String cellStr = cell.toString();
+      String cellStr;
       //The date extracted from the cell in mm/dd format
-      String cellDate = cellStr.substring(cellStr.indexOf(" "), cellStr.length()).trim();
-      //Get array of month/day
-      String[] dateArr = cellDate.split("/");
+      String cellDate;
+      //Array of month/day
+      String[] dateArr;
 
-      if (dateArr.length != 2)
+      //FOR each date in the sheet
+      for (index = 9; index < numDates; index++)
       {
-         notify("Bad cell format: Sheet: " + xlRow.getSheet().getSheetName()
-                 + "| Cell(" + xlRow.getRowNum() + ", " + index + ")");
-      }
-      else
-      {
-         Day newDate = new Day(index);
-         //Get the month
-         int month = Integer.valueOf(cellDate.split("/")[0]);
-         //Get the day
-         int day = Integer.valueOf(cellDate.split("/")[1]);
-         //Get the current year
-         int year = Calendar.getInstance().get(Calendar.YEAR);
-         //Set the date for the day
-         newDate.date.set(year, month, day);
-         
-         System.out.println(newDate.date.get(Calendar.DAY_OF_MONTH));
+         cell = xlRow.getCell(index);
+         cellStr = cell.toString();
+         cellDate = cellStr.substring(cellStr.indexOf(" "), cellStr.length()).trim();
+         dateArr = cellDate.split("/");
+         if (dateArr.length != 2)
+         {
+            notify("Bad cell format: Sheet: " + xlRow.getSheet().getSheetName()
+                    + "| Cell(" + xlRow.getRowNum() + ", " + index + ")");
+            break;
+         }
+         else
+         {
+            Day newDay = new Day(index);
+            //Get the month, subtract 1 because index starts at 0
+            int month = Integer.valueOf(cellDate.split("/")[0]) - 1;
+            //Get the day
+            int day = Integer.valueOf(cellDate.split("/")[1]);
+            //Get the current year
+            int year = Calendar.getInstance().get(Calendar.YEAR);
+            //Set the date for the day
+            newDay.date.set(year, month, day);
+            //Add date to the map
+            dayList.put(index, newDay);
+         }
       }
    }
 
