@@ -4,7 +4,7 @@ import java.util.*;
 
 /**
  * Representation of a School that would attend.
- * 
+ *
  * @author Daniel Yao
  * @year 2016
  */
@@ -13,48 +13,49 @@ public class School
    /** Number of students to bring */
    protected int numStudents;
    /** The list of available dates */
-   protected ArrayList<Date> availDates;
+   protected ArrayList<Day> availDates;
    /** The School name */
    protected String name;
-   /** Determine if the school can split */
+   /** Determine if the school can split. Default is false */
    protected boolean split;
    /** Holds how school will divide up students */
    protected ArrayList<Integer> splitNums;
    /** Priority of the school */
-   protected int priority;
+   protected double priority;
    /** Any comments left by the school */
    protected String comments;
-   /** If school visited last year */
+   /** If school has visited before. Default is true */
    protected boolean visited;
 
    /**
     * Creates a School object to represent a school.
-    * 
-    * @param name The name of the school.
-    * @param students The number of students.
-    * @param priority The priority of the school.
-    * @param split True if school can split up students.
-    * @param visited True if school came the previous year.
     */
-   public School(String name, int students, int priority, boolean split, boolean visited)
+   public School()
    {
-      this.name = name;
-      this.numStudents = students;
-      this.availDates = new ArrayList<Date>();
-      this.split = split;
-      this.priority = priority;
+      this.availDates = new ArrayList<>();
+      this.splitNums = new ArrayList<>();
       this.comments = "";
-      this.visited = visited;
+      this.visited = true;
+      this.split = false;
    }
 
    /**
-    * Add a date to the list of available dates for the school.
-    * 
-    * @param month The month of the date.
-    * @param day The day of the date.
+    * Add a day to the list of available dates for the school.
+    *
+    * @param day The day to add.
     */
-   public void addDates(int month, int day)
+   public void addDay(Day day)
    {
-      
+      availDates.add(day);
+   }
+   
+   /**
+    * Returns the school's name.
+    * 
+    * @return The school name.
+    */
+   public String getName()
+   {
+      return name;
    }
 }

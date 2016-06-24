@@ -9,6 +9,7 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -19,20 +20,24 @@ import javax.swing.JTable;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import model.LogicModel;
+import model.School;
 
 /**
  * GUI for user interactions. Collects user parameters and runs application.
- * 
+ *
  * @author Daniel Yao
  * @year 2016
  */
 public class GUI extends javax.swing.JFrame implements Observer
 {
    private final LogicModel model;
+
    /**
     * Creates new form GUI
+    *
     * @param model The LogicModel to use
     */
    public GUI(LogicModel model)
@@ -41,7 +46,7 @@ public class GUI extends javax.swing.JFrame implements Observer
       this.model.addObserver(this);
       //Set the layout of the gui
       SpringLayout springLayout = new SpringLayout();
-      this.getContentPane().setLayout(springLayout);      
+      this.getContentPane().setLayout(springLayout);
       initComponents();
    }
 
@@ -59,6 +64,10 @@ public class GUI extends javax.swing.JFrame implements Observer
       txtFieldInput = new javax.swing.JTextField();
       btnChooseFile = new javax.swing.JButton();
       lblTitle = new javax.swing.JLabel();
+      jScrollPane1 = new javax.swing.JScrollPane();
+      listSchools = new javax.swing.JList<>();
+      lblList = new javax.swing.JLabel();
+      btnRun = new javax.swing.JButton();
       menuBar = new javax.swing.JMenuBar();
       menuFile = new javax.swing.JMenu();
       menuExit = new javax.swing.JMenuItem();
@@ -78,6 +87,20 @@ public class GUI extends javax.swing.JFrame implements Observer
 
       lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
       lblTitle.setText("Learn by Doing Lab Scheduler");
+
+      jScrollPane1.setViewportView(listSchools);
+
+      lblList.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+      lblList.setText("List of Schools:");
+
+      btnRun.setText("Run");
+      btnRun.addActionListener(new java.awt.event.ActionListener()
+      {
+         public void actionPerformed(java.awt.event.ActionEvent evt)
+         {
+            btnRunActionPerformed(evt);
+         }
+      });
 
       menuFile.setText("File");
 
@@ -103,11 +126,16 @@ public class GUI extends javax.swing.JFrame implements Observer
          .addGroup(layout.createSequentialGroup()
             .addContainerGap()
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+               .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 309, javax.swing.GroupLayout.PREFERRED_SIZE)
+               .addComponent(lblTitle)
                .addGroup(layout.createSequentialGroup()
-                  .addComponent(txtFieldInput, javax.swing.GroupLayout.PREFERRED_SIZE, 348, javax.swing.GroupLayout.PREFERRED_SIZE)
+                  .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                     .addComponent(txtFieldInput, javax.swing.GroupLayout.PREFERRED_SIZE, 348, javax.swing.GroupLayout.PREFERRED_SIZE)
+                     .addComponent(lblList))
                   .addGap(18, 18, 18)
-                  .addComponent(btnChooseFile))
-               .addComponent(lblTitle))
+                  .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                     .addComponent(btnChooseFile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                     .addComponent(btnRun, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
             .addContainerGap(153, Short.MAX_VALUE))
       );
       layout.setVerticalGroup(
@@ -119,7 +147,13 @@ public class GUI extends javax.swing.JFrame implements Observer
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                .addComponent(txtFieldInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                .addComponent(btnChooseFile))
-            .addContainerGap(417, Short.MAX_VALUE))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+               .addComponent(lblList)
+               .addComponent(btnRun))
+            .addGap(4, 4, 4)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 353, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addContainerGap(22, Short.MAX_VALUE))
       );
 
       pack();
@@ -133,11 +167,29 @@ public class GUI extends javax.swing.JFrame implements Observer
    private void btnChooseFileActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnChooseFileActionPerformed
    {//GEN-HEADEREND:event_btnChooseFileActionPerformed
       inputFileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+      FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel Files", "xlsx", "xls", "csv");
+      inputFileChooser.setFileFilter(filter);
       inputFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
       inputFileChooser.showOpenDialog(this);
       txtFieldInput.setText(inputFileChooser.getSelectedFile().getAbsolutePath());
    }//GEN-LAST:event_btnChooseFileActionPerformed
 
+   private void btnRunActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnRunActionPerformed
+   {//GEN-HEADEREND:event_btnRunActionPerformed
+      model.readExcelFile(txtFieldInput.getText());
+      populateSchoolList();
+   }//GEN-LAST:event_btnRunActionPerformed
+
+   private void populateSchoolList()
+   {
+      DefaultListModel<String> listModel = new DefaultListModel<>();
+      for (School sch : model.getSchoolList())
+      {
+         listModel.addElement(sch.getName());
+      }
+      listSchools.setModel(listModel);
+   }
+   
    /**
     * @param model A passed in logic model.
     */
@@ -173,14 +225,14 @@ public class GUI extends javax.swing.JFrame implements Observer
    @Override
    public void update(Observable o, Object arg)
    {
-      System.out.println((String)arg);
+      System.out.println((String) arg);
    }
 
    /**
     * A small calendar for picking dates. Code was copied and modified from
     * http://www.javacodex.com/Swing/Swing-Calendar
-    *  
-    * @author Daniel Yao, JavaCodex 
+    *
+    * @author Daniel Yao, JavaCodex
     * @year 2016
     */
    class SwingCalendar extends JFrame
@@ -228,7 +280,10 @@ public class GUI extends javax.swing.JFrame implements Observer
          panel.add(label, BorderLayout.CENTER);
          panel.add(b2, BorderLayout.EAST);
 
-         String[] columns = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+         String[] columns =
+         {
+            "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+         };
          model = new DefaultTableModel(null, columns);
          JTable table = new JTable(model);
          JScrollPane pane = new JScrollPane(table);
@@ -264,12 +319,16 @@ public class GUI extends javax.swing.JFrame implements Observer
 
       }
    }
-      
-   
+
+
    // Variables declaration - do not modify//GEN-BEGIN:variables
    private javax.swing.JButton btnChooseFile;
+   private javax.swing.JButton btnRun;
    private javax.swing.JFileChooser inputFileChooser;
+   private javax.swing.JScrollPane jScrollPane1;
+   private javax.swing.JLabel lblList;
    private javax.swing.JLabel lblTitle;
+   private javax.swing.JList<String> listSchools;
    private javax.swing.JMenuBar menuBar;
    private javax.swing.JMenuItem menuExit;
    private javax.swing.JMenu menuFile;

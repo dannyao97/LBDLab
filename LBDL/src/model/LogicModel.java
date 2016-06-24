@@ -19,16 +19,19 @@ import org.apache.poi.ss.usermodel.CreationHelper;
  */
 public class LogicModel extends Observable
 {
-   /* The workbook that is read. */
+   /** The workbook that is read */
    XSSFWorkbook wb;
-   /* The current excel spreadsheet. */
+   /** The current excel spreadsheet */
    XSSFSheet sheet;
-   /* The map of available days. Column index is the key */
+   /** The map of available days. Column index is the key */
    protected HashMap<Integer, Day> dayList;
+   /** A list of all the schools */
+   protected ArrayList<School> schoolList;
 
    public LogicModel()
    {
       dayList = new HashMap<>();
+      schoolList = new ArrayList<>();
    }
 
    /**
@@ -55,22 +58,17 @@ public class LogicModel extends Observable
       }
       catch (IOException | InvalidFormatException e)
       {
-         e.printStackTrace();
+         notify("Error: Could not open file.");
       }
    }
 
    private void readXLFile(String filename) throws FileNotFoundException, IOException, InvalidFormatException
    {
-
       XSSFWorkbook wb = new XSSFWorkbook(new File(filename));
-      XSSFSheet sheet = wb.getSheetAt(0);
-
+      XSSFSheet wkSheet = wb.getSheetAt(0);
       XSSFRow xlrow;
-      XSSFCell cell;
-
       int numRows; // Num of rows
-      numRows = sheet.getPhysicalNumberOfRows();
-
+      numRows = wkSheet.getPhysicalNumberOfRows();
       int numCols = 0; // Num of columns
       int tmp = 0;
 
@@ -78,47 +76,106 @@ public class LogicModel extends Observable
       // from first few rows
       for (int i = 0; i < 10 || i < numRows; i++)
       {
-         xlrow = sheet.getRow(i);
+         xlrow = wkSheet.getRow(i);
          if (xlrow != null)
          {
-            tmp = sheet.getRow(i).getPhysicalNumberOfCells();
+            tmp = wkSheet.getRow(i).getPhysicalNumberOfCells();
             if (tmp > numCols)
             {
                numCols = tmp;
             }
          }
       }
-
       //Initialize available days from first row of sheet
-      initializeDayList(sheet.getRow(0), numCols);
-      
-      // For every row in the sheet starting from row 2
+      initializeDayList(wkSheet.getRow(0), numCols);
+
+      // For every row in the sheet starting from the second row
       for (int row = 1; row < numRows; row++)
       {
-         xlrow = sheet.getRow(row);
-
+         xlrow = wkSheet.getRow(row);
          if (xlrow != null)
          {
-            // For every column in the row
-            for (int col = 0; col < numCols; col++)
-            {
-               cell = xlrow.getCell(col);
-               if (cell != null)
-               {
-                  // Code goes here
-                  //System.out.println("Row: " + row + " Col: " + col);
-                  // System.out.printf("Row: %3d Col: %3d\n -Value: %s\n", row,
-                  // col, cell.toString());
-               }
-            }
+            parseSchool(xlrow, numCols);
          }
       }
       wb.close();
    }
 
-   private void parseFile()
+   /**
+    * Reads and stores each school from each row.
+    *
+    * @param xlRow The row to use.
+    * @param totalSchools The total number of schools.
+    */
+   private void parseSchool(XSSFRow xlRow, int totalSchools)
    {
-
+      XSSFCell cell;
+      School school = new School();
+      // For every column in the row
+      for (int col = 0; col < totalSchools; col++)
+      {
+         cell = xlRow.getCell(col);
+         if (cell != null)
+         {
+            //SWITCH over each column
+            switch (col)
+            {
+               case 0:  //Priority
+                  school.priority = Double.valueOf(cell.toString());
+                  break;
+               case 1:  //School Name
+                  school.name = cell.toString();
+                  break;
+               case 2:  //Previously visited
+                  if (cell.toString().toLowerCase().contains("no"))
+                  {
+                     school.visited = false;
+                  }
+                  break;
+               case 3:  //Grade levels
+                  //Ignoring grade levels
+                  break;
+               case 4:  //Total from dup schools
+                  //Ignoring total from duplicate schools
+                  break;
+               case 5:  //Number of students
+                  school.numStudents = new Double(cell.getNumericCellValue()).intValue();
+                  break;
+               case 6:  //Extraneous split
+                  break;
+               case 7:  //Split
+                  if (new Double(cell.getNumericCellValue()).intValue() == 1)
+                  {
+                     school.split = true;
+                  }
+                  break;
+               case 8:  //Split numbers
+                  for (String num : cell.toString().split(","))
+                  {
+                     if (!num.equals(""))
+                     {
+                        school.splitNums.add(Double.valueOf(num).intValue());
+                     }
+                  }
+                  break;
+               case 36: //Spring break
+                  break;
+               case 37: //Last day of school
+                  break;
+               case 38: //Comments
+                  school.comments = cell.getStringCellValue();
+                  break;
+               default: //Check available dates. Cols 9 - 35 inclusive
+                  if ((col > 8 && col < 36) && !cell.toString().equals("") &&
+                     (Double.valueOf(cell.getNumericCellValue()).intValue() == 1))
+                  {
+                     school.addDay(dayList.get(col));
+                  }
+                  break;
+            }
+         }
+      }
+      schoolList.add(school);
    }
 
    /**
@@ -210,4 +267,12 @@ public class LogicModel extends Observable
       wb.close();
    }
 
+   /**
+    * Returns the list of schools.
+    * @return The list of schools.
+    */
+   public ArrayList<School> getSchoolList()
+   {
+      return schoolList;
+   }
 }

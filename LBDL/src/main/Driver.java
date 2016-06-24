@@ -18,7 +18,6 @@ public class Driver
       LogicModel model = new LogicModel();
       //Start up the gui
       GUI.main(model);
-      model.readExcelFile(args[0]);
       //model.writeExcelFile("fakestring");
    }
 
