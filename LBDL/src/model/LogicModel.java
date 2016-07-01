@@ -1,11 +1,10 @@
 package model;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.Observable;
 import java.util.*;
 
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 /**
@@ -17,7 +16,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 public class LogicModel extends Observable
 {
    /** The map of available days. Column index is the key */
-   protected HashMap<Integer, Day> dayList;
+   protected static HashMap<Integer, Day> dayList;
    /** A list of all the schools */
    protected ArrayList<School> schoolList;
    /** An object to perform operations on the excel file */
@@ -76,7 +75,61 @@ public class LogicModel extends Observable
    }
 
    /**
+    * (NOT OPTIMAL) Fills up first available day with schools and 
+    * then moves onto the next day.
+    *
+    * @pre schoolList is already sorted by priority.
+    */
+   public void fastAlgorithm()
+   {
+      HashMap<Integer, Day> days = new HashMap<>(dayList);
+      ListIterator iter;
+      boolean scheduled;
+      Day curDay;
+      Day curSchoolDay;
+      int totalStudents = 0;
+      int totalSchools = 0;
+
+      //FOR EACH school in the SchoolList
+      for (School curSchool : schoolList)
+      {
+         scheduled = false;
+         iter = curSchool.availDates.listIterator();
+
+         //WHILE school still has available days and hasn't been scheduled
+         while (iter.hasNext() && !scheduled)
+         {
+            curSchoolDay = (Day) iter.next();
+            curDay = days.get(curSchoolDay.index);
+
+            //IF day has enough seats remaining, add school
+            if (curSchool.numStudents <= curDay.getSeats())
+            {
+               curDay.addSchool(curSchool);
+               curSchool.actualDay = curDay.date;
+               scheduled = true;
+               totalStudents += curSchool.numStudents;
+               totalSchools += 1;
+            }
+         }
+      }
+
+      SimpleDateFormat formatter = new SimpleDateFormat("MM-dd");
+      for (School current : schoolList)
+      {
+         if (current.actualDay != null)
+         {
+            String date = formatter.format(current.actualDay.getTime());
+            System.out.println(current.name + "  :  " + date);
+         }
+      }
+      System.out.println("TOTAL SEATED: " + totalStudents);
+      System.out.println("TOTAL SCHOOL: " + totalSchools);
+   }
+
+   /**
     * Returns the list of schools.
+    *
     * @return The list of schools.
     */
    public ArrayList<School> getSchoolList()

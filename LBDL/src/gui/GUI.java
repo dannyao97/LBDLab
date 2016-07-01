@@ -68,6 +68,7 @@ public class GUI extends javax.swing.JFrame implements Observer
       listSchools = new javax.swing.JList<>();
       lblList = new javax.swing.JLabel();
       btnRun = new javax.swing.JButton();
+      btnFastAlg = new javax.swing.JButton();
       menuBar = new javax.swing.JMenuBar();
       menuFile = new javax.swing.JMenu();
       menuExit = new javax.swing.JMenuItem();
@@ -75,6 +76,8 @@ public class GUI extends javax.swing.JFrame implements Observer
       setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
       setTitle("Learn by Doing Lab Scheduler");
       setMinimumSize(new java.awt.Dimension(500, 500));
+
+      txtFieldInput.setText("C:\\Users\\dyao\\Documents\\NetBeansProjects\\LBDLab\\LBDL\\testInput.xlsx");
 
       btnChooseFile.setText("Choose File");
       btnChooseFile.addActionListener(new java.awt.event.ActionListener()
@@ -102,6 +105,15 @@ public class GUI extends javax.swing.JFrame implements Observer
          }
       });
 
+      btnFastAlg.setText("Fast Algorithm");
+      btnFastAlg.addActionListener(new java.awt.event.ActionListener()
+      {
+         public void actionPerformed(java.awt.event.ActionEvent evt)
+         {
+            btnFastAlgActionPerformed(evt);
+         }
+      });
+
       menuFile.setText("File");
 
       menuExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.ALT_MASK));
@@ -126,17 +138,23 @@ public class GUI extends javax.swing.JFrame implements Observer
          .addGroup(layout.createSequentialGroup()
             .addContainerGap()
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-               .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 309, javax.swing.GroupLayout.PREFERRED_SIZE)
-               .addComponent(lblTitle)
+               .addGroup(layout.createSequentialGroup()
+                  .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 309, javax.swing.GroupLayout.PREFERRED_SIZE)
+                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                  .addComponent(btnFastAlg))
                .addGroup(layout.createSequentialGroup()
                   .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                     .addComponent(txtFieldInput, javax.swing.GroupLayout.PREFERRED_SIZE, 348, javax.swing.GroupLayout.PREFERRED_SIZE)
-                     .addComponent(lblList))
-                  .addGap(18, 18, 18)
-                  .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                     .addComponent(btnChooseFile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                     .addComponent(btnRun, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-            .addContainerGap(153, Short.MAX_VALUE))
+                     .addComponent(lblTitle)
+                     .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                           .addComponent(txtFieldInput, javax.swing.GroupLayout.PREFERRED_SIZE, 348, javax.swing.GroupLayout.PREFERRED_SIZE)
+                           .addComponent(lblList))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                           .addComponent(btnChooseFile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                           .addComponent(btnRun, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                  .addGap(0, 141, Short.MAX_VALUE)))
+            .addContainerGap())
       );
       layout.setVerticalGroup(
          layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -152,7 +170,9 @@ public class GUI extends javax.swing.JFrame implements Observer
                .addComponent(lblList)
                .addComponent(btnRun))
             .addGap(4, 4, 4)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 353, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+               .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 353, javax.swing.GroupLayout.PREFERRED_SIZE)
+               .addComponent(btnFastAlg))
             .addContainerGap(22, Short.MAX_VALUE))
       );
 
@@ -179,6 +199,11 @@ public class GUI extends javax.swing.JFrame implements Observer
       model.readExcelFile(txtFieldInput.getText());
       populateSchoolList();
    }//GEN-LAST:event_btnRunActionPerformed
+
+   private void btnFastAlgActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnFastAlgActionPerformed
+   {//GEN-HEADEREND:event_btnFastAlgActionPerformed
+      model.fastAlgorithm();
+   }//GEN-LAST:event_btnFastAlgActionPerformed
 
    private void populateSchoolList()
    {
@@ -323,6 +348,7 @@ public class GUI extends javax.swing.JFrame implements Observer
 
    // Variables declaration - do not modify//GEN-BEGIN:variables
    private javax.swing.JButton btnChooseFile;
+   private javax.swing.JButton btnFastAlg;
    private javax.swing.JButton btnRun;
    private javax.swing.JFileChooser inputFileChooser;
    private javax.swing.JScrollPane jScrollPane1;

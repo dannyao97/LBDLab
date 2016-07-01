@@ -26,6 +26,8 @@ public class School
    protected String comments;
    /** If school has visited before. Default is true */
    protected boolean visited;
+   /** The scheduled day for this school */
+   protected Calendar actualDay;
 
    /**
     * Creates a School object to represent a school.
@@ -37,6 +39,7 @@ public class School
       this.comments = "";
       this.visited = true;
       this.split = false;
+      this.actualDay = null;
    }
 
    /**

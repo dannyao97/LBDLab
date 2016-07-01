@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -71,7 +73,19 @@ public class ExcelHandler
             parseSchool(xlrow, numCols);
          }
       }
-      wb.close();
+
+      sortPriority();
+   }
+   
+   private void sortPriority()
+   {
+      Collections.sort(model.schoolList, new Comparator<School>() {
+        @Override
+        public int compare(School s1, School s2)
+        {
+            return Double.compare(s1.priority, s2.priority);
+        }
+      });      
    }
    
    /**

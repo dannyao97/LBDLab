@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Form version="1.3" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
+<Form version="1.8" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <NonVisualComponents>
     <Component class="javax.swing.JFileChooser" name="inputFileChooser">
     </Component>
@@ -57,21 +57,30 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane1" min="-2" pref="309" max="-2" attributes="0"/>
-                  <Component id="lblTitle" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Component id="jScrollPane1" min="-2" pref="309" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
+                      <Component id="btnFastAlg" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="txtFieldInput" alignment="0" min="-2" pref="348" max="-2" attributes="0"/>
-                          <Component id="lblList" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="lblTitle" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="txtFieldInput" alignment="0" min="-2" pref="348" max="-2" attributes="0"/>
+                                  <Component id="lblList" alignment="0" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                  <Component id="btnChooseFile" max="32767" attributes="0"/>
+                                  <Component id="btnRun" max="32767" attributes="0"/>
+                              </Group>
+                          </Group>
                       </Group>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="btnChooseFile" max="32767" attributes="0"/>
-                          <Component id="btnRun" max="32767" attributes="0"/>
-                      </Group>
+                      <EmptySpace min="0" pref="141" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="153" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -91,7 +100,10 @@
                   <Component id="btnRun" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-              <Component id="jScrollPane1" min="-2" pref="353" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jScrollPane1" min="-2" pref="353" max="-2" attributes="0"/>
+                  <Component id="btnFastAlg" min="-2" max="-2" attributes="0"/>
+              </Group>
               <EmptySpace pref="22" max="32767" attributes="0"/>
           </Group>
       </Group>
@@ -99,6 +111,9 @@
   </Layout>
   <SubComponents>
     <Component class="javax.swing.JTextField" name="txtFieldInput">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="C:\u005cUsers\u005cdyao\u005cDocuments\u005cNetBeansProjects\u005cLBDLab\u005cLBDL\u005ctestInput.xlsx" containsInvalidXMLChars="true"/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="btnChooseFile">
       <Properties>
@@ -149,6 +164,14 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRunActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="btnFastAlg">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Fast Algorithm"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnFastAlgActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>
