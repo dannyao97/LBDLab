@@ -23,6 +23,8 @@ public class LogicModel extends Observable
    private final ExcelHandler xlHandler;
    /** The total number of days */
    public final int TotalDays = 27;
+   /** The total number of students per day */
+   public final int TotalKids = 110;
 
    public LogicModel()
    {
@@ -155,29 +157,73 @@ public class LogicModel extends Observable
    public void knapsack()
    {
       ArrayList<Integer> order = randOrder(1);
-      ArrayList<HashMap> eachDay = listEachDay();
+      ArrayList<ArrayList<School>> eachDay = listEachDay();
+      Double[][] dynTable;
+      int numItems;
+      int item, weight, sWeight, sIndex;
+      double sValue;
       
+      //FOR EACH list of schools in a day
+      //for (ArrayList arrList : eachDay)
+      //{
+      ArrayList<School> temp = eachDay.get(0);
+      numItems = temp.size();
+      dynTable = initializeDynTable(numItems);
+      sIndex = 0;
       
+      //FOR all items
+      for (item = 1; item <= numItems; item++)
+      {
+         sWeight = temp.get(sIndex).numStudents;
+         sValue = temp.get(sIndex).priority;
+         
+         //FOR all weights
+         for (weight = 1; weight <= TotalKids; weight++)
+         {
+            
+         }
+      }
+         
+      //}
+   }
+   
+   private Double[][] initializeDynTable(int items)
+   {
+      //Add 1 because 10 items should go from 0 - 10 inclusive
+      Double[][] table = new Double[items + 1][TotalKids + 1];
+      int i;
+      
+      //Set top row to 0's
+      for (i = 0; i <= TotalKids; i++)
+      {
+         table[0][i] = 0.0;
+      }
+      //Set first column to 0's
+      for (i = 0; i <= items; i++)
+      {
+         table[i][0] = 0.0;
+      }
+      return table;
    }
    
    //Generates a list of available schools for each day. A school can be in 
    //multiple days.
-   private ArrayList<HashMap> listEachDay()
+   private ArrayList<ArrayList<School>> listEachDay()
    {
-      ArrayList<HashMap> arr = new ArrayList<>();
-      HashMap<Integer, Day> hash;
+      ArrayList<ArrayList<School>> arr = new ArrayList<>();
+      ArrayList<School> listSchools;
       
       for (Day day : dayList.values())
       {
-         hash = new HashMap<>();
+         listSchools = new ArrayList<>();
          for (School school : schoolList)
          {
             if (school.availDates.contains(day))
             {
-               hash.put(day.index, day);
+               listSchools.add(school);
             }
          }
-         arr.add(hash);
+         arr.add(listSchools);
       }
       return arr;
    }
@@ -188,13 +234,14 @@ public class LogicModel extends Observable
       ArrayList<Integer> arr = new ArrayList<>();
       Random rand = new Random(seed);
       int randNum;
-      boolean randExists = true;
+      boolean randExists;
       
       for (int i = 0; i < TotalDays; i++)
       {
+         randExists = true;
          do
          {
-            randNum = rand.nextInt(TotalDays + 1);
+            randNum = rand.nextInt(TotalDays) + 1;
             if (!arr.contains(randNum))
             {
                arr.add(randNum);
