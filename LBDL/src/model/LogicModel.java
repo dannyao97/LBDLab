@@ -161,7 +161,7 @@ public class LogicModel extends Observable
       Double[][] dynTable;
       int numItems;
       int item, weight, sWeight, sIndex;
-      double sValue;
+      double sValue, newValue, prevValue;
       
       //FOR EACH list of schools in a day
       //for (ArrayList arrList : eachDay)
@@ -180,7 +180,24 @@ public class LogicModel extends Observable
          //FOR all weights
          for (weight = 1; weight <= TotalKids; weight++)
          {
-            
+            //IF item can be part of solution
+            if (sWeight <= weight)
+            {
+               newValue = sValue + dynTable[item - 1][weight - sWeight];
+               prevValue = dynTable[item - 1][weight];
+               if (newValue > prevValue)
+               {
+                  dynTable[item][weight] = newValue;
+               }
+               else
+               {
+                  dynTable[item][weight] = prevValue;
+               }
+            }
+            else
+            {
+               dynTable[item][weight] = dynTable[item - 1][weight];
+            }
          }
       }
          
