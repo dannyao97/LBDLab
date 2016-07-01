@@ -98,6 +98,7 @@ public class ExcelHandler
    {
       XSSFCell cell;
       School school = new School();
+      int dayCount = 0;
       // For every column in the row
       for (int col = 0; col < totalSchools; col++)
       {
@@ -156,8 +157,9 @@ public class ExcelHandler
                   if ((col > 8 && col < 36) && !cell.toString().equals("") &&
                      (Double.valueOf(cell.getNumericCellValue()).intValue() == 1))
                   {
-                     school.addDay(model.dayList.get(col));
+                     school.addDay(model.dayList.get(dayCount));
                   }
+                  dayCount++;
                   break;
             }
          }
@@ -174,6 +176,8 @@ public class ExcelHandler
    {
       //First date starts at column 9
       int index = 9;
+      //Count of days
+      int dayCount = 0;
       //HARDCODED 27 dates. Last date col = 9 + 27
       int numDates = 36;
       //The current cell
@@ -200,7 +204,7 @@ public class ExcelHandler
          }
          else
          {
-            Day newDay = new Day(index);
+            Day newDay = new Day(dayCount++);
             //Get the month, subtract 1 because index starts at 0
             int month = Integer.valueOf(cellDate.split("/")[0]) - 1;
             //Get the day

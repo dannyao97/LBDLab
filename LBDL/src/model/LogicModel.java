@@ -16,11 +16,13 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 public class LogicModel extends Observable
 {
    /** The map of available days. Column index is the key */
-   protected static HashMap<Integer, Day> dayList;
+   protected HashMap<Integer, Day> dayList;
    /** A list of all the schools */
    protected ArrayList<School> schoolList;
    /** An object to perform operations on the excel file */
    private final ExcelHandler xlHandler;
+   /** The total number of days */
+   public final int TotalDays = 27;
 
    public LogicModel()
    {
@@ -89,6 +91,9 @@ public class LogicModel extends Observable
       Day curSchoolDay;
       int totalStudents = 0;
       int totalSchools = 0;
+      
+      //DEBUG LINE
+      ArrayList<School> unAdded = new ArrayList<>();
 
       //FOR EACH school in the SchoolList
       for (School curSchool : schoolList)
@@ -112,8 +117,15 @@ public class LogicModel extends Observable
                totalSchools += 1;
             }
          }
+         
+         //DEBUG
+         if (!scheduled)
+         {
+            unAdded.add(curSchool);
+         }
       }
 
+      //DEBUG PORTION
       SimpleDateFormat formatter = new SimpleDateFormat("MM-dd");
       for (School current : schoolList)
       {
@@ -125,8 +137,74 @@ public class LogicModel extends Observable
       }
       System.out.println("TOTAL SEATED: " + totalStudents);
       System.out.println("TOTAL SCHOOL: " + totalSchools);
+      
+      System.out.println("\n-----REMAINING DAYS-----");
+      for (Day d : days.values())
+      {
+         String date = formatter.format(d.date.getTime());
+         System.out.println(date + "  :  " + d.getSeats());
+      }
+      
+      System.out.println("\n-----UNADDED-----");
+      for (School s : unAdded)
+      {
+         System.out.println(s.name + "  :  " + s.numStudents);
+      }
    }
 
+   public void knapsack()
+   {
+      ArrayList<Integer> order = randOrder(1);
+      ArrayList<HashMap> eachDay = listEachDay();
+      
+      
+   }
+   
+   //Generates a list of available schools for each day. A school can be in 
+   //multiple days.
+   private ArrayList<HashMap> listEachDay()
+   {
+      ArrayList<HashMap> arr = new ArrayList<>();
+      HashMap<Integer, Day> hash;
+      
+      for (Day day : dayList.values())
+      {
+         hash = new HashMap<>();
+         for (School school : schoolList)
+         {
+            if (school.availDates.contains(day))
+            {
+               hash.put(day.index, day);
+            }
+         }
+         arr.add(hash);
+      }
+      return arr;
+   }
+   
+   //Returns a random order in which the knapsacks will be filled.
+   private ArrayList<Integer> randOrder(int seed)
+   {
+      ArrayList<Integer> arr = new ArrayList<>();
+      Random rand = new Random(seed);
+      int randNum;
+      boolean randExists = true;
+      
+      for (int i = 0; i < TotalDays; i++)
+      {
+         do
+         {
+            randNum = rand.nextInt(TotalDays + 1);
+            if (!arr.contains(randNum))
+            {
+               arr.add(randNum);
+               randExists = false;
+            }
+         } while(randExists);
+      }
+      return arr;
+   }
+   
    /**
     * Returns the list of schools.
     *

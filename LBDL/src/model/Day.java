@@ -17,7 +17,7 @@ public class Day
    private ArrayList<School> schools;
    /** The max number of students that can attend */
    private int maxStudents;
-   /** The date's column in the excel sheet */
+   /** The dates column in the excel sheet */
    protected int index;
    /** Remaining seats left */
    private int seatsLeft;
@@ -25,14 +25,14 @@ public class Day
    /**
     * Creates a day object to hold schools.
     * 
-    * @param column The index of the day in LogicModel's dayList.
+    * @param index The index of the day in LogicModel's dayList.
     */
-   public Day(int column)
+   public Day(int index)
    {
       this.schools = new ArrayList<>();
       this.maxStudents = 110;
       this.seatsLeft = this.maxStudents;
-      this.index = column;
+      this.index = index;
    }
    
    /**
