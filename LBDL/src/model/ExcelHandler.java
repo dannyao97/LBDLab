@@ -204,7 +204,7 @@ public class ExcelHandler
          }
          else
          {
-            Day newDay = new Day(dayCount++);
+            Day newDay = new Day(dayCount);
             //Get the month, subtract 1 because index starts at 0
             int month = Integer.valueOf(cellDate.split("/")[0]) - 1;
             //Get the day
@@ -214,7 +214,7 @@ public class ExcelHandler
             //Set the date for the day
             newDay.date.set(year, month, day);
             //Add date to the map
-            model.dayList.put(index, newDay);
+            model.dayList.put(dayCount++, newDay);
          }
       }
    }
