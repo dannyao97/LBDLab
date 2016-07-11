@@ -111,8 +111,8 @@ public class ExcelHandler
             switch (col)
             {
                case 0:  //Priority
-                  //Multiply by -1 to reorder priority. Lowest value is now biggest value.
-                  school.priority = Double.valueOf(cell.toString()) * -1;
+                  //Subtract from 100 to reorder priority. Lowest value is now biggest value/priority.
+                  school.priority = 100.0 - Double.valueOf(cell.toString());
                   break;
                case 1:  //School Name
                   school.name = cell.toString();

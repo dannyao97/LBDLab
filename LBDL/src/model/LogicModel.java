@@ -25,12 +25,18 @@ public class LogicModel extends Observable
    public final int TotalDays = 27;
    /** The total number of students per day */
    public final int TotalKids = 110;
+   /** A list of schools that can make each day */
+   protected ArrayList<ArrayList<School>> mainSchedule;
+   /** The number of students seated in total */
+   private int seated;
 
    public LogicModel()
    {
       dayList = new HashMap<>();
       schoolList = new ArrayList<>();
+      mainSchedule = new ArrayList<>();
       xlHandler = new ExcelHandler(this);
+      seated = 0;
    }
 
    /**
@@ -79,8 +85,8 @@ public class LogicModel extends Observable
    }
 
    /**
-    * (NOT OPTIMAL) Fills up first available day with schools and 
-    * then moves onto the next day.
+    * (NOT OPTIMAL) Fills up first available day with schools and then moves
+    * onto the next day.
     *
     * @pre schoolList is already sorted by priority.
     */
@@ -93,7 +99,7 @@ public class LogicModel extends Observable
       Day curSchoolDay;
       int totalStudents = 0;
       int totalSchools = 0;
-      
+
       //DEBUG LINE
       ArrayList<School> unAdded = new ArrayList<>();
 
@@ -119,7 +125,7 @@ public class LogicModel extends Observable
                totalSchools += 1;
             }
          }
-         
+
          //DEBUG
          if (!scheduled)
          {
@@ -139,14 +145,14 @@ public class LogicModel extends Observable
       }
       System.out.println("TOTAL SEATED: " + totalStudents);
       System.out.println("TOTAL SCHOOL: " + totalSchools);
-      
+
       System.out.println("\n-----REMAINING DAYS-----");
       for (Day d : days.values())
       {
          String date = formatter.format(d.date.getTime());
          System.out.println(date + "  :  " + d.getSeats());
       }
-      
+
       System.out.println("\n-----UNADDED-----");
       for (School s : unAdded)
       {
@@ -159,103 +165,136 @@ public class LogicModel extends Observable
     */
    public void knapsack()
    {
-      ArrayList<Integer> order = randOrder(1);
+      ArrayList<Integer> order = randOrder(2);
       ArrayList<ArrayList<School>> eachDay = listEachDay();
+      ArrayList<School> daySchedule;
       Double[][] dynTable;
       int numItems;
       //s**** = property of current school
       //sIndex = school, sWeight = # kids per school, sValue = priority
       int item, weight, sWeight, sIndex;
       double sValue, newValue, prevValue;
-      
-      //FOR EACH list of schools in each day
-      //for (ArrayList arrList : eachDay)
-      //{
-      ArrayList<School> availSchools = eachDay.get(0);   //List of available schools for this day
-      numItems = availSchools.size();
-      dynTable = initializeDynTable(numItems);
-      
-      //FOR all items starting at 1 (inclusive) and school in list starting at 0
-      for (item = 1, sIndex = 0; item <= numItems; item++, sIndex++)
+
+      //FOR EACH integer in order (The order in which to fill each day)
+      for (Integer ord : order)
       {
-         sWeight = availSchools.get(sIndex).numStudents;
-         sValue = availSchools.get(sIndex).priority;
-         
-         //FOR all weights
-         for (weight = 1; weight <= TotalKids; weight++)
+         ArrayList<School> availSchools = eachDay.get(ord - 1);   //List of available schools for this day
+         numItems = availSchools.size();
+         dynTable = initializeDynTable(numItems);
+
+         //FOR all items starting at 1 (inclusive) and school in list starting at 0
+         for (item = 1, sIndex = 0; item <= numItems; item++, sIndex++)
          {
-            //IF item can be part of solution
-            if (sWeight <= weight)
+            sWeight = availSchools.get(sIndex).numStudents;
+            sValue = availSchools.get(sIndex).priority;
+
+            //FOR all weights
+            for (weight = 1; weight <= TotalKids; weight++)
             {
-               newValue = dynTable[item - 1][weight - sWeight] - sValue;
-               prevValue = dynTable[item - 1][weight];
-               if (newValue > prevValue)
+               //IF item can be part of solution
+               if (sWeight <= weight)
                {
-                  dynTable[item][weight] = newValue;
+                  newValue = dynTable[item - 1][weight - sWeight] + sValue;
+                  prevValue = dynTable[item - 1][weight];
+                  if (newValue > prevValue)
+                  {
+                     dynTable[item][weight] = newValue;
+                  }
+                  else
+                  {
+                     dynTable[item][weight] = prevValue;
+                  }
                }
                else
                {
-                  dynTable[item][weight] = prevValue;
+                  dynTable[item][weight] = dynTable[item - 1][weight];
                }
             }
-            else
+         }
+
+         //DEBUG
+         /*System.out.print(".........");
+         for (int k = 0; k <= TotalKids; k++)
+         {
+            System.out.printf("%7.2f|", new Double(k));
+         }
+         System.out.println();
+         for (int i = 0; i <= numItems; i++)
+         {
+            System.out.printf("ROW %2d:  \n", i);
+            if (i < numItems)
             {
-               dynTable[item][weight] = dynTable[item - 1][weight];
+               //System.out.println("SCHOOL: " + availSchools.get(i).name);
+            }
+            for (int j = 0; j <= TotalKids; j++)
+            {
+               System.out.printf("%7.2f|", dynTable[i][j]);
+            }
+            System.out.println();
+         }*/
+         //Add day schedule ot the main schedule
+         daySchedule = chooseSchedule(dynTable, availSchools, numItems);
+         mainSchedule.add(daySchedule);
+
+         //Remove added schools from overall list
+         for (School addedSchool : daySchedule)
+         {
+            //FOR each arraylist in the lists for each day
+            for (ArrayList eachDayList : eachDay)
+            {
+               //IF list contains school, remove it.
+               if (eachDayList.contains(addedSchool))
+               {
+                  //System.out.println("REMOVED: " + addedSchool.name);
+                  eachDayList.remove(addedSchool);
+               }
             }
          }
       }
-      
+
       //DEBUG
-      System.out.print(".........");
-      for (int k = 0; k <= TotalKids; k++)
+      System.out.println("print schedule");
+      int count = 1;
+      for (ArrayList<School> solution : mainSchedule)
       {
-         System.out.printf("%7f|", new Double(k));
-      }
-      System.out.println();
-      for (int i = 0; i <= numItems; i++)
-      {
-         System.out.printf("ROW %2d:  \n", i);
-         if (i < numItems)
-            System.out.println("SCHOOL: " + availSchools.get(i).name);
-         for (int j = 0; j <= TotalKids; j++)
+         System.out.printf("Day: %2d\n", count++);
+         for (School schSchool : solution)
          {
-            System.out.printf("%7f|", dynTable[i][j]);
+            System.out.printf("--%s\n", schSchool.name);
          }
-         System.out.println();
       }
-      chooseSchedule(dynTable, availSchools, numItems);
-         
-      //}
+      System.out.println("SEATED: " + seated);
    }
-   
+
    private ArrayList<School> chooseSchedule(Double[][] dynTable, ArrayList<School> availSchools, int numItems)
    {
       ArrayList<School> schedule = new ArrayList<>();
       School selected;
       int weight = TotalKids;
-      
+
       //WHILE weight & items both > 0
-      while(numItems > 0 && weight > 0)
+      while (numItems > 0 && weight > 0)
       {
          //IF values are not equal with epsilon .01 Compare doubles to 2nd decimal
          if (Math.abs(Math.abs(dynTable[numItems][weight]) - Math.abs(dynTable[numItems - 1][weight])) >= .01)
          {
             selected = availSchools.get(numItems - 1);
             weight -= selected.numStudents;
+            seated += selected.numStudents;
             schedule.add(selected);
          }
-         numItems--;         
+         numItems--;
       }
-      
+
       return schedule;
    }
-   
+
    /**
-    * Initializes the dynamic table. The entire row 0 and the entire column 0 is 
-    * filled with -100's. -100 is the lowest value.
-    * 
+    * Initializes the dynamic table. The entire row 0 and the entire column 0 is
+    * filled with 0's. 0 is the lowest value/priority.
+    *
     * @param items The total number of items. (y-axis)
-    * 
+    *
     * @return A table to hold weights
     */
    private Double[][] initializeDynTable(int items)
@@ -263,27 +302,27 @@ public class LogicModel extends Observable
       //Add 1 because 10 items should go from 0 - 10 inclusive
       Double[][] table = new Double[items + 1][TotalKids + 1];
       int i;
-      
+
       //Set top row to 0's
       for (i = 0; i <= TotalKids; i++)
       {
-         table[0][i] = -100.0;
+         table[0][i] = 0.0;
       }
       //Set first column to 0's
       for (i = 0; i <= items; i++)
       {
-         table[i][0] = -100.0;
+         table[i][0] = 0.0;
       }
       return table;
    }
-   
+
    //Generates a list of available schools for each day. A school can be in 
    //multiple days.
    private ArrayList<ArrayList<School>> listEachDay()
    {
       ArrayList<ArrayList<School>> arr = new ArrayList<>();
       ArrayList<School> listSchools;
-      
+
       for (Day day : dayList.values())
       {
          listSchools = new ArrayList<>();
@@ -298,7 +337,7 @@ public class LogicModel extends Observable
       }
       return arr;
    }
-   
+
    //Returns a random order in which the knapsacks will be filled.
    private ArrayList<Integer> randOrder(int seed)
    {
@@ -306,7 +345,7 @@ public class LogicModel extends Observable
       Random rand = new Random(seed);
       int randNum;
       boolean randExists;
-      
+
       for (int i = 0; i < TotalDays; i++)
       {
          randExists = true;
@@ -318,11 +357,12 @@ public class LogicModel extends Observable
                arr.add(randNum);
                randExists = false;
             }
-         } while(randExists);
+         }
+         while (randExists);
       }
       return arr;
    }
-   
+
    /**
     * Returns the list of schools.
     *
