@@ -29,6 +29,8 @@ public class LogicModel extends Observable
    protected ArrayList<ArrayList<School>> mainSchedule;
    /** The number of students seated in total */
    private int seated;
+   /** The temporary number of seated students */
+   private int tempSeated;
 
    public LogicModel()
    {
@@ -165,9 +167,11 @@ public class LogicModel extends Observable
     */
    public void knapsack()
    {
-      ArrayList<Integer> order = randOrder(2);
+      ArrayList<Integer> order;
       ArrayList<ArrayList<School>> eachDay = listEachDay();
+      ArrayList<ArrayList<School>> tempEachDay = new ArrayList<>();
       ArrayList<School> daySchedule;
+      ArrayList<School> tempDayList;
       Double[][] dynTable;
       int numItems;
       //s**** = property of current school
@@ -175,45 +179,62 @@ public class LogicModel extends Observable
       int item, weight, sWeight, sIndex;
       double sValue, newValue, prevValue;
 
-      //FOR EACH integer in order (The order in which to fill each day)
-      for (Integer ord : order)
+      //RUN 100 iterations to find most seated students
+      for (int iter = 0; iter < 1000; iter++)
       {
-         ArrayList<School> availSchools = eachDay.get(ord - 1);   //List of available schools for this day
-         numItems = availSchools.size();
-         dynTable = initializeDynTable(numItems);
-
-         //FOR all items starting at 1 (inclusive) and school in list starting at 0
-         for (item = 1, sIndex = 0; item <= numItems; item++, sIndex++)
+         order = randOrder(iter);
+         //Copy eachDay into a temporary arraylist
+         tempEachDay.clear();
+         for (ArrayList<School> arr : eachDay)
          {
-            sWeight = availSchools.get(sIndex).numStudents;
-            sValue = availSchools.get(sIndex).priority;
-
-            //FOR all weights
-            for (weight = 1; weight <= TotalKids; weight++)
+            tempDayList = new ArrayList<>();
+            for (School sch : arr)
             {
-               //IF item can be part of solution
-               if (sWeight <= weight)
+               tempDayList.add(sch);
+            }
+            tempEachDay.add(tempDayList);
+         }
+         tempSeated = 0;
+
+         //FOR EACH integer in order (The order in which to fill each day)
+         for (Integer ord : order)
+         {
+            ArrayList<School> availSchools = tempEachDay.get(ord - 1);   //List of available schools for this day
+            numItems = availSchools.size();
+            dynTable = initializeDynTable(numItems);
+
+            //FOR all items starting at 1 (inclusive) and school in list starting at 0
+            for (item = 1, sIndex = 0; item <= numItems; item++, sIndex++)
+            {
+               sWeight = availSchools.get(sIndex).numStudents;
+               sValue = availSchools.get(sIndex).priority;
+
+               //FOR all weights
+               for (weight = 1; weight <= TotalKids; weight++)
                {
-                  newValue = dynTable[item - 1][weight - sWeight] + sValue;
-                  prevValue = dynTable[item - 1][weight];
-                  if (newValue > prevValue)
+                  //IF item can be part of solution
+                  if (sWeight <= weight)
                   {
-                     dynTable[item][weight] = newValue;
+                     newValue = dynTable[item - 1][weight - sWeight] + sValue;
+                     prevValue = dynTable[item - 1][weight];
+                     if (newValue > prevValue)
+                     {
+                        dynTable[item][weight] = newValue;
+                     }
+                     else
+                     {
+                        dynTable[item][weight] = prevValue;
+                     }
                   }
                   else
                   {
-                     dynTable[item][weight] = prevValue;
+                     dynTable[item][weight] = dynTable[item - 1][weight];
                   }
                }
-               else
-               {
-                  dynTable[item][weight] = dynTable[item - 1][weight];
-               }
             }
-         }
 
-         //DEBUG
-         /*System.out.print(".........");
+            //DEBUG
+            /*System.out.print(".........");
          for (int k = 0; k <= TotalKids; k++)
          {
             System.out.printf("%7.2f|", new Double(k));
@@ -232,28 +253,28 @@ public class LogicModel extends Observable
             }
             System.out.println();
          }*/
-         //Add day schedule ot the main schedule
-         daySchedule = chooseSchedule(dynTable, availSchools, numItems);
-         mainSchedule.add(daySchedule);
+            //Add day schedule ot the main schedule
+            daySchedule = chooseSchedule(dynTable, availSchools, numItems);
+            mainSchedule.add(daySchedule);
 
-         //Remove added schools from overall list
-         for (School addedSchool : daySchedule)
-         {
-            //FOR each arraylist in the lists for each day
-            for (ArrayList eachDayList : eachDay)
+            //Remove added schools from overall list
+            for (School addedSchool : daySchedule)
             {
-               //IF list contains school, remove it.
-               if (eachDayList.contains(addedSchool))
+               //FOR each arraylist in the lists for each day
+               for (ArrayList eachDayList : tempEachDay)
                {
-                  //System.out.println("REMOVED: " + addedSchool.name);
-                  eachDayList.remove(addedSchool);
+                  //IF list contains school, remove it.
+                  if (eachDayList.contains(addedSchool))
+                  {
+                     //System.out.println("REMOVED: " + addedSchool.name);
+                     eachDayList.remove(addedSchool);
+                  }
                }
             }
          }
-      }
 
-      //DEBUG
-      System.out.println("print schedule");
+         //DEBUG
+         /*System.out.println("print schedule");
       int count = 1;
       for (ArrayList<School> solution : mainSchedule)
       {
@@ -262,8 +283,16 @@ public class LogicModel extends Observable
          {
             System.out.printf("--%s\n", schSchool.name);
          }
+      }*/
+         //System.out.printf("ITER: %3d | SEATED: %d\n", iter, tempSeated);
+         //System.out.println("ITER: " + iter);
+         if (tempSeated > seated)
+         {
+            seated = tempSeated;
+            System.out.println("----------------SEATED: " + seated);
+         }
       }
-      System.out.println("SEATED: " + seated);
+      System.out.println("END.");
    }
 
    private ArrayList<School> chooseSchedule(Double[][] dynTable, ArrayList<School> availSchools, int numItems)
@@ -280,7 +309,7 @@ public class LogicModel extends Observable
          {
             selected = availSchools.get(numItems - 1);
             weight -= selected.numStudents;
-            seated += selected.numStudents;
+            tempSeated += selected.numStudents;
             schedule.add(selected);
          }
          numItems--;
