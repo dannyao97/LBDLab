@@ -74,18 +74,20 @@ public class ExcelHandler
          }
       }
 
-      sortPriority();
-   }
-   
-   private void sortPriority()
-   {
+      //Sort the list by priority
       Collections.sort(model.schoolList, new Comparator<School>() {
         @Override
         public int compare(School s1, School s2)
         {
             return Double.compare(s1.priority, s2.priority);
         }
-      });      
+      }); 
+      
+      //DEBUG
+      for (School s : model.schoolList)
+      {
+         System.out.printf("%6.2f | %s\n", s.priority, s.name);
+      }
    }
    
    /**
@@ -109,7 +111,8 @@ public class ExcelHandler
             switch (col)
             {
                case 0:  //Priority
-                  school.priority = Double.valueOf(cell.toString());
+                  //Multiply by -1 to reorder priority. Lowest value is now biggest value.
+                  school.priority = Double.valueOf(cell.toString()) * -1;
                   break;
                case 1:  //School Name
                   school.name = cell.toString();

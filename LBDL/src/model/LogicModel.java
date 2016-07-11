@@ -154,28 +154,32 @@ public class LogicModel extends Observable
       }
    }
 
+   /**
+    * Generates schedules using the knapsack algorithm.
+    */
    public void knapsack()
    {
       ArrayList<Integer> order = randOrder(1);
       ArrayList<ArrayList<School>> eachDay = listEachDay();
       Double[][] dynTable;
       int numItems;
+      //s**** = property of current school
+      //sIndex = school, sWeight = # kids per school, sValue = priority
       int item, weight, sWeight, sIndex;
       double sValue, newValue, prevValue;
       
-      //FOR EACH list of schools in a day
+      //FOR EACH list of schools in each day
       //for (ArrayList arrList : eachDay)
       //{
-      ArrayList<School> temp = eachDay.get(0);
-      numItems = temp.size();
+      ArrayList<School> availSchools = eachDay.get(0);   //List of available schools for this day
+      numItems = availSchools.size();
       dynTable = initializeDynTable(numItems);
-      sIndex = 0;
       
-      //FOR all items
-      for (item = 1; item <= numItems; item++)
+      //FOR all items starting at 1 (inclusive) and school in list starting at 0
+      for (item = 1, sIndex = 0; item <= numItems; item++, sIndex++)
       {
-         sWeight = temp.get(sIndex).numStudents;
-         sValue = temp.get(sIndex).priority;
+         sWeight = availSchools.get(sIndex).numStudents;
+         sValue = availSchools.get(sIndex).priority;
          
          //FOR all weights
          for (weight = 1; weight <= TotalKids; weight++)
@@ -183,7 +187,7 @@ public class LogicModel extends Observable
             //IF item can be part of solution
             if (sWeight <= weight)
             {
-               newValue = sValue + dynTable[item - 1][weight - sWeight];
+               newValue = dynTable[item - 1][weight - sWeight] - sValue;
                prevValue = dynTable[item - 1][weight];
                if (newValue > prevValue)
                {
@@ -200,10 +204,60 @@ public class LogicModel extends Observable
             }
          }
       }
+      
+      //DEBUG
+      System.out.print(".........");
+      for (int k = 0; k <= TotalKids; k++)
+      {
+         System.out.printf("%7f|", new Double(k));
+      }
+      System.out.println();
+      for (int i = 0; i <= numItems; i++)
+      {
+         System.out.printf("ROW %2d:  \n", i);
+         if (i < numItems)
+            System.out.println("SCHOOL: " + availSchools.get(i).name);
+         for (int j = 0; j <= TotalKids; j++)
+         {
+            System.out.printf("%7f|", dynTable[i][j]);
+         }
+         System.out.println();
+      }
+      chooseSchedule(dynTable, availSchools, numItems);
          
       //}
    }
    
+   private ArrayList<School> chooseSchedule(Double[][] dynTable, ArrayList<School> availSchools, int numItems)
+   {
+      ArrayList<School> schedule = new ArrayList<>();
+      School selected;
+      int weight = TotalKids;
+      
+      //WHILE weight & items both > 0
+      while(numItems > 0 && weight > 0)
+      {
+         //IF values are not equal with epsilon .01 Compare doubles to 2nd decimal
+         if (Math.abs(Math.abs(dynTable[numItems][weight]) - Math.abs(dynTable[numItems - 1][weight])) >= .01)
+         {
+            selected = availSchools.get(numItems - 1);
+            weight -= selected.numStudents;
+            schedule.add(selected);
+         }
+         numItems--;         
+      }
+      
+      return schedule;
+   }
+   
+   /**
+    * Initializes the dynamic table. The entire row 0 and the entire column 0 is 
+    * filled with -100's. -100 is the lowest value.
+    * 
+    * @param items The total number of items. (y-axis)
+    * 
+    * @return A table to hold weights
+    */
    private Double[][] initializeDynTable(int items)
    {
       //Add 1 because 10 items should go from 0 - 10 inclusive
@@ -213,12 +267,12 @@ public class LogicModel extends Observable
       //Set top row to 0's
       for (i = 0; i <= TotalKids; i++)
       {
-         table[0][i] = 0.0;
+         table[0][i] = -100.0;
       }
       //Set first column to 0's
       for (i = 0; i <= items; i++)
       {
-         table[i][0] = 0.0;
+         table[i][0] = -100.0;
       }
       return table;
    }
