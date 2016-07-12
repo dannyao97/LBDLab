@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.*;
 
 /**
- * Contains information regarding the who can come on a certain date.
+ * Contains information regarding who can come on a certain date.
  * 
  * @author Daniel Yao
  * @year 2016

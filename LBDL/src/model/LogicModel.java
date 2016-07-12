@@ -8,7 +8,7 @@ import java.util.*;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 /**
- * Logic model performs logic and notifies the GUI.
+ * Logic model performs all scheduling logic and notifies the GUI.
  *
  * @author Daniel Yao
  * @year 2016
@@ -275,7 +275,7 @@ System.out.println();
 }*/
 //</editor-fold>
             
-//Add day schedule ot the main schedule
+            //Add day schedule to the main schedule
             daySchedule = chooseSchedule(dynTable, availSchools, numItems);
             mainSchedule.put(ord, daySchedule);
 
