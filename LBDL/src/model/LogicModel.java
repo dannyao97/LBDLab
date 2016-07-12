@@ -31,6 +31,8 @@ public class LogicModel extends Observable
    private int seated;
    /** The temporary number of seated students */
    private int tempSeated;
+   /** The total number of schools scheduled */
+   private int seatedSchools; 
 
    public LogicModel()
    {
@@ -39,6 +41,7 @@ public class LogicModel extends Observable
       mainSchedule = new ArrayList<>();
       xlHandler = new ExcelHandler(this);
       seated = 0;
+      seatedSchools = 0;
    }
 
    /**
@@ -99,8 +102,8 @@ public class LogicModel extends Observable
       boolean scheduled;
       Day curDay;
       Day curSchoolDay;
-      int totalStudents = 0;
-      int totalSchools = 0;
+      seated = 0;
+      seatedSchools = 0;
 
       //DEBUG LINE
       ArrayList<School> unAdded = new ArrayList<>();
@@ -123,8 +126,8 @@ public class LogicModel extends Observable
                curDay.addSchool(curSchool);
                curSchool.actualDay = curDay.date;
                scheduled = true;
-               totalStudents += curSchool.numStudents;
-               totalSchools += 1;
+               seated += curSchool.numStudents;
+               seatedSchools += 1;
             }
          }
 
@@ -145,8 +148,8 @@ public class LogicModel extends Observable
             System.out.println(current.name + "  :  " + date);
          }
       }
-      System.out.println("TOTAL SEATED: " + totalStudents);
-      System.out.println("TOTAL SCHOOL: " + totalSchools);
+      System.out.println("TOTAL SEATED: " + seated);
+      System.out.println("TOTAL SCHOOL: " + seatedSchools);
 
       System.out.println("\n-----REMAINING DAYS-----");
       for (Day d : days.values())
@@ -160,6 +163,8 @@ public class LogicModel extends Observable
       {
          System.out.println(s.name + "  :  " + s.numStudents);
       }
+      
+      notify("<br>-Seated Students: " + seated + "<br>-Schools: " + seatedSchools);
    }
 
    /**
@@ -195,6 +200,7 @@ public class LogicModel extends Observable
             tempEachDay.add(tempDayList);
          }
          tempSeated = 0;
+         seatedSchools = 0;
 
          //FOR EACH integer in order (The order in which to fill each day)
          for (Integer ord : order)
@@ -293,6 +299,7 @@ public class LogicModel extends Observable
          }
       }
       System.out.println("END.");
+      notify("\n-Seated Students: " + seated + "\n-Schools: " + seatedSchools);
    }
 
    private ArrayList<School> chooseSchedule(Double[][] dynTable, ArrayList<School> availSchools, int numItems)
@@ -310,6 +317,7 @@ public class LogicModel extends Observable
             selected = availSchools.get(numItems - 1);
             weight -= selected.numStudents;
             tempSeated += selected.numStudents;
+            seatedSchools++;
             schedule.add(selected);
          }
          numItems--;

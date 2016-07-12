@@ -70,6 +70,7 @@ public class GUI extends javax.swing.JFrame implements Observer
       btnRun = new javax.swing.JButton();
       btnFastAlg = new javax.swing.JButton();
       btnKnapSack = new javax.swing.JButton();
+      lblDebug = new javax.swing.JLabel();
       menuBar = new javax.swing.JMenuBar();
       menuFile = new javax.swing.JMenu();
       menuExit = new javax.swing.JMenuItem();
@@ -106,7 +107,7 @@ public class GUI extends javax.swing.JFrame implements Observer
          }
       });
 
-      btnFastAlg.setText("Fast Algorithm");
+      btnFastAlg.setText("Brute Force Algorithm");
       btnFastAlg.addActionListener(new java.awt.event.ActionListener()
       {
          public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -123,6 +124,9 @@ public class GUI extends javax.swing.JFrame implements Observer
             btnKnapSackActionPerformed(evt);
          }
       });
+
+      lblDebug.setText("DEBUG:");
+      lblDebug.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
       menuFile.setText("File");
 
@@ -150,10 +154,16 @@ public class GUI extends javax.swing.JFrame implements Observer
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                .addGroup(layout.createSequentialGroup()
                   .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 309, javax.swing.GroupLayout.PREFERRED_SIZE)
-                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                  .addGap(18, 18, 18)
                   .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                     .addComponent(btnKnapSack, javax.swing.GroupLayout.Alignment.TRAILING)
-                     .addComponent(btnFastAlg, javax.swing.GroupLayout.Alignment.TRAILING)))
+                     .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 122, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                           .addComponent(btnKnapSack, javax.swing.GroupLayout.Alignment.TRAILING)
+                           .addComponent(btnFastAlg, javax.swing.GroupLayout.Alignment.TRAILING)))
+                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblDebug, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))))
                .addGroup(layout.createSequentialGroup()
                   .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                      .addComponent(lblTitle)
@@ -187,7 +197,9 @@ public class GUI extends javax.swing.JFrame implements Observer
                .addGroup(layout.createSequentialGroup()
                   .addComponent(btnFastAlg)
                   .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                  .addComponent(btnKnapSack)))
+                  .addComponent(btnKnapSack)
+                  .addGap(21, 21, 21)
+                  .addComponent(lblDebug, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)))
             .addContainerGap(22, Short.MAX_VALUE))
       );
 
@@ -270,7 +282,7 @@ public class GUI extends javax.swing.JFrame implements Observer
    @Override
    public void update(Observable o, Object arg)
    {
-      System.out.println((String) arg);
+      lblDebug.setText("<html>DEBUG: <br>" + (String)arg + "</html>");
    }
 
    /**
@@ -373,6 +385,7 @@ public class GUI extends javax.swing.JFrame implements Observer
    private javax.swing.JButton btnRun;
    private javax.swing.JFileChooser inputFileChooser;
    private javax.swing.JScrollPane jScrollPane1;
+   private javax.swing.JLabel lblDebug;
    private javax.swing.JLabel lblList;
    private javax.swing.JLabel lblTitle;
    private javax.swing.JList<String> listSchools;
