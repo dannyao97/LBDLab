@@ -84,10 +84,12 @@ public class ExcelHandler
       }); 
       
       //DEBUG
-      for (School s : model.schoolList)
-      {
-         System.out.printf("%6.2f | %s\n", s.priority, s.name);
-      }
+//<editor-fold defaultstate="collapsed" desc="DEBUG Print Priority/Name">
+for (School s : model.schoolList)
+{
+   System.out.printf("%6.2f | %s\n", s.priority, s.name);
+}
+//</editor-fold>
    }
    
    /**
@@ -110,37 +112,53 @@ public class ExcelHandler
             //SWITCH over each column
             switch (col)
             {
-               case 0:  //Priority
+               //Priority
+               case 0:
                   //Subtract from 100 to reorder priority. Lowest value is now biggest value/priority.
                   school.priority = 100.0 - Double.valueOf(cell.toString());
                   break;
-               case 1:  //School Name
+                  
+               //School Name
+               case 1:
                   school.name = cell.toString();
                   break;
-               case 2:  //Previously visited
+               
+               //Previously visited
+               case 2:
                   if (cell.toString().toLowerCase().contains("no"))
                   {
                      school.visited = false;
                   }
                   break;
-               case 3:  //Grade levels
+                  
+               //Grade levels
+               case 3:
                   //Ignoring grade levels
                   break;
-               case 4:  //Total from dup schools
+               //Total from dup schools
+               case 4:
                   //Ignoring total from duplicate schools
                   break;
-               case 5:  //Number of students
+                  
+               //Number of students
+               case 5:
                   school.numStudents = new Double(cell.getNumericCellValue()).intValue();
                   break;
-               case 6:  //Extraneous split
+                  
+               //Extraneous split
+               case 6:
                   break;
-               case 7:  //Split
+                  
+                //Split
+               case 7:
                   if (new Double(cell.getNumericCellValue()).intValue() == 1)
                   {
                      school.split = true;
                   }
                   break;
-               case 8:  //Split numbers
+                  
+                //Split numbers
+               case 8:
                   for (String num : cell.toString().split(","))
                   {
                      if (!num.equals(""))
@@ -149,6 +167,7 @@ public class ExcelHandler
                      }
                   }
                   break;
+                  
                case 36: //Spring break
                   break;
                case 37: //Last day of school
@@ -156,7 +175,9 @@ public class ExcelHandler
                case 38: //Comments
                   school.comments = cell.getStringCellValue();
                   break;
-               default: //Check available dates. Cols 9 - 35 inclusive
+                  
+               //Check available dates. Cols 9 - 35 inclusive
+               default:
                   if ((col > 8 && col < 36) && !cell.toString().equals("") &&
                      (Double.valueOf(cell.getNumericCellValue()).intValue() == 1))
                   {

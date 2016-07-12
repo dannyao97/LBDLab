@@ -98,7 +98,7 @@ public class GUI extends javax.swing.JFrame implements Observer
       lblList.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
       lblList.setText("List of Schools:");
 
-      btnRun.setText("Run");
+      btnRun.setText("Read File");
       btnRun.addActionListener(new java.awt.event.ActionListener()
       {
          public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -157,13 +157,13 @@ public class GUI extends javax.swing.JFrame implements Observer
                   .addGap(18, 18, 18)
                   .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                      .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 122, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                           .addComponent(btnKnapSack, javax.swing.GroupLayout.Alignment.TRAILING)
-                           .addComponent(btnFastAlg, javax.swing.GroupLayout.Alignment.TRAILING)))
-                     .addGroup(layout.createSequentialGroup()
                         .addComponent(lblDebug, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                           .addComponent(btnFastAlg, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                           .addComponent(btnKnapSack, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
                .addGroup(layout.createSequentialGroup()
                   .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                      .addComponent(lblTitle)
@@ -192,13 +192,14 @@ public class GUI extends javax.swing.JFrame implements Observer
                .addComponent(lblList)
                .addComponent(btnRun))
             .addGap(4, 4, 4)
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 353, javax.swing.GroupLayout.PREFERRED_SIZE)
                .addGroup(layout.createSequentialGroup()
+                  .addGap(13, 13, 13)
                   .addComponent(btnFastAlg)
                   .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                   .addComponent(btnKnapSack)
-                  .addGap(21, 21, 21)
+                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                   .addComponent(lblDebug, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)))
             .addContainerGap(22, Short.MAX_VALUE))
       );

@@ -19,26 +19,29 @@ public class LogicModel extends Observable
    protected HashMap<Integer, Day> dayList;
    /** A list of all the schools */
    protected ArrayList<School> schoolList;
+   /** A list of schools that MUST be added */
+   protected ArrayList<School> mustAdd;
    /** An object to perform operations on the excel file */
    private final ExcelHandler xlHandler;
    /** The total number of days */
    public final int TotalDays = 27;
    /** The total number of students per day */
    public final int TotalKids = 110;
-   /** A list of schools that can make each day */
-   protected ArrayList<ArrayList<School>> mainSchedule;
+   /** A list of schools that can make each day, key=day index */
+   protected HashMap<Integer, ArrayList<School>> mainSchedule;
    /** The number of students seated in total */
    private int seated;
    /** The temporary number of seated students */
    private int tempSeated;
    /** The total number of schools scheduled */
-   private int seatedSchools; 
-
+   private int seatedSchools;   
+   
    public LogicModel()
    {
       dayList = new HashMap<>();
       schoolList = new ArrayList<>();
-      mainSchedule = new ArrayList<>();
+      mustAdd = new ArrayList<>();
+      mainSchedule = new HashMap<>();
       xlHandler = new ExcelHandler(this);
       seated = 0;
       seatedSchools = 0;
@@ -139,6 +142,7 @@ public class LogicModel extends Observable
       }
 
       //DEBUG PORTION
+//<editor-fold defaultstate="collapsed" desc="DEBUG Brute Force">
       SimpleDateFormat formatter = new SimpleDateFormat("MM-dd");
       for (School current : schoolList)
       {
@@ -150,14 +154,14 @@ public class LogicModel extends Observable
       }
       System.out.println("TOTAL SEATED: " + seated);
       System.out.println("TOTAL SCHOOL: " + seatedSchools);
-
+      
       System.out.println("\n-----REMAINING DAYS-----");
       for (Day d : days.values())
       {
          String date = formatter.format(d.date.getTime());
          System.out.println(date + "  :  " + d.getSeats());
       }
-
+      
       System.out.println("\n-----UNADDED-----");
       for (School s : unAdded)
       {
@@ -165,6 +169,7 @@ public class LogicModel extends Observable
       }
       
       notify("<br>-Seated Students: " + seated + "<br>-Schools: " + seatedSchools);
+//</editor-fold>
    }
 
    /**
@@ -172,14 +177,22 @@ public class LogicModel extends Observable
     */
    public void knapsack()
    {
+      //The order in which to fill the days
       ArrayList<Integer> order;
+      //A list of available schools for each Day
       ArrayList<ArrayList<School>> eachDay = listEachDay();
+      //A temporary list of available schools for each day. 
+      //Copies eachDay array for each iteration
       ArrayList<ArrayList<School>> tempEachDay = new ArrayList<>();
+      //The list of schools available for a certain day
       ArrayList<School> daySchedule;
+      //A temporary list of schools available for a certain day
       ArrayList<School> tempDayList;
+      //The dynamic table to represent a day.
       Double[][] dynTable;
+      //Total items in the dynTable (based on schools available for a day
       int numItems;
-      //s**** = property of current school
+
       //sIndex = school, sWeight = # kids per school, sValue = priority
       int item, weight, sWeight, sIndex;
       double sValue, newValue, prevValue;
@@ -240,28 +253,31 @@ public class LogicModel extends Observable
             }
 
             //DEBUG
-            /*System.out.print(".........");
-         for (int k = 0; k <= TotalKids; k++)
-         {
-            System.out.printf("%7.2f|", new Double(k));
-         }
-         System.out.println();
-         for (int i = 0; i <= numItems; i++)
-         {
-            System.out.printf("ROW %2d:  \n", i);
-            if (i < numItems)
-            {
-               //System.out.println("SCHOOL: " + availSchools.get(i).name);
-            }
-            for (int j = 0; j <= TotalKids; j++)
-            {
-               System.out.printf("%7.2f|", dynTable[i][j]);
-            }
-            System.out.println();
-         }*/
-            //Add day schedule ot the main schedule
+//<editor-fold defaultstate="collapsed" desc="DEBUG Print DynTable">
+/*System.out.print(".........");
+for (int k = 0; k <= TotalKids; k++)
+{
+System.out.printf("%7.2f|", new Double(k));
+}
+System.out.println();
+for (int i = 0; i <= numItems; i++)
+{
+System.out.printf("ROW %2d:  \n", i);
+if (i < numItems)
+{
+//System.out.println("SCHOOL: " + availSchools.get(i).name);
+}
+for (int j = 0; j <= TotalKids; j++)
+{
+System.out.printf("%7.2f|", dynTable[i][j]);
+}
+System.out.println();
+}*/
+//</editor-fold>
+            
+//Add day schedule ot the main schedule
             daySchedule = chooseSchedule(dynTable, availSchools, numItems);
-            mainSchedule.add(daySchedule);
+            mainSchedule.put(ord, daySchedule);
 
             //Remove added schools from overall list
             for (School addedSchool : daySchedule)
@@ -280,28 +296,39 @@ public class LogicModel extends Observable
          }
 
          //DEBUG
-         /*System.out.println("print schedule");
-      int count = 1;
-      for (ArrayList<School> solution : mainSchedule)
-      {
-         System.out.printf("Day: %2d\n", count++);
-         for (School schSchool : solution)
-         {
-            System.out.printf("--%s\n", schSchool.name);
-         }
-      }*/
-         //System.out.printf("ITER: %3d | SEATED: %d\n", iter, tempSeated);
-         //System.out.println("ITER: " + iter);
+//<editor-fold defaultstate="collapsed" desc="DEBUG Print Day Schedule">
+/*System.out.println("print schedule");
+int count = 1;
+for (ArrayList<School> solution : mainSchedule)
+{
+System.out.printf("Day: %2d\n", count++);
+for (School schSchool : solution)
+{
+System.out.printf("--%s\n", schSchool.name);
+}
+}*/
+//System.out.printf("ITER: %3d | SEATED: %d\n", iter, tempSeated);
+//System.out.println("ITER: " + iter);
+//</editor-fold>
+         
          if (tempSeated > seated)
          {
             seated = tempSeated;
-            System.out.println("----------------SEATED: " + seated);
          }
       }
       System.out.println("END.");
-      notify("\n-Seated Students: " + seated + "\n-Schools: " + seatedSchools);
+      notify("<br>-Seated Students: " + seated + "<br>-Schools: " + seatedSchools);
    }
-
+   
+   /**
+    * Chooses which schools will be the most optimal solution (Most kids)
+    * 
+    * @param dynTable The dynamic table to choose from representing a day.
+    * @param availSchools The list of available schools for this day.
+    * @param numItems The total number of schools available for this day.
+    * 
+    * @return An ArrayList of schools that are scheduled for this day.
+    */
    private ArrayList<School> chooseSchedule(Double[][] dynTable, ArrayList<School> availSchools, int numItems)
    {
       ArrayList<School> schedule = new ArrayList<>();
@@ -322,7 +349,7 @@ public class LogicModel extends Observable
          }
          numItems--;
       }
-
+      
       return schedule;
    }
 
@@ -353,13 +380,17 @@ public class LogicModel extends Observable
       return table;
    }
 
-   //Generates a list of available schools for each day. A school can be in 
-   //multiple days.
+   /**
+    * Generates a list of available schools for each day. A school can be in 
+    * multiple days.
+    * 
+    * @return A list of lists containing schools available for a day.
+    */
    private ArrayList<ArrayList<School>> listEachDay()
    {
       ArrayList<ArrayList<School>> arr = new ArrayList<>();
       ArrayList<School> listSchools;
-
+      
       for (Day day : dayList.values())
       {
          listSchools = new ArrayList<>();
@@ -375,14 +406,20 @@ public class LogicModel extends Observable
       return arr;
    }
 
-   //Returns a random order in which the knapsacks will be filled.
+   /**
+    * Returns a random order in which the days will be filled.
+    * 
+    * @param seed A seed for the random number generator
+    * 
+    * @return A list representing the order to schedule the schools.
+    */
    private ArrayList<Integer> randOrder(int seed)
    {
       ArrayList<Integer> arr = new ArrayList<>();
       Random rand = new Random(seed);
       int randNum;
       boolean randExists;
-
+      
       for (int i = 0; i < TotalDays; i++)
       {
          randExists = true;
