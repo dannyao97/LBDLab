@@ -1,5 +1,6 @@
 package model;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.*;
 
@@ -21,6 +22,8 @@ public class Day
    protected int index;
    /** Remaining seats left */
    private int seatsLeft;
+   /** Formats the date to a readable format */
+   private SimpleDateFormat formatter;
 
    /**
     * Creates a day object to hold schools.
@@ -33,6 +36,7 @@ public class Day
       this.maxStudents = 110;
       this.seatsLeft = this.maxStudents;
       this.index = index;
+      this.formatter = new SimpleDateFormat("EEE. MMM d, yyyy");
    }
    
    /**
@@ -54,5 +58,16 @@ public class Day
    public int getSeats()
    {
       return seatsLeft;
+   }
+   
+   /**
+    * Returns the date as a readable string.
+    * 
+    * @return The date this Day represents.
+    */
+   @Override
+   public String toString()
+   {
+      return formatter.format(date.getTime());
    }
 }

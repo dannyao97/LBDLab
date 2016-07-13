@@ -34,8 +34,8 @@ public class LogicModel extends Observable
    /** The temporary number of seated students */
    private int tempSeated;
    /** The total number of schools scheduled */
-   private int seatedSchools;   
-   
+   private int seatedSchools;
+
    public LogicModel()
    {
       dayList = new HashMap<>();
@@ -154,20 +154,20 @@ public class LogicModel extends Observable
       }
       System.out.println("TOTAL SEATED: " + seated);
       System.out.println("TOTAL SCHOOL: " + seatedSchools);
-      
+
       System.out.println("\n-----REMAINING DAYS-----");
       for (Day d : days.values())
       {
          String date = formatter.format(d.date.getTime());
          System.out.println(date + "  :  " + d.getSeats());
       }
-      
+
       System.out.println("\n-----UNADDED-----");
       for (School s : unAdded)
       {
          System.out.println(s.name + "  :  " + s.numStudents);
       }
-      
+
       notify("<br>-Seated Students: " + seated + "<br>-Schools: " + seatedSchools);
 //</editor-fold>
    }
@@ -274,7 +274,6 @@ System.out.printf("%7.2f|", dynTable[i][j]);
 System.out.println();
 }*/
 //</editor-fold>
-            
             //Add day schedule to the main schedule
             daySchedule = chooseSchedule(dynTable, availSchools, numItems);
             mainSchedule.put(ord, daySchedule);
@@ -295,38 +294,38 @@ System.out.println();
             }
          }
 
-         //DEBUG
-//<editor-fold defaultstate="collapsed" desc="DEBUG Print Day Schedule">
-/*System.out.println("print schedule");
-int count = 1;
-for (ArrayList<School> solution : mainSchedule)
-{
-System.out.printf("Day: %2d\n", count++);
-for (School schSchool : solution)
-{
-System.out.printf("--%s\n", schSchool.name);
-}
-}*/
-//System.out.printf("ITER: %3d | SEATED: %d\n", iter, tempSeated);
-//System.out.println("ITER: " + iter);
-//</editor-fold>
-         
          if (tempSeated > seated)
          {
             seated = tempSeated;
          }
       }
+         //DEBUG
+//<editor-fold defaultstate="collapsed" desc="DEBUG Print Day Schedule">
+         System.out.println("print schedule");
+         int count = 0;
+         for (ArrayList<School> solution : mainSchedule.values())
+         {
+            System.out.printf("\n%s\n", dayList.get(count++).toString());
+            for (School schSchool : solution)
+            {
+               System.out.printf("  -%s\n", schSchool.name);
+            }
+         }
+//System.out.printf("ITER: %3d | SEATED: %d\n", iter, tempSeated);
+//System.out.println("ITER: " + iter);
+//</editor-fold>
+
       System.out.println("END.");
       notify("<br>-Seated Students: " + seated + "<br>-Schools: " + seatedSchools);
    }
-   
+
    /**
     * Chooses which schools will be the most optimal solution (Most kids)
-    * 
+    *
     * @param dynTable The dynamic table to choose from representing a day.
     * @param availSchools The list of available schools for this day.
     * @param numItems The total number of schools available for this day.
-    * 
+    *
     * @return An ArrayList of schools that are scheduled for this day.
     */
    private ArrayList<School> chooseSchedule(Double[][] dynTable, ArrayList<School> availSchools, int numItems)
@@ -349,7 +348,7 @@ System.out.printf("--%s\n", schSchool.name);
          }
          numItems--;
       }
-      
+
       return schedule;
    }
 
@@ -381,16 +380,16 @@ System.out.printf("--%s\n", schSchool.name);
    }
 
    /**
-    * Generates a list of available schools for each day. A school can be in 
+    * Generates a list of available schools for each day. A school can be in
     * multiple days.
-    * 
+    *
     * @return A list of lists containing schools available for a day.
     */
    private ArrayList<ArrayList<School>> listEachDay()
    {
       ArrayList<ArrayList<School>> arr = new ArrayList<>();
       ArrayList<School> listSchools;
-      
+
       for (Day day : dayList.values())
       {
          listSchools = new ArrayList<>();
@@ -408,9 +407,9 @@ System.out.printf("--%s\n", schSchool.name);
 
    /**
     * Returns a random order in which the days will be filled.
-    * 
+    *
     * @param seed A seed for the random number generator
-    * 
+    *
     * @return A list representing the order to schedule the schools.
     */
    private ArrayList<Integer> randOrder(int seed)
@@ -419,7 +418,7 @@ System.out.printf("--%s\n", schSchool.name);
       Random rand = new Random(seed);
       int randNum;
       boolean randExists;
-      
+
       for (int i = 0; i < TotalDays; i++)
       {
          randExists = true;
