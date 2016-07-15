@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -23,6 +21,8 @@ public class ExcelHandler
 {
    /** A reference to the LogicModel */
    private LogicModel model;
+   /** A map for checking split schools */
+   private HashMap<Integer, School> splitSchools;
    
    public ExcelHandler(LogicModel model)
    {
@@ -103,6 +103,8 @@ for (School s : model.schoolList)
       XSSFCell cell;
       School school = new School();
       int dayCount = 0;
+      
+      
       // For every column in the row
       for (int col = 0; col < totalSchools; col++)
       {

@@ -338,7 +338,7 @@ System.out.println();
       while (numItems > 0 && weight > 0)
       {
          //IF values are not equal with epsilon .01 Compare doubles to 2nd decimal
-         if (Math.abs(Math.abs(dynTable[numItems][weight]) - Math.abs(dynTable[numItems - 1][weight])) >= .01)
+         if (Math.abs(dynTable[numItems][weight] - dynTable[numItems - 1][weight]) >= .01)
          {
             selected = availSchools.get(numItems - 1);
             weight -= selected.numStudents;

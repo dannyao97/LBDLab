@@ -215,7 +215,7 @@ public class GUI extends javax.swing.JFrame implements Observer
    private void btnChooseFileActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnChooseFileActionPerformed
    {//GEN-HEADEREND:event_btnChooseFileActionPerformed
       inputFileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-      FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel Files", "xlsx", "xls", "csv");
+      FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel Files", "xlsx", "xls", "csv", "xlsm");
       inputFileChooser.setFileFilter(filter);
       inputFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
       inputFileChooser.showOpenDialog(this);

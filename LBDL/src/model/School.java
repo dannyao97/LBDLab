@@ -36,6 +36,7 @@ public class School
    {
       this.availDates = new ArrayList<>();
       this.splitNums = new ArrayList<>();
+      this.priority = 100.0;
       this.comments = "";
       this.visited = true;
       this.split = false;
