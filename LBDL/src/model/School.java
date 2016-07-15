@@ -28,7 +28,10 @@ public class School
    protected boolean visited;
    /** The scheduled day for this school */
    protected Calendar actualDay;
-
+   /** A list of schools that are split from this school */
+   protected ArrayList<School> splitSchool;
+   
+   
    /**
     * Creates a School object to represent a school.
     */
@@ -36,6 +39,7 @@ public class School
    {
       this.availDates = new ArrayList<>();
       this.splitNums = new ArrayList<>();
+      this.splitSchool = new ArrayList<>();
       this.priority = 100.0;
       this.comments = "";
       this.visited = true;
@@ -61,5 +65,15 @@ public class School
    public String getName()
    {
       return name;
+   }
+   
+   /**
+    * Adds a new split school to the array.
+    * 
+    * @param s The school to add.
+    */
+   public void addNewSplitSchool(School s)
+   {
+      splitSchool.add(s);
    }
 }

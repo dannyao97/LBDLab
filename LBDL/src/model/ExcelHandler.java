@@ -103,7 +103,7 @@ for (School s : model.schoolList)
       XSSFCell cell;
       School school = new School();
       int dayCount = 0;
-      
+      School exist = null;
       
       // For every column in the row
       for (int col = 0; col < totalSchools; col++)
@@ -118,6 +118,7 @@ for (School s : model.schoolList)
                case 0:
                   //Subtract from 100 to reorder priority. Lowest value is now biggest value/priority.
                   school.priority = 100.0 - Double.valueOf(cell.toString());
+                  exist = checkExist(school.priority);
                   break;
                   
                //School Name
@@ -190,9 +191,36 @@ for (School s : model.schoolList)
             }
          }
       }
-      model.schoolList.add(school);
+      
+      if (exist != null)
+      {
+         exist.addNewSplitSchool(school);
+      }
+      else
+      {
+         model.schoolList.add(school);
+      }
    }
 
+   /**
+    * Check if the current school has the same priority as another already added
+    * school. If yes, then school must've been split.
+    * 
+    * @param chkPrior The priority of the current school to check.
+    * @return The already existing school
+    */
+   private School checkExist(double chkPrior)
+   {
+      for (School added : model.schoolList)
+      {
+         if (Math.abs(chkPrior - added.priority) < 0.1)
+         {
+            return added;
+         }
+      }
+      return null;
+   }
+   
    /**
     * Initialize all the days that are offered.
     *
