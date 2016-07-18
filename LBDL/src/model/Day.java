@@ -70,4 +70,14 @@ public class Day
    {
       return formatter.format(date.getTime());
    }
+   
+   /**
+    * Returns the schools scheduled to come on this day.
+    * 
+    * @return schools The schools going on this day.
+    */
+   public ArrayList<School> getSchools()
+   {
+      return schools;
+   }
 }

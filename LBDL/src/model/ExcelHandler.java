@@ -268,7 +268,7 @@ for (School s : model.schoolList)
             //Set the date for the day
             newDay.date.set(year, month, day);
             //Add date to the map
-            model.dayList.put(dayCount++, newDay);
+            model.dayList.put(++dayCount, newDay);
          }
       }
    }
