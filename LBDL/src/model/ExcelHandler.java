@@ -102,7 +102,7 @@ for (School s : model.schoolList)
    {
       XSSFCell cell;
       School school = new School();
-      int dayCount = 0;
+      int dayCount = 1;
       School exist = null;
       
       // For every column in the row
@@ -252,13 +252,14 @@ for (School s : model.schoolList)
          dateArr = cellDate.split("/");
          if (dateArr.length != 2)
          {
-            model.notify("Bad cell format: Sheet: " + xlRow.getSheet().getSheetName()
-                    + "| Cell(" + xlRow.getRowNum() + ", " + index + ")");
+            model.notifyText = "Bad cell format: Sheet: " + xlRow.getSheet().getSheetName()
+                    + "| Cell(" + xlRow.getRowNum() + ", " + index + ")";
+            model.notify(LogicModel.NotifyCmd.TEXT);
             break;
          }
          else
          {
-            Day newDay = new Day(dayCount);
+            Day newDay = new Day(++dayCount);
             //Get the month, subtract 1 because index starts at 0
             int month = Integer.valueOf(cellDate.split("/")[0]) - 1;
             //Get the day
@@ -268,7 +269,7 @@ for (School s : model.schoolList)
             //Set the date for the day
             newDay.date.set(year, month, day);
             //Add date to the map
-            model.dayList.put(++dayCount, newDay);
+            model.dayList.put(dayCount, newDay);
          }
       }
    }

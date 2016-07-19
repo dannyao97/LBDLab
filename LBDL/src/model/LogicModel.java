@@ -35,6 +35,8 @@ public class LogicModel extends Observable
    private int tempSeated;
    /** The total number of schools scheduled */
    private int seatedSchools;
+   /** Text to notify the GUI */
+   public String notifyText;
 
    public LogicModel()
    {
@@ -47,15 +49,20 @@ public class LogicModel extends Observable
       seatedSchools = 0;
    }
 
+   public enum NotifyCmd
+   {
+      TEXT, LIST;
+   }
+
    /**
     * Notifies the gui with the given object.
     *
-    * @param obj Object to give the gui
+    * @param cmd The command to perform - 1 : Notify Text - 2 : Update List
     */
-   public void notify(Object obj)
+   public void notify(NotifyCmd cmd)
    {
       setChanged();
-      notifyObservers(obj);
+      notifyObservers(cmd);
    }
 
    /**
@@ -71,7 +78,8 @@ public class LogicModel extends Observable
       }
       catch (IOException | InvalidFormatException e)
       {
-         notify("Error: Could not open file.");
+         notifyText = "Error: Could not open file.";
+         notify(NotifyCmd.TEXT);
       }
    }
 
@@ -88,7 +96,8 @@ public class LogicModel extends Observable
       }
       catch (IOException e)
       {
-         notify("Error: Could not write to file.");
+         notifyText = "Error: Could not write to file.";
+         notify(NotifyCmd.TEXT);
       }
    }
 
@@ -168,20 +177,21 @@ public class LogicModel extends Observable
          System.out.println(s.name + "  :  " + s.numStudents);
       }
 
-      notify("<br>-Seated Students: " + seated + "<br>-Schools: " + seatedSchools);
+      notifyText = "<br>-Seated Students: " + seated + "<br>-Schools: " + seatedSchools;
+      notify(NotifyCmd.TEXT);
 //</editor-fold>
    }
-   
+
    /**
     * Copies all keys and values from hash into a new HashMap
-    * 
+    *
     * @param hash
     * @return A new HashMap with duplicate values.
     */
    private HashMap cloneHashMap(HashMap hash)
    {
       HashMap newHash = new HashMap();
-      
+
       for (Object key : hash.keySet())
       {
          newHash.put(key, hash.get(key));
@@ -220,6 +230,12 @@ public class LogicModel extends Observable
       for (int iter = 0; iter < 1000; iter++)
       {
          order = randOrder(iter);
+         //Clear the scheduled schools for each day
+         for (Day newDay : dayList.values())
+         {
+            newDay.clearSchools();
+         }
+
          //Copy eachDay into a temporary arraylist
          tempEachDay.clear();
          for (ArrayList<School> arr : eachDay)
@@ -236,10 +252,10 @@ public class LogicModel extends Observable
 
          //Copy dayList into dayMap
          dayMap.clear();
-         dayMap = cloneHashMap(dayList);
-         
+         //dayMap = cloneHashMap(dayList);
+
          //FOR EACH integer in order (The order in which to fill each day)
-         for (Integer ord : order)
+         for (int ord : order)
          {
             ArrayList<School> availSchools = tempEachDay.get(ord - 1);   //List of available schools for this day
             numItems = availSchools.size();
@@ -316,7 +332,7 @@ System.out.println();
                }
             }
          }
-
+         System.out.println("ITER: " + iter);
          //IF new schedule seated more students
          if (tempSeated > seated)
          {
@@ -324,25 +340,31 @@ System.out.println();
             mainSchedule = cloneHashMap(dayMap);
          }
       }
-         //DEBUG
+      //DEBUG
 //<editor-fold defaultstate="collapsed" desc="DEBUG Print Day Schedule">
-         System.out.println("print schedule");
-         int count = 0;
-         for (Day d : mainSchedule.values())
+      System.out.println("print schedule");
+      int count = 0;
+      for (Day d : mainSchedule.values())
+      {
+         System.out.printf("\n%s\n", mainSchedule.get(++count).toString());
+         for (School schSchool : d.getSchools())
          {
-            System.out.printf("\n%s\n", mainSchedule.get(++count).toString());
-            for (School schSchool : d.getSchools())
-            {
-               System.out.printf("  -%s\n", schSchool.name);
-            }
+            System.out.printf("  -%41s  %3d students\n", schSchool.name, schSchool.numStudents);
          }
+      }
 
+      for (Day day : mainSchedule.values())
+      {
+         System.out.println(day.toString() + "   seatsleft: " + day.getSeats());
+      }
 //System.out.printf("ITER: %3d | SEATED: %d\n", iter, tempSeated);
 //System.out.println("ITER: " + iter);
 //</editor-fold>
 
       System.out.println("END.");
-      notify("<br>-Seated Students: " + seated + "<br>-Schools: " + seatedSchools);
+      notifyText = "<br>-Seated Students: " + seated + "<br>-Schools: " + seatedSchools;
+      notify(NotifyCmd.TEXT);
+      notify(NotifyCmd.LIST);
    }
 
    /**
@@ -359,7 +381,7 @@ System.out.println();
    {
       School selected;
       int weights;
-
+      
       //WHILE weight & items both > 0
       while (numItems > 0 && day.getSeats() > 0)
       {
@@ -371,12 +393,12 @@ System.out.println();
             tempSeated += selected.numStudents;
             seatedSchools++;
             day.addSchool(selected);
-            
+
             //Check if selected school has a split school, not empty
             if (!selected.splitSchool.isEmpty())
             {
                //Add each split school into must add column
-               for (School splitSch: selected.splitSchool)
+               for (School splitSch : selected.splitSchool)
                {
                   mustAdd.add(splitSch);
                }
@@ -452,7 +474,7 @@ System.out.println();
    private ArrayList<Integer> randOrder(int seed)
    {
       ArrayList<Integer> arr = new ArrayList<>();
-      Random rand = new Random(seed);
+      Random rand = new Random();
       int randNum;
       boolean randExists;
 
@@ -481,5 +503,15 @@ System.out.println();
    public ArrayList<School> getSchoolList()
    {
       return schoolList;
+   }
+
+   /**
+    * Returns the main schedule.
+    *
+    * @return The main schedule.
+    */
+   public HashMap getMainSchedule()
+   {
+      return mainSchedule;
    }
 }

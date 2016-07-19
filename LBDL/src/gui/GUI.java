@@ -4,11 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -22,6 +18,8 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import model.CustomComparator;
+import model.Day;
 import model.LogicModel;
 import model.School;
 
@@ -247,7 +245,7 @@ public class GUI extends javax.swing.JFrame implements Observer
       }
       listSchools.setModel(listModel);
    }
-   
+
    /**
     * @param model A passed in logic model.
     */
@@ -283,7 +281,31 @@ public class GUI extends javax.swing.JFrame implements Observer
    @Override
    public void update(Observable o, Object arg)
    {
-      lblDebug.setText("<html>DEBUG: <br>" + (String)arg + "</html>");
+      LogicModel.NotifyCmd cmd = (LogicModel.NotifyCmd) arg;
+
+      //SWITCH over the commands 
+      switch (cmd)
+      {
+         case TEXT:
+            lblDebug.setText("<html>DEBUG: <br>" + model.notifyText + "</html>");
+            break;
+         case LIST:
+            DefaultListModel<String> listModel = new DefaultListModel<>();
+            ArrayList<Day> schedule = new ArrayList<>(model.getMainSchedule().values());
+            //Sort schedule by index
+            Collections.sort(schedule, new CustomComparator());
+            
+            for (Day day : schedule)
+            {
+               listModel.addElement("<html><b>" + day.toString() + "</b></html>");
+               for (School sch : day.getSchools())
+               {
+                  listModel.addElement(sch.getName());
+               }
+            }
+            listSchools.setModel(listModel);
+            break;
+      }
    }
 
    /**

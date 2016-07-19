@@ -39,6 +39,16 @@ public class Day
       this.formatter = new SimpleDateFormat("EEE. MMM d, yyyy");
    }
    
+   public Day(Day newDay)
+   {
+      this.date = newDay.date;
+      this.schools = newDay.schools;
+      this.maxStudents = newDay.maxStudents;
+      this.index = newDay.index;
+      this.seatsLeft = newDay.seatsLeft;
+      this.formatter = newDay.formatter;
+   }
+   
    /**
     * Adds a school to this day.
     * @param newSchool The school to add.
@@ -79,5 +89,14 @@ public class Day
    public ArrayList<School> getSchools()
    {
       return schools;
+   }
+   
+   /**
+    * Clears all scheduled schools for this day.
+    */
+   public void clearSchools()
+   {
+      schools.clear();
+      this.seatsLeft = this.maxStudents;
    }
 }
