@@ -229,14 +229,18 @@ public class LogicModel extends Observable
       //RUN 100 iterations to find most seated students
       for (int iter = 0; iter < 1000; iter++)
       {
+         //Initialize variables before calculations
          order = randOrder(iter);
          //Clear the scheduled schools for each day
          for (Day newDay : dayList.values())
          {
             newDay.clearSchools();
          }
-
-         //Copy eachDay into a temporary arraylist
+         //Clear dayMap
+         dayMap.clear();
+         //Clear mustAdd
+         mustAdd.clear();
+         //Copy eachDay into a temporary arraylist tempEachDay
          tempEachDay.clear();
          for (ArrayList<School> arr : eachDay)
          {
@@ -249,10 +253,8 @@ public class LogicModel extends Observable
          }
          tempSeated = 0;
          seatedSchools = 0;
+         //END Initialization
 
-         //Copy dayList into dayMap
-         dayMap.clear();
-         //dayMap = cloneHashMap(dayList);
 
          //FOR EACH integer in order (The order in which to fill each day)
          for (int ord : order)
@@ -361,6 +363,7 @@ System.out.println();
 //System.out.println("ITER: " + iter);
 //</editor-fold>
 
+      System.out.println("mustAdd Size: " + mustAdd.size());
       System.out.println("END.");
       notifyText = "<br>-Seated Students: " + seated + "<br>-Schools: " + seatedSchools;
       notify(NotifyCmd.TEXT);

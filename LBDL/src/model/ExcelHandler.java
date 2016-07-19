@@ -211,11 +211,11 @@ for (School s : model.schoolList)
     */
    private School checkExist(double chkPrior)
    {
-      for (School added : model.schoolList)
+      for (School existing : model.schoolList)
       {
-         if (Math.abs(chkPrior - added.priority) < 0.1)
+         if (Math.abs(chkPrior - existing.priority) < .01)
          {
-            return added;
+            return existing;
          }
       }
       return null;
