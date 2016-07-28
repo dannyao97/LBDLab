@@ -23,6 +23,8 @@ public class ExcelHandler
    private LogicModel model;
    /** A map for checking split schools */
    private HashMap<Integer, School> splitSchools;
+   /** Smallest number of students encountered */
+   private int smallest = Integer.MAX_VALUE;
    
    public ExcelHandler(LogicModel model)
    {
@@ -117,7 +119,7 @@ for (School s : model.schoolList)
                //Priority
                case 0:
                   //Subtract from 100 to reorder priority. Lowest value is now biggest value/priority.
-                  school.priority = 100.0 - Double.valueOf(cell.toString());
+                  school.priority = 500.0 - Double.valueOf(cell.toString());
                   exist = checkExist(school.priority);
                   break;
                   
@@ -199,9 +201,24 @@ for (School s : model.schoolList)
       else
       {
          model.schoolList.add(school);
+         checkSmallest(school);
       }
    }
 
+   /**
+    * Set the smallest school size.
+    * @param school The school to check.
+    */
+   private void checkSmallest(School school)
+   {
+      if (school.numStudents < smallest)
+      {
+         smallest = school.numStudents;
+         model.smallestSchool = school;
+         System.out.println("smallest is : " + school.numStudents + "  " + school.name);
+      }
+   }
+   
    /**
     * Check if the current school has the same priority as another already added
     * school. If yes, then school must've been split.

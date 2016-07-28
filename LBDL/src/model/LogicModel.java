@@ -29,6 +29,8 @@ public class LogicModel extends Observable
    public final int TotalKids = 110;
    /** A list of schools that can make each day, key=day index */
    protected HashMap<Integer, Day> mainSchedule;
+   /** The smallest school size */
+   protected School smallestSchool;
    /** The number of students seated in total */
    private int seated;
    /** The temporary number of seated students */
@@ -211,8 +213,6 @@ public class LogicModel extends Observable
       //A temporary list of available schools for each day. 
       //Copies eachDay array for each iteration
       ArrayList<ArrayList<School>> tempEachDay = new ArrayList<>();
-      //The list of schools available for a certain day
-      ArrayList<School> daySchedule;
       //A temporary list of schools available for a certain day
       ArrayList<School> tempDayList;
       //A temporary map of the days
@@ -220,7 +220,7 @@ public class LogicModel extends Observable
       //The dynamic table to represent a day.
       Double[][] dynTable;
       //Total items in the dynTable (based on schools available for a day
-      int numItems, numWeights;
+      int numWeights;
 
       //RUN 100 iterations to find most seated students
       for (int iter = 0; iter < 1000; iter++)
@@ -255,12 +255,17 @@ public class LogicModel extends Observable
          //FOR EACH integer in order (The order in which to fill each day)
          for (int ord : order)
          {
+            //IF Mustadds are not empty
+            if (!mustAdd.isEmpty())
+            {
+               scheduleMustAdds(order, dayMap);
+            }
+            
             ArrayList<School> availSchools = tempEachDay.get(ord - 1);   //List of available schools for this day
-            numItems = availSchools.size();
             numWeights = dayList.get(ord).getSeats();
-            dynTable = initializeDynTable(numItems, numWeights);
+            dynTable = initializeDynTable(availSchools.size(), numWeights);
 
-            fillTable(dynTable, availSchools, numItems, numWeights);
+            fillTable(dynTable, availSchools, numWeights);
 
             //DEBUG
 //<editor-fold defaultstate="collapsed" desc="DEBUG Print DynTable">
@@ -285,7 +290,7 @@ System.out.println();
 }*/
 //</editor-fold>
             //Add day schedule to the main schedule
-            dayMap.put(ord, chooseSchedule(dynTable, availSchools, numItems, dayList.get(ord)));
+            dayMap.put(ord, chooseSchedule(dynTable, availSchools, dayList.get(ord)));
 
             //Remove added schools from overall list
             for (School addedSchool : dayMap.get(ord).getSchools())
@@ -298,6 +303,8 @@ System.out.println();
                   {
                      //System.out.println("REMOVED: " + addedSchool.name);
                      eachDayList.remove(addedSchool);
+                     //check if there is a new smallest school
+                     updateSmallest(addedSchool, tempEachDay);
                   }
                }
             }
@@ -332,26 +339,51 @@ System.out.println();
 //</editor-fold>
 
       System.out.println("mustAdd Size: " + mustAdd.size());
+      for (School debug: mustAdd)
+      {
+         System.out.println(debug.name + "   " + debug.numStudents);
+      }
       System.out.println("END.");
-      notifyText = "<br>-Seated Students: " + seated + "<br>-Schools: " + seatedSchools;
+      notifyText = "<br>-Seated Students: " + seated + "<br>-Schools: " + seatedSchools + "<br>-Smallest School size: " + smallestSchool.numStudents;
       notify(NotifyCmd.TEXT);
       notify(NotifyCmd.LIST);
    }
 
+   private void updateSmallest(School curSchool, ArrayList<ArrayList<School>> unscheduled)
+   {
+      int tempSmallestNum = Integer.MAX_VALUE;
+      
+      //Find next smallest unscheduled school
+      if (curSchool.equals(smallestSchool))
+      {
+         for (ArrayList<School> listofschools: unscheduled)
+         {
+            for (School newSmall: listofschools)
+            {
+               if (newSmall.numStudents < tempSmallestNum)
+               {
+                  tempSmallestNum = newSmall.numStudents;
+                  smallestSchool = newSmall;
+               }
+            }
+         }
+      }
+   }
+   
    /**
     * Chooses which schools will be the most optimal solution
     *
     * @param dynTable The dynamic table to choose from representing a day.
     * @param availSchools The list of available schools for this day.
-    * @param numItems The total number of schools available for this day.
     * @param day The current day to create a schedule for.
     *
     * @return An ArrayList of schools that are scheduled for this day.
     */
-   private Day chooseSchedule(Double[][] dynTable, ArrayList<School> availSchools, int numItems, Day day)
+   private Day chooseSchedule(Double[][] dynTable, ArrayList<School> availSchools, Day day)
    {
       School selected;
       int weights;
+      int numItems = availSchools.size();
       
       //WHILE weight & items both > 0
       while (numItems > 0 && day.getSeats() > 0)
@@ -383,17 +415,58 @@ System.out.println();
       
    private void scheduleMustAdds(ArrayList<Integer> order, HashMap<Integer, Day> dayMap)
    {
+      int numItems;
+      int numWeights;
       Double[][] dynTable;
+      Day tempDay;
+      ArrayList<School> addedSchools;
+      
+      for (int ord : order)
+      {
+         numItems = mustAdd.size();
+         numWeights = dayList.get(ord).getSeats();
+         dynTable = initializeDynTable(numItems, numWeights);
+         fillTable(dynTable, mustAdd, numWeights);
+         
+         tempDay = chooseSchedule(dynTable, mustAdd, dayList.get(ord));
+         addedSchools = (ArrayList<School>) tempDay.getSchools().clone();
+         
+         //Add scheduled mustAdds to daymap
+         for (School mustSch: addedSchools)
+         {
+            if (!mustAdd.isEmpty())
+            {
+               mustAdd.remove(mustSch);
+            }
+            
+            if (dayMap.containsKey(ord))
+            {
+               dayMap.get(ord).addSchool(mustSch);
+            }
+            else
+            {
+               dayMap.put(ord, tempDay);
+               return;
+            }
+         }
+      }
    }
-   
-   private void fillTable(Double[][] dynTable, ArrayList<School> availSchools, int numItems, int numWeights)
+     
+   /**
+    * Fills the dynamic table up.
+    * 
+    * @param dynTable The table to fill up.
+    * @param availSchools The list of schools that are available.
+    * @param numWeights The number of seats the day has left.
+    */
+   private void fillTable(Double[][] dynTable, ArrayList<School> availSchools, int numWeights)
    {
       //sIndex = school, sWeight = # kids per school, sValue = priority
       int item, weight, sWeight, sIndex;
       double sValue, newValue, prevValue;
       
       //FOR all items starting at 1 (inclusive) and school in list starting at 0
-      for (item = 1, sIndex = 0; item <= numItems; item++, sIndex++)
+      for (item = 1, sIndex = 0; item <= availSchools.size(); item++, sIndex++)
       {
          sWeight = availSchools.get(sIndex).numStudents;
          sValue = availSchools.get(sIndex).priority;
@@ -487,7 +560,7 @@ System.out.println();
    private ArrayList<Integer> randOrder(int seed)
    {
       ArrayList<Integer> arr = new ArrayList<>();
-      Random rand = new Random();
+      Random rand = new Random(seed);
       int randNum;
       boolean randExists;
 

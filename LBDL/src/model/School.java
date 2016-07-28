@@ -76,4 +76,12 @@ public class School
    {
       splitSchool.add(s);
    }
+   
+   @Override
+   public boolean equals(Object obj)
+   {
+      School compare = (School) obj;
+      
+      return (Math.abs(priority - compare.priority) < .01) && name.equals(compare.name);
+   }
 }
