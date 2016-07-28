@@ -222,10 +222,6 @@ public class LogicModel extends Observable
       //Total items in the dynTable (based on schools available for a day
       int numItems, numWeights;
 
-      //sIndex = school, sWeight = # kids per school, sValue = priority
-      int item, weight, sWeight, sIndex;
-      double sValue, newValue, prevValue;
-
       //RUN 100 iterations to find most seated students
       for (int iter = 0; iter < 1000; iter++)
       {
@@ -264,35 +260,7 @@ public class LogicModel extends Observable
             numWeights = dayList.get(ord).getSeats();
             dynTable = initializeDynTable(numItems, numWeights);
 
-            //FOR all items starting at 1 (inclusive) and school in list starting at 0
-            for (item = 1, sIndex = 0; item <= numItems; item++, sIndex++)
-            {
-               sWeight = availSchools.get(sIndex).numStudents;
-               sValue = availSchools.get(sIndex).priority;
-
-               //FOR all weights
-               for (weight = 1; weight <= numWeights; weight++)
-               {
-                  //IF item can be part of solution
-                  if (sWeight <= weight)
-                  {
-                     newValue = dynTable[item - 1][weight - sWeight] + sValue;
-                     prevValue = dynTable[item - 1][weight];
-                     if (newValue > prevValue)
-                     {
-                        dynTable[item][weight] = newValue;
-                     }
-                     else
-                     {
-                        dynTable[item][weight] = prevValue;
-                     }
-                  }
-                  else
-                  {
-                     dynTable[item][weight] = dynTable[item - 1][weight];
-                  }
-               }
-            }
+            fillTable(dynTable, availSchools, numItems, numWeights);
 
             //DEBUG
 //<editor-fold defaultstate="collapsed" desc="DEBUG Print DynTable">
@@ -412,7 +380,49 @@ System.out.println();
 
       return day;
    }
+      
+   private void scheduleMustAdds(ArrayList<Integer> order, HashMap<Integer, Day> dayMap)
+   {
+      Double[][] dynTable;
+   }
+   
+   private void fillTable(Double[][] dynTable, ArrayList<School> availSchools, int numItems, int numWeights)
+   {
+      //sIndex = school, sWeight = # kids per school, sValue = priority
+      int item, weight, sWeight, sIndex;
+      double sValue, newValue, prevValue;
+      
+      //FOR all items starting at 1 (inclusive) and school in list starting at 0
+      for (item = 1, sIndex = 0; item <= numItems; item++, sIndex++)
+      {
+         sWeight = availSchools.get(sIndex).numStudents;
+         sValue = availSchools.get(sIndex).priority;
 
+         //FOR all weights
+         for (weight = 1; weight <= numWeights; weight++)
+         {
+            //IF item can be part of solution
+            if (sWeight <= weight)
+            {
+               newValue = dynTable[item - 1][weight - sWeight] + sValue;
+               prevValue = dynTable[item - 1][weight];
+               if (newValue > prevValue)
+               {
+                  dynTable[item][weight] = newValue;
+               }
+               else
+               {
+                  dynTable[item][weight] = prevValue;
+               }
+            }
+            else
+            {
+               dynTable[item][weight] = dynTable[item - 1][weight];
+            }
+         }
+      }
+   }
+   
    /**
     * Initializes the dynamic table. The entire row 0 and the entire column 0 is
     * filled with 0's. 0 is the lowest value/priority.
