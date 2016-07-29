@@ -18,7 +18,7 @@ public class LogicModel extends Observable
    /** The map of available days. Column index is the key */
    protected HashMap<Integer, Day> dayList;
    /** A list of all the schools */
-   protected ArrayList<School> schoolList;
+   static protected ArrayList<School> schoolList;
    /** A list of schools that MUST be added */
    protected ArrayList<School> mustAdd;
    /** An object to perform operations on the excel file */
@@ -420,13 +420,68 @@ System.out.println();
       Double[][] dynTable;
       Day tempDay;
       ArrayList<School> addedSchools;
+      ArrayList<School> tempMustAdds = new ArrayList<>();
+      int scheduled; //Check if a school was scheduled or not
       
       for (int ord : order)
       {
-         numItems = mustAdd.size();
+         //Check if mustAdds are empty
+         if (mustAdd.isEmpty())
+         {
+            return;
+         }
+         
+         tempMustAdds.clear();
+         //For each must add school, add schools that can make this date.
+         for (School mustSchool: mustAdd)
+         {
+            if (mustSchool.availDates.contains(dayList.get(ord)))
+            {
+               tempMustAdds.add(mustSchool);
+            }
+         }
+         
+         numItems = tempMustAdds.size();
          numWeights = dayList.get(ord).getSeats();
-         dynTable = initializeDynTable(numItems, numWeights);
-         fillTable(dynTable, mustAdd, numWeights);
+         
+         //Check if there are schools to add
+         if (numItems > 0)
+         {
+            dynTable = initializeDynTable(numItems, numWeights);     
+
+            //Fill in all must add schools if they can make that date.
+            fillTable(dynTable, mustAdd, numWeights);
+         }
+         else
+         {
+            continue;
+         }
+         
+            //DEBUG
+//<editor-fold defaultstate="collapsed" desc="DEBUG Print DynTable">
+System.out.print(".........");
+for (int k = 0; k <= numWeights; k++)
+{
+System.out.printf("%7.2f|", new Double(k));
+}
+System.out.println();
+for (int i = 0; i <= numItems; i++)
+{
+System.out.printf("ROW %2d:  \n", i);
+if (i < numItems)
+{
+//System.out.println("SCHOOL: " + availSchools.get(i).name);
+}
+for (int j = 0; j <= numWeights; j++)
+{
+System.out.printf("%7.2f|", dynTable[i][j]);
+}
+System.out.println();
+}
+//</editor-fold>
+         
+         //Get current number of schools in this day
+         scheduled = dayList.get(ord).getSchools().size();
          
          tempDay = chooseSchedule(dynTable, mustAdd, dayList.get(ord));
          addedSchools = (ArrayList<School>) tempDay.getSchools().clone();
@@ -434,6 +489,12 @@ System.out.println();
          //Add scheduled mustAdds to daymap
          for (School mustSch: addedSchools)
          {
+            //If no school was added
+            if (scheduled == addedSchools.size())
+            {
+               break;
+            }
+            
             if (!mustAdd.isEmpty())
             {
                mustAdd.remove(mustSch);
