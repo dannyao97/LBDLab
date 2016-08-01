@@ -54,11 +54,13 @@ public class Day
     * @param newSchool The school to add.
     */
    public void addSchool(School newSchool)
-   {
-      schools.add(newSchool);
-      
+   {    
       //Update remaining number of seats
-      seatsLeft -= newSchool.numStudents;
+      if (seatsLeft - newSchool.numStudents >= 0)
+      {
+         schools.add(newSchool);
+         seatsLeft -= newSchool.numStudents;
+      }
    }
    
    /**

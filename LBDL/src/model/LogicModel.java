@@ -258,7 +258,7 @@ public class LogicModel extends Observable
             //IF Mustadds are not empty
             if (!mustAdd.isEmpty())
             {
-               scheduleMustAdds(order, dayMap);
+               scheduleMustAdds(iter, dayMap);
             }
             
             ArrayList<School> availSchools = tempEachDay.get(ord - 1);   //List of available schools for this day
@@ -389,6 +389,7 @@ System.out.println();
       while (numItems > 0 && day.getSeats() > 0)
       {
          weights = day.getSeats();
+
          //IF values are not equal with epsilon .01 Compare doubles to 2nd decimal
          if (Math.abs(dynTable[numItems][weights] - dynTable[numItems - 1][weights]) >= .01)
          {
@@ -413,7 +414,7 @@ System.out.println();
       return day;
    }
       
-   private void scheduleMustAdds(ArrayList<Integer> order, HashMap<Integer, Day> dayMap)
+   private void scheduleMustAdds(int seed, HashMap<Integer, Day> dayMap)
    {
       int numItems;
       int numWeights;
@@ -421,95 +422,106 @@ System.out.println();
       Day tempDay;
       ArrayList<School> addedSchools;
       ArrayList<School> tempMustAdds = new ArrayList<>();
+      ArrayList<Integer> order = randOrder(seed);
       int scheduled; //Check if a school was scheduled or not
       
-      for (int ord : order)
-      {
-         //Check if mustAdds are empty
-         if (mustAdd.isEmpty())
+      while (!mustAdd.isEmpty())
+      {        
+         for (int ord : order)
          {
-            return;
-         }
-         
-         tempMustAdds.clear();
-         //For each must add school, add schools that can make this date.
-         for (School mustSchool: mustAdd)
-         {
-            if (mustSchool.availDates.contains(dayList.get(ord)))
+            //Check if mustAdds are empty
+            if (mustAdd.isEmpty())
             {
-               tempMustAdds.add(mustSchool);
+               return;
             }
-         }
-         
-         numItems = tempMustAdds.size();
-         numWeights = dayList.get(ord).getSeats();
-         
-         //Check if there are schools to add
-         if (numItems > 0)
-         {
-            dynTable = initializeDynTable(numItems, numWeights);     
 
-            //Fill in all must add schools if they can make that date.
-            fillTable(dynTable, mustAdd, numWeights);
-         }
-         else
-         {
-            continue;
-         }
-         
-            //DEBUG
-//<editor-fold defaultstate="collapsed" desc="DEBUG Print DynTable">
-System.out.print(".........");
-for (int k = 0; k <= numWeights; k++)
-{
-System.out.printf("%7.2f|", new Double(k));
-}
-System.out.println();
-for (int i = 0; i <= numItems; i++)
-{
-System.out.printf("ROW %2d:  \n", i);
-if (i < numItems)
-{
-//System.out.println("SCHOOL: " + availSchools.get(i).name);
-}
-for (int j = 0; j <= numWeights; j++)
-{
-System.out.printf("%7.2f|", dynTable[i][j]);
-}
-System.out.println();
-}
-//</editor-fold>
-         
-         //Get current number of schools in this day
-         scheduled = dayList.get(ord).getSchools().size();
-         
-         tempDay = chooseSchedule(dynTable, mustAdd, dayList.get(ord));
-         addedSchools = (ArrayList<School>) tempDay.getSchools().clone();
-         
-         //Add scheduled mustAdds to daymap
-         for (School mustSch: addedSchools)
-         {
-            //If no school was added
-            if (scheduled == addedSchools.size())
+            tempMustAdds.clear();
+            //For each must add school, add schools that can make this date.
+            for (School mustSchool : mustAdd)
             {
-               break;
+               //Check if the school can make the available date.
+               for (Day day : mustSchool.availDates)
+               {
+                  if (day.toString().equals(dayList.get(ord).toString()))
+                  {
+                     tempMustAdds.add(mustSchool);
+                  }
+               }
             }
-            
-            if (!mustAdd.isEmpty())
+
+            numItems = tempMustAdds.size();
+            numWeights = dayList.get(ord).getSeats();
+
+            //Check if there are schools to add
+            if (numItems > 0)
             {
-               mustAdd.remove(mustSch);
-            }
-            
-            if (dayMap.containsKey(ord))
-            {
-               dayMap.get(ord).addSchool(mustSch);
+               dynTable = initializeDynTable(numItems, numWeights);     
+
+               //Fill in all must add schools if they can make that date.
+               fillTable(dynTable, tempMustAdds, numWeights);
             }
             else
             {
-               dayMap.put(ord, tempDay);
-               return;
+               continue;
+            }
+
+               //DEBUG
+   //<editor-fold defaultstate="collapsed" desc="DEBUG Print DynTable">
+   /*System.out.print(".........");
+   for (int k = 0; k <= numWeights; k++)
+   {
+   System.out.printf("%7.2f|", new Double(k));
+   }
+   System.out.println();
+   for (int i = 0; i <= numItems; i++)
+   {
+   System.out.printf("ROW %2d:  \n", i);
+   if (i < numItems)
+   {
+   //System.out.println("SCHOOL: " + availSchools.get(i).name);
+   }
+   for (int j = 0; j <= numWeights; j++)
+   {
+   System.out.printf("%7.2f|", dynTable[i][j]);
+   }
+   System.out.println();
+   }*/
+   //</editor-fold>
+
+            //Get current number of schools in this day
+            scheduled = dayList.get(ord).getSchools().size();
+
+            tempDay = chooseSchedule(dynTable, tempMustAdds, dayList.get(ord));
+            addedSchools = (ArrayList<School>) tempDay.getSchools().clone();
+
+            //Add scheduled mustAdds to daymap
+            for (School mustSch: addedSchools)
+            {
+               //If no school was added
+               if (scheduled == addedSchools.size())
+               {
+                  break;
+               }
+
+               if (!mustAdd.isEmpty())
+               {
+                  mustAdd.remove(mustSch);
+               }
+
+               if (dayMap.containsKey(ord))
+               {
+                  dayMap.get(ord).addSchool(mustSch);
+               }
+               else
+               {
+                  dayMap.put(ord, tempDay);
+                  return;
+               }
             }
          }
+         
+         //Select a completely random order if mustAdds not empty.
+         order = randOrder(-1);
       }
    }
      
@@ -525,6 +537,7 @@ System.out.println();
       //sIndex = school, sWeight = # kids per school, sValue = priority
       int item, weight, sWeight, sIndex;
       double sValue, newValue, prevValue;
+      //System.out.println("items: " + availSchools.size() + "\nweights: " + numWeights);
       
       //FOR all items starting at 1 (inclusive) and school in list starting at 0
       for (item = 1, sIndex = 0; item <= availSchools.size(); item++, sIndex++)
@@ -550,7 +563,7 @@ System.out.println();
                }
             }
             else
-            {
+            {               
                dynTable[item][weight] = dynTable[item - 1][weight];
             }
          }
@@ -621,10 +634,19 @@ System.out.println();
    private ArrayList<Integer> randOrder(int seed)
    {
       ArrayList<Integer> arr = new ArrayList<>();
-      Random rand = new Random(seed);
+      Random rand;
       int randNum;
       boolean randExists;
 
+      if (seed == -1)
+      {
+         rand = new Random();
+      }
+      else
+      {
+         rand = new Random(seed);
+      }
+      
       for (int i = 0; i < TotalDays; i++)
       {
          randExists = true;
