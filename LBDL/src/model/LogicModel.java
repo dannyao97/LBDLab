@@ -426,7 +426,8 @@ System.out.println();
       int scheduled; //Check if a school was scheduled or not
       
       while (!mustAdd.isEmpty())
-      {        
+      {      
+         System.out.println("trapped");
          for (int ord : order)
          {
             //Check if mustAdds are empty
@@ -494,6 +495,7 @@ System.out.println();
             tempDay = chooseSchedule(dynTable, tempMustAdds, dayList.get(ord));
             addedSchools = (ArrayList<School>) tempDay.getSchools().clone();
 
+            //PUT A CASE FOR WHEN THE SCHOOL COULD NOT BE ADDED OR CHOSEN BECAUSE NOT ENOUGH SEATS LEFT.
             //Add scheduled mustAdds to daymap
             for (School mustSch: addedSchools)
             {
