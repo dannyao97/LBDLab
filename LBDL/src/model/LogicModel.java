@@ -418,12 +418,14 @@ System.out.println();
    {
       int numItems;
       int numWeights;
+      int smallSeats = Integer.MAX_VALUE;   //Holds temp school with smallest seats
       Double[][] dynTable;
       Day tempDay;
       ArrayList<School> addedSchools;
       ArrayList<School> tempMustAdds = new ArrayList<>();
       ArrayList<Integer> order = randOrder(seed);
       int scheduled; //Check if a school was scheduled or not
+      boolean skipFindAvail = false;   //Whether we can skip finding tempMustAdds again
       
       while (!mustAdd.isEmpty())
       {      
@@ -436,25 +438,33 @@ System.out.println();
                return;
             }
 
-            tempMustAdds.clear();
-            //For each must add school, add schools that can make this date.
-            for (School mustSchool : mustAdd)
+            //If scheduled and addSchools were equal the prev iter, then skip
+            if (!skipFindAvail)
             {
-               //Check if the school can make the available date.
-               for (Day day : mustSchool.availDates)
+               smallSeats = Integer.MAX_VALUE;
+               tempMustAdds.clear();
+               //For each must add school, add schools that can make this date.
+               for (School mustSchool : mustAdd)
                {
-                  if (day.toString().equals(dayList.get(ord).toString()))
+                  //Check if the school can make the available date.
+                  for (Day day : mustSchool.availDates)
                   {
-                     tempMustAdds.add(mustSchool);
+                     if (day.toString().equals(dayList.get(ord).toString()))
+                     {
+                        tempMustAdds.add(mustSchool);
+                        if (mustSchool.numStudents < smallSeats)
+                        {
+                           smallSeats = mustSchool.numStudents;
+                        }
+                     }
                   }
                }
             }
-
             numItems = tempMustAdds.size();
             numWeights = dayList.get(ord).getSeats();
 
-            //Check if there are schools to add
-            if (numItems > 0)
+            //Check if there are schools to add AND day can hold the smallest school
+            if (numItems > 0 && numWeights >= smallSeats)
             {
                dynTable = initializeDynTable(numItems, numWeights);     
 
@@ -463,6 +473,7 @@ System.out.println();
             }
             else
             {
+               skipFindAvail = true;
                continue;
             }
 
@@ -502,6 +513,7 @@ System.out.println();
                //If no school was added
                if (scheduled == addedSchools.size())
                {
+                  skipFindAvail = true;
                   break;
                }
 
@@ -510,6 +522,7 @@ System.out.println();
                   mustAdd.remove(mustSch);
                }
 
+               skipFindAvail = false;
                if (dayMap.containsKey(ord))
                {
                   dayMap.get(ord).addSchool(mustSch);
@@ -521,7 +534,7 @@ System.out.println();
                }
             }
          }
-         
+         skipFindAvail = false;
          //Select a completely random order if mustAdds not empty.
          order = randOrder(-1);
       }
