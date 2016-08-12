@@ -300,7 +300,7 @@ public class GUI extends javax.swing.JFrame implements Observer
                listModel.addElement("<html><b>" + day.toString() + "</b></html>");
                for (School sch : day.getSchools())
                {
-                  listModel.addElement(sch.getName());
+                  listModel.addElement(sch.getName() + " " + sch.getNumStudents());
                }
             }
             listSchools.setModel(listModel);

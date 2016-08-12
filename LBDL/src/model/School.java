@@ -84,4 +84,9 @@ public class School
       
       return (Math.abs(priority - compare.priority) < .01) && name.equals(compare.name);
    }
+   
+   public int getNumStudents()
+   {
+      return numStudents;
+   }
 }

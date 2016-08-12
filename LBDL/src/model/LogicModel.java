@@ -343,10 +343,27 @@ System.out.println();
       {
          System.out.println(debug.name + "   " + debug.numStudents);
       }
-      System.out.println("END.");
+
       notifyText = "<br>-Seated Students: " + seated + "<br>-Schools: " + seatedSchools + "<br>-Smallest School size: " + smallestSchool.numStudents;
       notify(NotifyCmd.TEXT);
       notify(NotifyCmd.LIST);
+      
+      //DEBUG
+      System.out.println("UNADDED");
+      for (School s : schoolList)
+      {
+         if (s.actualDay == null)
+         {
+            System.out.println(s.name + " " + s.numStudents);
+            if (!s.splitSchool.isEmpty())
+            {
+               for (School sp : s.splitSchool)
+               {
+                  System.out.println("-" + s.name + " " + s.numStudents);
+               }
+            }
+         }
+      }
    }
 
    private void updateSmallest(School curSchool, ArrayList<ArrayList<School>> unscheduled)
@@ -397,6 +414,7 @@ System.out.println();
             tempSeated += selected.numStudents;
             seatedSchools++;
             day.addSchool(selected);
+            selected.actualDay = day.date;
 
             //Check if selected school has a split school, not empty
             if (!selected.splitSchool.isEmpty())
@@ -470,6 +488,11 @@ System.out.println();
 
                //Fill in all must add schools if they can make that date.
                fillTable(dynTable, tempMustAdds, numWeights);
+            }
+            else if (numItems == 0)
+            {
+               skipFindAvail = false;
+               continue;
             }
             else
             {
