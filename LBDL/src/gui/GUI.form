@@ -70,6 +70,7 @@
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                   <Component id="btnFastAlg" max="32767" attributes="0"/>
                                   <Component id="btnKnapSack" max="32767" attributes="0"/>
+                                  <Component id="btnKnap2" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
@@ -119,6 +120,8 @@
                       <Component id="btnFastAlg" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="btnKnapSack" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="btnKnap2" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="lblDebug" min="-2" pref="212" max="-2" attributes="0"/>
                   </Group>
@@ -205,6 +208,11 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="DEBUG:"/>
         <Property name="verticalAlignment" type="int" value="1"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="btnKnap2">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Knapsack 2"/>
       </Properties>
     </Component>
   </SubComponents>

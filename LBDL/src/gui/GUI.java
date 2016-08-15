@@ -69,6 +69,7 @@ public class GUI extends javax.swing.JFrame implements Observer
       btnFastAlg = new javax.swing.JButton();
       btnKnapSack = new javax.swing.JButton();
       lblDebug = new javax.swing.JLabel();
+      btnKnap2 = new javax.swing.JButton();
       menuBar = new javax.swing.JMenuBar();
       menuFile = new javax.swing.JMenu();
       menuExit = new javax.swing.JMenuItem();
@@ -126,6 +127,8 @@ public class GUI extends javax.swing.JFrame implements Observer
       lblDebug.setText("DEBUG:");
       lblDebug.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
+      btnKnap2.setText("Knapsack 2");
+
       menuFile.setText("File");
 
       menuExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.ALT_MASK));
@@ -161,7 +164,8 @@ public class GUI extends javax.swing.JFrame implements Observer
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                            .addComponent(btnFastAlg, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                           .addComponent(btnKnapSack, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                           .addComponent(btnKnapSack, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                           .addComponent(btnKnap2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
                .addGroup(layout.createSequentialGroup()
                   .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                      .addComponent(lblTitle)
@@ -197,6 +201,8 @@ public class GUI extends javax.swing.JFrame implements Observer
                   .addComponent(btnFastAlg)
                   .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                   .addComponent(btnKnapSack)
+                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                  .addComponent(btnKnap2)
                   .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                   .addComponent(lblDebug, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)))
             .addContainerGap(22, Short.MAX_VALUE))
@@ -404,6 +410,7 @@ public class GUI extends javax.swing.JFrame implements Observer
    // Variables declaration - do not modify//GEN-BEGIN:variables
    private javax.swing.JButton btnChooseFile;
    private javax.swing.JButton btnFastAlg;
+   private javax.swing.JButton btnKnap2;
    private javax.swing.JButton btnKnapSack;
    private javax.swing.JButton btnRun;
    private javax.swing.JFileChooser inputFileChooser;

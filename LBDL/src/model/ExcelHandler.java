@@ -72,7 +72,8 @@ public class ExcelHandler
          xlrow = wkSheet.getRow(row);
          if (xlrow != null)
          {
-            parseSchool(xlrow, numCols);
+            //parseSchool(xlrow, numCols);
+            parseAltSchool(xlrow, numCols);  //ALTERNATE METHOD OF READING EXCEL
          }
       }
 
@@ -311,4 +312,99 @@ for (School s : model.schoolList)
       fileOut.close();
       wb.close();
    }
+   
+   
+
+
+
+   private void parseAltSchool(XSSFRow xlRow, int totalSchools)
+   {
+      XSSFCell cell;
+      School school = new School();
+      int dayCount = 1;
+      School exist = null;
+      
+      // For every column in the row
+      for (int col = 0; col < totalSchools; col++)
+      {
+         cell = xlRow.getCell(col);
+         if (cell != null)
+         {
+            //SWITCH over each column
+            switch (col)
+            {
+               //Priority
+               case 0:
+                  //Subtract from 100 to reorder priority. Lowest value is now biggest value/priority.
+                  school.priority = 500.0 - Double.valueOf(cell.toString());
+                  exist = checkExist(school.priority);
+                  break;
+                  
+               //School Name
+               case 1:
+                  school.name = cell.toString();
+                  break;
+               
+               //Previously visited
+               case 2:
+                  if (cell.toString().toLowerCase().contains("no"))
+                  {
+                     school.visited = false;
+                  }
+                  break;
+                  
+               //Grade levels
+               case 3:
+                  //Ignoring grade levels
+                  break;
+                  
+               //Total num students
+               case 4:
+                  school.numStudents = new Double(cell.getNumericCellValue()).intValue();
+                  break;
+                  
+               //Split
+               case 5:
+                  if (new Double(cell.getNumericCellValue()).intValue() == 1)
+                  {
+                     school.split = true;
+                  }
+                  break;
+                  
+               //Split
+               case 6:
+                  for (String num : cell.toString().split(","))
+                  {
+                     if (!num.equals(""))
+                     {                        
+                        school.splitNums.add(Double.valueOf(num.trim()).intValue());
+                     }
+                  }                  
+                  break;
+                  
+
+                  
+               case 34: //Spring break
+                  break;
+               case 35: //Last day of school
+                  break;
+               case 36: //Comments
+                  school.comments = cell.getStringCellValue();
+                  break;
+                  
+               //Check available dates. Cols 7 - 333 inclusive
+               default:
+                  if ((col > 6 && col < 34) && !cell.toString().equals("") &&
+                     (Double.valueOf(cell.getNumericCellValue()).intValue() == 1))
+                  {
+                     school.addDay(model.dayList.get(dayCount));
+                  }
+                  dayCount++;
+                  break;
+            }
+         }
+      }
+      
+      model.schoolListAlt.add(school);
+   }   
 }

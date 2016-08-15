@@ -18,7 +18,7 @@ public class LogicModel extends Observable
    /** The map of available days. Column index is the key */
    protected HashMap<Integer, Day> dayList;
    /** A list of all the schools */
-   static protected ArrayList<School> schoolList;
+   protected ArrayList<School> schoolList;
    /** A list of schools that MUST be added */
    protected ArrayList<School> mustAdd;
    /** An object to perform operations on the excel file */
@@ -349,6 +349,7 @@ System.out.println();
       notify(NotifyCmd.LIST);
       
       //DEBUG
+//<editor-fold defaultstate="collapsed" desc="DEBUG Print Unscheduled Schools">      
       System.out.println("UNADDED");
       for (School s : schoolList)
       {
@@ -364,6 +365,7 @@ System.out.println();
             }
          }
       }
+//</editor-fold>      
    }
 
    private void updateSmallest(School curSchool, ArrayList<ArrayList<School>> unscheduled)
@@ -721,4 +723,13 @@ System.out.println();
    {
       return mainSchedule;
    }
+   
+   
+   
+   
+   
+   //Alternate variables
+   public ArrayList<School> schoolListAlt = new ArrayList<>();
+   
+   
 }

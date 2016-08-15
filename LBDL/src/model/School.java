@@ -30,6 +30,8 @@ public class School
    protected Calendar actualDay;
    /** A list of schools that are split from this school */
    protected ArrayList<School> splitSchool;
+   /** The index of the school */
+   protected int index;
    
    
    /**
