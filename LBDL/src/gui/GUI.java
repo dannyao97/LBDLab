@@ -78,7 +78,7 @@ public class GUI extends javax.swing.JFrame implements Observer
       setTitle("Learn by Doing Lab Scheduler");
       setMinimumSize(new java.awt.Dimension(500, 500));
 
-      txtFieldInput.setText("C:\\Users\\dyao\\Documents\\NetBeansProjects\\LBDLab\\LBDL\\testInput.xlsx");
+      txtFieldInput.setText("C:\\Users\\dyao\\Documents\\NetBeansProjects\\LBDLab\\LBDL\\template.xlsm");
 
       btnChooseFile.setText("Choose File");
       btnChooseFile.addActionListener(new java.awt.event.ActionListener()
@@ -128,6 +128,13 @@ public class GUI extends javax.swing.JFrame implements Observer
       lblDebug.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
       btnKnap2.setText("Knapsack 2");
+      btnKnap2.addActionListener(new java.awt.event.ActionListener()
+      {
+         public void actionPerformed(java.awt.event.ActionEvent evt)
+         {
+            btnKnap2ActionPerformed(evt);
+         }
+      });
 
       menuFile.setText("File");
 
@@ -230,6 +237,7 @@ public class GUI extends javax.swing.JFrame implements Observer
    {//GEN-HEADEREND:event_btnRunActionPerformed
       model.readExcelFile(txtFieldInput.getText());
       populateSchoolList();
+      System.out.println("FILE READ.");
    }//GEN-LAST:event_btnRunActionPerformed
 
    private void btnFastAlgActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnFastAlgActionPerformed
@@ -241,6 +249,11 @@ public class GUI extends javax.swing.JFrame implements Observer
    {//GEN-HEADEREND:event_btnKnapSackActionPerformed
       model.knapsack();
    }//GEN-LAST:event_btnKnapSackActionPerformed
+
+   private void btnKnap2ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnKnap2ActionPerformed
+   {//GEN-HEADEREND:event_btnKnap2ActionPerformed
+      model.altKnapsack();
+   }//GEN-LAST:event_btnKnap2ActionPerformed
 
    private void populateSchoolList()
    {

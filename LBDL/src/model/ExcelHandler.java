@@ -25,10 +25,13 @@ public class ExcelHandler
    private HashMap<Integer, School> splitSchools;
    /** Smallest number of students encountered */
    private int smallest = Integer.MAX_VALUE;
+   /** Total num students read */
+   private int totalStudents;
    
    public ExcelHandler(LogicModel model)
    {
       this.model = model;
+      this.totalStudents = 0;
    }
    
    /**
@@ -76,7 +79,9 @@ public class ExcelHandler
             parseAltSchool(xlrow, numCols);  //ALTERNATE METHOD OF READING EXCEL
          }
       }
-
+      //Set the average
+      model.average = totalStudents / model.schoolListAlt.size();
+      
       //Sort the list by priority
       Collections.sort(model.schoolList, new Comparator<School>() {
         @Override
@@ -247,11 +252,11 @@ for (School s : model.schoolList)
    private void initializeDayList(XSSFRow xlRow)
    {
       //First date starts at column 9
-      int index = 9;
+      int index = 7;
       //Count of days
       int dayCount = 0;
-      //HARDCODED 27 dates. Last date col = 9 + 27
-      int numDates = 36;
+      //HARDCODED 27 dates. Last date col = 7 + 27
+      int numDates = 34;
       //The current cell
       XSSFCell cell;
       //Value of the entire cell
@@ -262,7 +267,7 @@ for (School s : model.schoolList)
       String[] dateArr;
 
       //FOR each date in the sheet
-      for (index = 9; index < numDates; index++)
+      for (index = 7; index < numDates; index++)
       {
          cell = xlRow.getCell(index);
          cellStr = cell.toString();
@@ -322,7 +327,6 @@ for (School s : model.schoolList)
       XSSFCell cell;
       School school = new School();
       int dayCount = 1;
-      School exist = null;
       
       // For every column in the row
       for (int col = 0; col < totalSchools; col++)
@@ -337,7 +341,6 @@ for (School s : model.schoolList)
                case 0:
                   //Subtract from 100 to reorder priority. Lowest value is now biggest value/priority.
                   school.priority = 500.0 - Double.valueOf(cell.toString());
-                  exist = checkExist(school.priority);
                   break;
                   
                //School Name
@@ -361,6 +364,7 @@ for (School s : model.schoolList)
                //Total num students
                case 4:
                   school.numStudents = new Double(cell.getNumericCellValue()).intValue();
+                  totalStudents += school.numStudents;
                   break;
                   
                //Split
@@ -381,9 +385,7 @@ for (School s : model.schoolList)
                      }
                   }                  
                   break;
-                  
-
-                  
+ 
                case 34: //Spring break
                   break;
                case 35: //Last day of school

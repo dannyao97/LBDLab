@@ -134,7 +134,7 @@
   <SubComponents>
     <Component class="javax.swing.JTextField" name="txtFieldInput">
       <Properties>
-        <Property name="text" type="java.lang.String" value="C:\u005cUsers\u005cdyao\u005cDocuments\u005cNetBeansProjects\u005cLBDLab\u005cLBDL\u005ctestInput.xlsx" containsInvalidXMLChars="true"/>
+        <Property name="text" type="java.lang.String" value="C:\u005cUsers\u005cdyao\u005cDocuments\u005cNetBeansProjects\u005cLBDLab\u005cLBDL\u005ctemplate.xlsm" containsInvalidXMLChars="true"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="btnChooseFile">
@@ -214,6 +214,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Knapsack 2"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnKnap2ActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

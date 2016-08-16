@@ -682,6 +682,14 @@ System.out.println();
       {
          rand = new Random();
       }
+      else if (seed == 0)
+      {
+         for (int num = 1; num <= TotalDays; num++)
+         {
+            arr.add(num);
+         }
+         return arr;
+      }
       else
       {
          rand = new Random(seed);
@@ -730,6 +738,144 @@ System.out.println();
    
    //Alternate variables
    public ArrayList<School> schoolListAlt = new ArrayList<>();
+   public int average = 0;
+   public ArrayList<School> needAdd = new ArrayList<>();
+   //public ArrayList<School> finalSchedule = new ArrayList<>();
    
+   public void altKnapsack()
+   {      
+      int i, smallest;
+      ArrayList<School> topTen = new ArrayList<>();
+      Double[][] dynTable;
+      ArrayList<Integer> order = randOrder(0);
+      School tempSchool;
+      ArrayList<School> newSplits, availSchools, selected;
+      Day day;
+      
+      //Get top 10 schools. List should already be in order.
+      for (i = 0; i < 10; i++)
+      {
+         tempSchool = schoolListAlt.get(i);
+         
+         //IF school can be split and numStudents > avg
+         if (tempSchool.split && (tempSchool.numStudents > average))
+         {
+            newSplits = splitSchool(tempSchool);
+            //Add array of same school thats split up.
+            for (School newSchool : newSplits)
+            {
+               topTen.add(newSchool);
+            }
+         }
+         else
+         {
+            topTen.add(tempSchool);  
+         }
+      }
+      
+      //Schedule topTen
+      for (int ord : order)
+      {
+         //IF topten is empty, break
+         if (topTen.isEmpty())
+         {
+            break;
+         }
+         
+         day = dayList.get(ord);         
+         availSchools = getAvail(topTen, day);   
+         
+         //WHILE day can still add schools
+         do
+         {
+            dynTable = initializeDynTable(topTen.size(), day.getSeats());
+            fillTable(dynTable, availSchools, day.getSeats());
+            selected = altChooseSchedule(dynTable, availSchools, ord);
+
+            //FOR school in selected, remove from topTen
+            for (School sch : selected)
+            {
+               
+               topTen.remove(sch);
+               availSchools.remove(sch);
+            }
+            smallest = getSmallest(availSchools);
+         }while (smallest <= day.getSeats());
+      }
+      
+      mainSchedule = cloneHashMap(dayList);
+      notify(NotifyCmd.LIST);      
+   }
    
+   public ArrayList<School> getAvail(ArrayList<School> arr, Day day)
+   {
+      ArrayList<School> avail = new ArrayList<>();
+      
+      for (School school : arr)
+      {
+         if (school.availDates.contains(day))
+         {
+            avail.add(school);
+         }
+      }
+      return avail;
+   }
+   
+   public ArrayList<School> splitSchool(School school)
+   {
+      ArrayList<School> split = new ArrayList<>();
+      //FOR each split num
+      for (int num : school.splitNums)
+      {
+         split.add(new School(school, num));
+      }
+      return split;
+   }
+   
+   public ArrayList<School> altChooseSchedule(Double[][] dynTable, ArrayList<School> availSchools, int dayIndex)
+   {
+      School selected;
+      ArrayList<School> chosen = new ArrayList<>();
+      int weights;
+      int numItems = availSchools.size();
+      Day day = dayList.get(dayIndex);
+      
+      //WHILE weight & items both > 0
+      while (numItems > 0 && day.getSeats() > 0)
+      {
+         weights = day.getSeats();
+
+         //IF values are not equal with epsilon .01 Compare doubles to 2nd decimal
+         if (Math.abs(dynTable[numItems][weights] - dynTable[numItems - 1][weights]) >= .01)
+         {
+            selected = availSchools.get(numItems - 1);
+            tempSeated += selected.numStudents;
+            seatedSchools++;
+            day.addSchool(selected);
+            selected.actualDay = day.date;
+            chosen.add(selected);
+         }
+         numItems--;
+      }
+
+      return chosen;
+   }
+   
+   /**
+    * Returns the smallest school size in the list
+    * @param arr The list.
+    * @return The smallest school size.
+    */
+   public int getSmallest(ArrayList<School> arr)
+   {
+      int smallest = Integer.MAX_VALUE;
+      for (School school : arr)
+      {
+         if (school.numStudents < smallest)
+         {
+            smallest = school.numStudents;
+         }
+      }
+      return smallest;
+   }
 }

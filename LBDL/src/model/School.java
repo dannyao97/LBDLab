@@ -31,7 +31,7 @@ public class School
    /** A list of schools that are split from this school */
    protected ArrayList<School> splitSchool;
    /** The index of the school */
-   protected int index;
+   protected long id;
    
    
    /**
@@ -47,8 +47,30 @@ public class School
       this.visited = true;
       this.split = false;
       this.actualDay = null;
+      this.id = System.identityHashCode(this);
    }
 
+   /**
+    * Create a new School with split numbers
+    * 
+    * @param old The original school to create from.
+    * @param splitNum The numStudents of the new school.
+    */
+   public School(School old, int splitNum)
+   {
+      this.actualDay = old.actualDay;
+      this.availDates = old.availDates;
+      this.comments = old.comments;
+      this.id = System.identityHashCode(this);
+      this.name = old.name;
+      this.numStudents = splitNum;
+      this.priority = old.priority;
+      this.split = false;
+      this.splitNums = null;
+      this.splitSchool = null;
+      this.visited = old.visited;
+   }
+   
    /**
     * Add a day to the list of available dates for the school.
     *
@@ -84,7 +106,7 @@ public class School
    {
       School compare = (School) obj;
       
-      return (Math.abs(priority - compare.priority) < .01) && name.equals(compare.name);
+      return (Math.abs(priority - compare.priority) < .01) && name.equals(compare.name) && (numStudents == compare.numStudents);
    }
    
    public int getNumStudents()
