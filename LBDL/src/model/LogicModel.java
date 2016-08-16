@@ -94,7 +94,7 @@ public class LogicModel extends Observable
    {
       try
       {
-         xlHandler.writeXLFile("testOutput.xlsx");
+         xlHandler.writeXLFile(outputFile);
       }
       catch (IOException e)
       {
@@ -739,24 +739,21 @@ System.out.println();
    //Alternate variables
    public ArrayList<School> schoolListAlt = new ArrayList<>();
    public int average = 0;
-   public ArrayList<School> needAdd = new ArrayList<>();
-   //public ArrayList<School> finalSchedule = new ArrayList<>();
    
    public void altKnapsack()
    {      
-      int i, smallest;
+      int i, remainSize, seatedDup = 0;
       ArrayList<School> topTen = new ArrayList<>();
-      Double[][] dynTable;
-      ArrayList<Integer> order = randOrder(0);
+      ArrayList<School> newSplits, remaining = new ArrayList<>();      
       School tempSchool;
-      ArrayList<School> newSplits, availSchools, selected;
-      Day day;
+      seated = 0;
+      seatedSchools = 0;
       
       //Get top 10 schools. List should already be in order.
       for (i = 0; i < 10; i++)
       {
-         tempSchool = schoolListAlt.get(i);
-         
+         //0 because removing top element each time, index will be 0
+         tempSchool = schoolListAlt.get(0);
          //IF school can be split and numStudents > avg
          if (tempSchool.split && (tempSchool.numStudents > average))
          {
@@ -771,40 +768,88 @@ System.out.println();
          {
             topTen.add(tempSchool);  
          }
+         //Remove from school list
+         schoolListAlt.remove(0);
       }
       
       //Schedule topTen
+      schedule(topTen);
+
+      //Split up the remaining schools
+      //Calculate new average
+      calculateAverage(schoolListAlt);
+      //Get the remaining size
+      remainSize = schoolListAlt.size();
+      
+      for (i = 0; i < remainSize; i++)
+      {
+         //0 because removing top element each time, index will be 0
+         tempSchool = schoolListAlt.get(0);
+         //IF school can be split and numStudents > avg
+         if (tempSchool.split)
+         {
+            newSplits = splitSchool(tempSchool);
+            //Add array of same school thats split up.
+            for (School newSchool : newSplits)
+            {
+               remaining.add(newSchool);
+               seatedDup++;
+            }
+         }
+         else
+         {
+            remaining.add(tempSchool);  
+         }
+         //Remove from school list
+         schoolListAlt.remove(0);
+      }
+      
+      //Schedule remaining schools
+      schedule(remaining);
+      
+      System.out.println("Seated: " + seated);
+      System.out.println("School: " + (seatedSchools - seatedDup));
+      System.out.println("remain: " + remaining.size());
+      mainSchedule = cloneHashMap(dayList);
+      notify(NotifyCmd.LIST);      
+   }
+   
+   public void schedule(ArrayList<School> toSchedule)
+   {
+      Double[][] dynTable;
+      ArrayList<Integer> order = randOrder(0);
+      ArrayList<School> availSchools, selected;
+      int smallest;
+      Day day;
+      
       for (int ord : order)
       {
          //IF topten is empty, break
-         if (topTen.isEmpty())
+         if (toSchedule.isEmpty())
          {
             break;
          }
          
          day = dayList.get(ord);         
-         availSchools = getAvail(topTen, day);   
+         availSchools = getAvail(toSchedule, day);   
          
          //WHILE day can still add schools
          do
          {
-            dynTable = initializeDynTable(topTen.size(), day.getSeats());
+            dynTable = initializeDynTable(toSchedule.size(), day.getSeats());
             fillTable(dynTable, availSchools, day.getSeats());
             selected = altChooseSchedule(dynTable, availSchools, ord);
 
             //FOR school in selected, remove from topTen
             for (School sch : selected)
             {
-               
-               topTen.remove(sch);
+               toSchedule.remove(sch);
                availSchools.remove(sch);
+               seatedSchools++;
             }
             smallest = getSmallest(availSchools);
          }while (smallest <= day.getSeats());
-      }
-      
-      mainSchedule = cloneHashMap(dayList);
-      notify(NotifyCmd.LIST);      
+      } 
    }
    
    public ArrayList<School> getAvail(ArrayList<School> arr, Day day)
@@ -849,8 +894,7 @@ System.out.println();
          if (Math.abs(dynTable[numItems][weights] - dynTable[numItems - 1][weights]) >= .01)
          {
             selected = availSchools.get(numItems - 1);
-            tempSeated += selected.numStudents;
-            seatedSchools++;
+            seated += selected.numStudents;
             day.addSchool(selected);
             selected.actualDay = day.date;
             chosen.add(selected);
@@ -877,5 +921,17 @@ System.out.println();
          }
       }
       return smallest;
+   }
+   
+   private void calculateAverage(ArrayList<School> arr)
+   {
+      int newAvg = 0;
+      
+      for (School s : arr)
+      {
+         newAvg += s.numStudents;
+      }
+      average = newAvg / arr.size();
+      System.out.println("avg: " + average);      
    }
 }

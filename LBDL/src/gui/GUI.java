@@ -70,6 +70,7 @@ public class GUI extends javax.swing.JFrame implements Observer
       btnKnapSack = new javax.swing.JButton();
       lblDebug = new javax.swing.JLabel();
       btnKnap2 = new javax.swing.JButton();
+      btnWrite = new javax.swing.JButton();
       menuBar = new javax.swing.JMenuBar();
       menuFile = new javax.swing.JMenu();
       menuExit = new javax.swing.JMenuItem();
@@ -136,6 +137,15 @@ public class GUI extends javax.swing.JFrame implements Observer
          }
       });
 
+      btnWrite.setText("Write File");
+      btnWrite.addActionListener(new java.awt.event.ActionListener()
+      {
+         public void actionPerformed(java.awt.event.ActionEvent evt)
+         {
+            btnWriteActionPerformed(evt);
+         }
+      });
+
       menuFile.setText("File");
 
       menuExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.ALT_MASK));
@@ -166,7 +176,7 @@ public class GUI extends javax.swing.JFrame implements Observer
                   .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                      .addGroup(layout.createSequentialGroup()
                         .addComponent(lblDebug, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(0, 12, Short.MAX_VALUE))
                      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -183,8 +193,10 @@ public class GUI extends javax.swing.JFrame implements Observer
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                            .addComponent(btnChooseFile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                           .addComponent(btnRun, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                  .addGap(0, 141, Short.MAX_VALUE)))
+                           .addComponent(btnRun, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnWrite)))
+                  .addGap(0, 0, Short.MAX_VALUE)))
             .addContainerGap())
       );
       layout.setVerticalGroup(
@@ -199,7 +211,8 @@ public class GUI extends javax.swing.JFrame implements Observer
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                .addComponent(lblList)
-               .addComponent(btnRun))
+               .addComponent(btnRun)
+               .addComponent(btnWrite))
             .addGap(4, 4, 4)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 353, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -254,6 +267,11 @@ public class GUI extends javax.swing.JFrame implements Observer
    {//GEN-HEADEREND:event_btnKnap2ActionPerformed
       model.altKnapsack();
    }//GEN-LAST:event_btnKnap2ActionPerformed
+
+   private void btnWriteActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnWriteActionPerformed
+   {//GEN-HEADEREND:event_btnWriteActionPerformed
+      model.writeExcelFile("testOutput.xlsx");
+   }//GEN-LAST:event_btnWriteActionPerformed
 
    private void populateSchoolList()
    {
@@ -426,6 +444,7 @@ public class GUI extends javax.swing.JFrame implements Observer
    private javax.swing.JButton btnKnap2;
    private javax.swing.JButton btnKnapSack;
    private javax.swing.JButton btnRun;
+   private javax.swing.JButton btnWrite;
    private javax.swing.JFileChooser inputFileChooser;
    private javax.swing.JScrollPane jScrollPane1;
    private javax.swing.JLabel lblDebug;

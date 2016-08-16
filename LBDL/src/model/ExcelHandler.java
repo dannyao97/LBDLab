@@ -302,20 +302,49 @@ for (School s : model.schoolList)
       XSSFWorkbook wb = new XSSFWorkbook();
       CreationHelper createHelper = wb.getCreationHelper();
       XSSFSheet sheet = wb.createSheet("Sheet_1");
-
+      
+      ArrayList<Day> schedule = new ArrayList<>(model.getMainSchedule().values());
+      ArrayList<School> finished = new ArrayList<>();
+              
       // Create a row and put some cells in it. Rows are 0 based.
-      XSSFRow row = sheet.createRow(0);
-
+      XSSFRow row;// = sheet.createRow(0);
+      int count = 0;
+      
       // Or do it on one line.
-      row.createCell(0).setCellValue(1.2);
-      row.createCell(1).setCellValue(createHelper.createRichTextString("This is a string"));
-      row.createCell(2).setCellValue(true);
+      //row.createCell(0).setCellValue(1.2);
+      //row.createCell(1).setCellValue(createHelper.createRichTextString("This is a string"));
+      //row.createCell(2).setCellValue(true);
 
+      for (Day day : schedule)
+      {
+         for (School school : day.getSchools())
+         {
+            finished.add(school);
+         }
+      }
+      
+      Collections.sort(finished, new Comparator<School>() {
+        @Override
+        public int compare(School s1, School s2)
+        {
+            return Double.compare(s2.priority, s1.priority);
+        }
+      }); 
+      
+      for (School school : finished)
+      {
+         row = sheet.createRow(count++);
+         row.createCell(0).setCellValue(500 - school.priority);
+         row.createCell(1).setCellValue(school.name);
+         row.createCell(2).setCellValue(school.numStudents);
+      }
+      
       // Write the output to a file
       FileOutputStream fileOut = new FileOutputStream(outputFile);
       wb.write(fileOut);
       fileOut.close();
       wb.close();
+      System.out.println("FILE WRITTEN.");
    }
    
    
