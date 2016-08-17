@@ -111,7 +111,8 @@ public class School
    {
       School compare = (School) obj;
       
-      return (Math.abs(priority - compare.priority) < .01) && name.equals(compare.name) && (numStudents == compare.numStudents);
+      return (Math.abs(priority - compare.priority) < .01) && name.equals(compare.name) 
+              && (numStudents == compare.numStudents) && (id == compare.id);
    }
    
    public int getNumStudents()

@@ -735,9 +735,21 @@ System.out.println();
    
    
    
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
    //Alternate variables
    public ArrayList<School> schoolListAlt = new ArrayList<>();
    public ArrayList<School> scheduledSchools = new ArrayList<>();
+   public ArrayList<School> needAdd = new ArrayList<>();
    public int average = 0;
    
    public void altKnapsack()
@@ -854,6 +866,20 @@ System.out.println();
       } 
    }
    
+   public void scheduleNeedAdds()
+   {
+      int smallest = getSmallest(needAdd);
+      
+      //while list is not empty, schedule need add
+      //if smallest > the seatsleft for all days, remove school from scheduled.
+   }
+   
+   /**
+    * Get Available schools for this date
+    * @param arr The list to check from
+    * @param day The Day to check
+    * @return A list of available schools
+    */
    public ArrayList<School> getAvail(ArrayList<School> arr, Day day)
    {
       ArrayList<School> avail = new ArrayList<>();
@@ -879,6 +905,13 @@ System.out.println();
       return split;
    }
    
+   /**
+    * Choose which schools will be scheduled.
+    * @param dynTable
+    * @param availSchools
+    * @param dayIndex
+    * @return The scheduled schools for the dayIndex
+    */
    public ArrayList<School> altChooseSchedule(Double[][] dynTable, ArrayList<School> availSchools, int dayIndex)
    {
       School selected;
@@ -924,6 +957,10 @@ System.out.println();
       return smallest;
    }
    
+   /**
+    * Calculate the average number of students per school.
+    * @param arr The list of schools
+    */
    private void calculateAverage(ArrayList<School> arr)
    {
       int newAvg = 0;
@@ -951,5 +988,17 @@ System.out.println();
       }
       
       return uniqueSchools.size();
+   }
+   
+   /**
+    * Removes a scheduled school from dayList
+    * @param school The school to remove.
+    */
+   public void removeScheduledSchool(School school)
+   {
+      for (Day d : dayList.values())
+      {
+         d.removeSchool(school);
+      }
    }
 }

@@ -64,6 +64,19 @@ public class Day
    }
    
    /**
+    * Removes the school from this day.
+    * @param newSchool The school to remove.
+    */
+   public void removeSchool(School newSchool)
+   {
+      if (schools.contains(newSchool))
+      {
+         seatsLeft += newSchool.numStudents;
+         schools.remove(newSchool);
+      }
+   }
+   
+   /**
     * Returns the remaining number of seats.
     * @return The remaining number of seats.
     */
