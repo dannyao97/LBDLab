@@ -30,7 +30,7 @@ public class School
    protected Calendar actualDay;
    /** A list of schools that are split from this school */
    protected ArrayList<School> splitSchool;
-   /** The index of the school */
+   /** The id of the school */
    protected long id;
    
    
@@ -47,9 +47,14 @@ public class School
       this.visited = true;
       this.split = false;
       this.actualDay = null;
-      this.id = System.identityHashCode(this);
+      this.setID();
    }
 
+   private void setID()
+   {
+      this.id = System.identityHashCode(this);      
+   }
+   
    /**
     * Create a new School with split numbers
     * 
@@ -61,7 +66,7 @@ public class School
       this.actualDay = old.actualDay;
       this.availDates = old.availDates;
       this.comments = old.comments;
-      this.id = System.identityHashCode(this);
+      this.id = old.id;
       this.name = old.name;
       this.numStudents = splitNum;
       this.priority = old.priority;

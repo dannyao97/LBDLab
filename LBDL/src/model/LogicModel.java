@@ -678,21 +678,20 @@ System.out.println();
       int randNum;
       boolean randExists;
 
-      if (seed == -1)
+      switch (seed)
       {
-         rand = new Random();
-      }
-      else if (seed == 0)
-      {
-         for (int num = 1; num <= TotalDays; num++)
-         {
-            arr.add(num);
-         }
-         return arr;
-      }
-      else
-      {
-         rand = new Random(seed);
+         case -1:
+            rand = new Random();
+            break;
+         case 0:
+            for (int num = 1; num <= TotalDays; num++)
+            {
+               arr.add(num);
+            }
+            return arr;
+         default:
+            rand = new Random(seed);
+            break;
       }
       
       for (int i = 0; i < TotalDays; i++)
@@ -738,19 +737,23 @@ System.out.println();
    
    //Alternate variables
    public ArrayList<School> schoolListAlt = new ArrayList<>();
+   public ArrayList<School> scheduledSchools = new ArrayList<>();
    public int average = 0;
    
    public void altKnapsack()
    {      
-      int i, remainSize, seatedDup = 0;
+      int i, remainSize;
       ArrayList<School> topTen = new ArrayList<>();
       ArrayList<School> newSplits, remaining = new ArrayList<>();      
       School tempSchool;
+      
+      //Reset seated schools
       seated = 0;
-      seatedSchools = 0;
+      //Recalculate average
+      calculateAverage(schoolListAlt);
       
       //Get top 10 schools. List should already be in order.
-      for (i = 0; i < 10; i++)
+      /*for (i = 0; i < 10; i++)
       {
          //0 because removing top element each time, index will be 0
          tempSchool = schoolListAlt.get(0);
@@ -773,7 +776,7 @@ System.out.println();
       }
       
       //Schedule topTen
-      schedule(topTen);
+      schedule(topTen);*/
 
       //Split up the remaining schools
       //Calculate new average
@@ -793,7 +796,6 @@ System.out.println();
             for (School newSchool : newSplits)
             {
                remaining.add(newSchool);
-               seatedDup++;
             }
          }
          else
@@ -808,8 +810,7 @@ System.out.println();
       schedule(remaining);
       
       System.out.println("Seated: " + seated);
-      System.out.println("School: " + (seatedSchools - seatedDup));
-      System.out.println("remain: " + remaining.size());
+      System.out.println("totalsize: " + countSchools(scheduledSchools));
       mainSchedule = cloneHashMap(dayList);
       notify(NotifyCmd.LIST);      
    }
@@ -840,12 +841,13 @@ System.out.println();
             fillTable(dynTable, availSchools, day.getSeats());
             selected = altChooseSchedule(dynTable, availSchools, ord);
 
-            //FOR school in selected, remove from topTen
+            //FOR school in selected, remove
             for (School sch : selected)
             {
+               seated += sch.numStudents;
+               scheduledSchools.add(sch);
                toSchedule.remove(sch);
                availSchools.remove(sch);
-               seatedSchools++;
             }
             smallest = getSmallest(availSchools);
          }while (smallest <= day.getSeats());
@@ -894,7 +896,6 @@ System.out.println();
          if (Math.abs(dynTable[numItems][weights] - dynTable[numItems - 1][weights]) >= .01)
          {
             selected = availSchools.get(numItems - 1);
-            seated += selected.numStudents;
             day.addSchool(selected);
             selected.actualDay = day.date;
             chosen.add(selected);
@@ -931,7 +932,24 @@ System.out.println();
       {
          newAvg += s.numStudents;
       }
-      average = newAvg / arr.size();
-      System.out.println("avg: " + average);      
+      average = newAvg / arr.size();     
+   }
+   
+   /**
+    * Counts the number of unique schools based on school id.
+    * 
+    * @param arr The array to use.
+    * @return The number of unique schools.
+    */
+   public int countSchools(ArrayList<School> arr)
+   {
+      Set uniqueSchools = new HashSet();
+      
+      for (School school : arr)
+      {
+         uniqueSchools.add(school.id);
+      }
+      
+      return uniqueSchools.size();
    }
 }

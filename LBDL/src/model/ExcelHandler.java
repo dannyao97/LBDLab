@@ -79,8 +79,6 @@ public class ExcelHandler
             parseAltSchool(xlrow, numCols);  //ALTERNATE METHOD OF READING EXCEL
          }
       }
-      //Set the average
-      model.average = totalStudents / model.schoolListAlt.size();
       
       //Sort the list by priority
       Collections.sort(model.schoolList, new Comparator<School>() {
