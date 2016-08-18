@@ -754,8 +754,7 @@ System.out.println();
    
    public void altKnapsack()
    {      
-      int i, remainSize;
-      ArrayList<School> topTen = new ArrayList<>();
+      int i, numSchools;
       ArrayList<School> newSplits, remaining = new ArrayList<>();      
       School tempSchool;
       
@@ -763,40 +762,11 @@ System.out.println();
       seated = 0;
       //Recalculate average
       calculateAverage(schoolListAlt);
-      
-      //Get top 10 schools. List should already be in order.
-      /*for (i = 0; i < 10; i++)
-      {
-         //0 because removing top element each time, index will be 0
-         tempSchool = schoolListAlt.get(0);
-         //IF school can be split and numStudents > avg
-         if (tempSchool.split && (tempSchool.numStudents > average))
-         {
-            newSplits = splitSchool(tempSchool);
-            //Add array of same school thats split up.
-            for (School newSchool : newSplits)
-            {
-               topTen.add(newSchool);
-            }
-         }
-         else
-         {
-            topTen.add(tempSchool);  
-         }
-         //Remove from school list
-         schoolListAlt.remove(0);
-      }
-      
-      //Schedule topTen
-      schedule(topTen);*/
 
-      //Split up the remaining schools
-      //Calculate new average
-      calculateAverage(schoolListAlt);
       //Get the remaining size
-      remainSize = schoolListAlt.size();
+      numSchools = schoolListAlt.size();
       
-      for (i = 0; i < remainSize; i++)
+      for (i = 0; i < numSchools; i++)
       {
          //0 because removing top element each time, index will be 0
          tempSchool = schoolListAlt.get(0);
@@ -819,7 +789,13 @@ System.out.println();
       }
       
       //Schedule remaining schools
-      schedule(remaining);
+      //WHILE smallest school is smaller than smallest day. Can fit more students
+      while (getSmallestSchool(schoolListAlt) <= getSmallestDay())
+      {
+         schedule(remaining);
+      }
+      
+      
       
       System.out.println("Seated: " + seated);
       System.out.println("totalsize: " + countSchools(scheduledSchools));
@@ -847,31 +823,60 @@ System.out.println();
          availSchools = getAvail(toSchedule, day);   
          
          //WHILE day can still add schools
-         do
-         {
-            dynTable = initializeDynTable(toSchedule.size(), day.getSeats());
-            fillTable(dynTable, availSchools, day.getSeats());
-            selected = altChooseSchedule(dynTable, availSchools, ord);
+         //do
+         //{
+         dynTable = initializeDynTable(toSchedule.size(), day.getSeats());
+         fillTable(dynTable, availSchools, day.getSeats());
+         selected = altChooseSchedule(dynTable, availSchools, ord);
 
-            //FOR school in selected, remove
-            for (School sch : selected)
-            {
-               seated += sch.numStudents;
-               scheduledSchools.add(sch);
-               toSchedule.remove(sch);
-               availSchools.remove(sch);
-            }
-            smallest = getSmallest(availSchools);
-         }while (smallest <= day.getSeats());
+         //FOR school in selected, remove
+         for (School sch : selected)
+         {
+            seated += sch.numStudents;
+            scheduledSchools.add(sch);
+            toSchedule.remove(sch);
+            availSchools.remove(sch);
+            addNeedAdds(sch);
+         }
+            //smallest = getSmallestSchool(availSchools);
+         //}while (smallest <= day.getSeats());
       } 
    }
    
    public void scheduleNeedAdds()
    {
-      int smallest = getSmallest(needAdd);
+      int smallSchool = getSmallestSchool(needAdd);
+      int smallDay = getSmallestDay();
+      
+      //NeedAdd should be hashmap with <id,array>. check array size to remove all duplicate schools.
       
       //while list is not empty, schedule need add
-      //if smallest > the seatsleft for all days, remove school from scheduled.
+      while (!needAdd.isEmpty())
+      {
+         //IF smallschool <= smallday, schedule must add
+         if (smallSchool <= smallDay)
+         {
+            schedule(needAdd);
+         }
+         //ELSE remove school from scheduled
+         
+      }
+   }
+   
+   /**
+    * Adds all schools with the same id to needAdds
+    * @param school The just added school, to be excluded from need adds
+    */
+   public void addNeedAdds(School school)
+   {
+      for (School sch : schoolListAlt)
+      {
+         //IF id's match much numstudents don't.
+         if ((sch.id == school.id) && !sch.equals(school) && !needAdd.contains(sch))
+         {
+            needAdd.add(sch);
+         }
+      }
    }
    
    /**
@@ -944,7 +949,7 @@ System.out.println();
     * @param arr The list.
     * @return The smallest school size.
     */
-   public int getSmallest(ArrayList<School> arr)
+   public int getSmallestSchool(ArrayList<School> arr)
    {
       int smallest = Integer.MAX_VALUE;
       for (School school : arr)
@@ -952,6 +957,20 @@ System.out.println();
          if (school.numStudents < smallest)
          {
             smallest = school.numStudents;
+         }
+      }
+      return smallest;
+   }
+   
+   public int getSmallestDay()
+   {
+      int smallest = Integer.MAX_VALUE;
+      
+      for (Day day : dayList.values())
+      {
+         if (day.seatsLeft < smallest)
+         {
+            smallest = day.seatsLeft;
          }
       }
       return smallest;
@@ -991,14 +1010,24 @@ System.out.println();
    }
    
    /**
-    * Removes a scheduled school from dayList
+    * Removes a scheduled school from dayList and final schedule based on id.
     * @param school The school to remove.
     */
    public void removeScheduledSchool(School school)
    {
+      //Remove schools from the daylist
       for (Day d : dayList.values())
       {
          d.removeSchool(school);
+      }
+      
+      //Remove schools from the scheduledschools
+      for (School scheduled : scheduledSchools)
+      {
+         if (scheduled.id == school.id)
+         {
+            scheduledSchools.remove(scheduled);
+         }
       }
    }
 }

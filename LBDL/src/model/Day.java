@@ -21,7 +21,7 @@ public class Day
    /** The dates column in the excel sheet */
    protected int index;
    /** Remaining seats left */
-   private int seatsLeft;
+   protected int seatsLeft;
    /** Formats the date to a readable format */
    private SimpleDateFormat formatter;
 
@@ -64,15 +64,17 @@ public class Day
    }
    
    /**
-    * Removes the school from this day.
+    * Removes the schools from this day using the ID ONLY
     * @param newSchool The school to remove.
     */
    public void removeSchool(School newSchool)
-   {
-      if (schools.contains(newSchool))
+   {     
+      for (School sch : schools)
       {
-         seatsLeft += newSchool.numStudents;
-         schools.remove(newSchool);
+         if (sch.id == newSchool.id)
+         {
+            schools.remove(sch);
+         }
       }
    }
    

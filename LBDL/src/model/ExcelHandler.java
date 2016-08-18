@@ -27,11 +27,14 @@ public class ExcelHandler
    private int smallest = Integer.MAX_VALUE;
    /** Total num students read */
    private int totalStudents;
+   /** School id*/
+   private int id;
    
    public ExcelHandler(LogicModel model)
    {
       this.model = model;
       this.totalStudents = 0;
+      this.id = 0;
    }
    
    /**
@@ -107,7 +110,7 @@ for (School s : model.schoolList)
    private void parseSchool(XSSFRow xlRow, int totalSchools)
    {
       XSSFCell cell;
-      School school = new School();
+      School school = new School(this.id++);
       int dayCount = 1;
       School exist = null;
       
@@ -352,7 +355,7 @@ for (School s : model.schoolList)
    private void parseAltSchool(XSSFRow xlRow, int totalSchools)
    {
       XSSFCell cell;
-      School school = new School();
+      School school = new School(this.id++);
       int dayCount = 1;
       
       // For every column in the row

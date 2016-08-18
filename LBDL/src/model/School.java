@@ -31,13 +31,13 @@ public class School
    /** A list of schools that are split from this school */
    protected ArrayList<School> splitSchool;
    /** The id of the school */
-   protected long id;
+   protected int id;
    
    
    /**
     * Creates a School object to represent a school.
     */
-   public School()
+   public School(int newId)
    {
       this.availDates = new ArrayList<>();
       this.splitNums = new ArrayList<>();
@@ -47,12 +47,7 @@ public class School
       this.visited = true;
       this.split = false;
       this.actualDay = null;
-      this.setID();
-   }
-
-   private void setID()
-   {
-      this.id = System.identityHashCode(this);      
+      this.id = newId;
    }
    
    /**
