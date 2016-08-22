@@ -207,6 +207,7 @@
     <Component class="javax.swing.JButton" name="btnFastAlg">
       <Properties>
         <Property name="text" type="java.lang.String" value="Brute Force Algorithm"/>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnFastAlgActionPerformed"/>
@@ -230,6 +231,7 @@
     <Component class="javax.swing.JButton" name="btnKnap2">
       <Properties>
         <Property name="text" type="java.lang.String" value="Knapsack 2"/>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnKnap2ActionPerformed"/>

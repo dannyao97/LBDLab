@@ -32,6 +32,7 @@ import model.School;
 public class GUI extends javax.swing.JFrame implements Observer
 {
    private final LogicModel model;
+   private int progress = 0;
 
    /**
     * Creates new form GUI
@@ -47,7 +48,7 @@ public class GUI extends javax.swing.JFrame implements Observer
       this.getContentPane().setLayout(springLayout);
       initComponents();
       spinIter.setValue(55000);
-      
+      progressBar.setStringPainted(true);
    }
 
    /**
@@ -113,6 +114,7 @@ public class GUI extends javax.swing.JFrame implements Observer
       });
 
       btnFastAlg.setText("Brute Force Algorithm");
+      btnFastAlg.setEnabled(false);
       btnFastAlg.addActionListener(new java.awt.event.ActionListener()
       {
          public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -135,6 +137,7 @@ public class GUI extends javax.swing.JFrame implements Observer
       lblDebug.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
       btnKnap2.setText("Knapsack 2");
+      btnKnap2.setEnabled(false);
       btnKnap2.addActionListener(new java.awt.event.ActionListener()
       {
          public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -270,6 +273,8 @@ public class GUI extends javax.swing.JFrame implements Observer
    {//GEN-HEADEREND:event_btnRunActionPerformed
       model.readExcelFile(txtFieldInput.getText());
       populateSchoolList();
+      btnFastAlg.setEnabled(true);
+      btnKnap2.setEnabled(true);
       System.out.println("FILE READ.");
    }//GEN-LAST:event_btnRunActionPerformed
 
@@ -285,10 +290,10 @@ public class GUI extends javax.swing.JFrame implements Observer
 
    private void btnKnap2ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnKnap2ActionPerformed
    {//GEN-HEADEREND:event_btnKnap2ActionPerformed
-      int maxIter = (int)spinIter.getValue();
+      progress = (int)spinIter.getValue();
       
-      model.setIterations(maxIter);
-      progressBar.setMaximum(maxIter);
+      model.setIterations(progress);
+      progressBar.setMaximum(progress);
       lblDebug.setText("<html><b>Running...</b></html>");
       model.Knapsack2();
    }//GEN-LAST:event_btnKnap2ActionPerformed
@@ -366,6 +371,7 @@ public class GUI extends javax.swing.JFrame implements Observer
                }
             }
             listSchools.setModel(listModel);
+            progressBar.setValue(progress);
             break;
          case PROG:
             progressBar.setValue(model.index);
