@@ -55,7 +55,7 @@ public class LogicModel extends Observable
 
    public enum NotifyCmd
    {
-      TEXT, LIST;
+      TEXT, LIST, PROG;
    }
 
    /**
@@ -779,7 +779,12 @@ System.out.println();
    public int average = 0;
    public int iter;  //The number of schools scheduled per iteration
    public long constant = 0;
-
+   public Day biggestDay;
+   public boolean done = false;
+   public int totalSeated, totalSchools;
+   public int iterations = 0;
+   public int index = 0;
+   
    public void Knapsack2()
    {
       Thread thead = new Thread() {
@@ -790,6 +795,7 @@ System.out.println();
          }
       };
       thead.start();
+      thead.interrupt();
    }
    
    public void altKnapsack()
@@ -797,8 +803,11 @@ System.out.println();
       int i, numSchools, smallSchool, bigDay;
       ArrayList<School> newSplits, remaining, tempSchoolList;
       School tempSchool;
+      
+      totalSeated = 0;
+      totalSchools = 0;
 
-      for (int sim = 0; sim < 1000; sim++)
+      for (index = 0; index < iterations; index++)
       {
          //Reset seated schools
          this.reset();
@@ -843,17 +852,26 @@ System.out.println();
             schedule(remaining);
             smallSchool = getSmallestSchool(unscheduled);
             bigDay = getBiggestDay();
-            System.out.printf("smallSchool: %3d | bigDay %3d\n", smallSchool, bigDay);
-         }while (smallSchool <= bigDay);
-         
-         System.out.println("\nsim: " + sim);
-         System.out.println("Seated: " + seated);
-         System.out.println("totalsize: " + countSchools(scheduledSchools));
+            //System.out.printf("smallSchool: %3d | bigDay %3d\n", smallSchool, bigDay);
+         }while (smallSchool <= bigDay && !done);
 
+         //Get most students
+         if (seated > totalSeated)
+         {
+            totalSeated = seated;
+            totalSchools = countSchools(scheduledSchools);
+            //System.out.println("\nindex: " + index);
+            //System.out.println("Seated: " + seated);
+            //System.out.println("totalsize: " + totalSchools);
+            mainSchedule = cloneHashMap(dayList);            
+         }
+         
+         notify(NotifyCmd.PROG);
       }
 
-      mainSchedule = cloneHashMap(dayList);
       notify(NotifyCmd.LIST);
+      notifyText = "-Seated Students: " + totalSeated + "  -Schools: " + totalSchools;
+      notify(NotifyCmd.TEXT);
    }
 
    public void schedule(ArrayList<School> toSchedule)
@@ -861,7 +879,7 @@ System.out.println();
       Double[][] dynTable, filledTable;
       ArrayList<Integer> order = randOrder(-1);
       ArrayList<School> availSchools, selected;
-      int smallest;
+      boolean isSelect = false;
       Day day;
 
       //IF topten is empty, break
@@ -878,9 +896,12 @@ System.out.println();
          day = dayList.get(ord);
          availSchools = getAvail(toSchedule, day);
 
-         //WHILE day can still add schools
-         //do
-         //{
+         //IF day doesnt have enough seats
+         if (getSmallestSchool(availSchools) > day.getSeats())
+         {
+            continue;
+         }
+         
          dynTable = initializeDynTable(availSchools.size(), day.getSeats());
          filledTable = fillTable(dynTable, availSchools, day.getSeats());
          selected = altChooseSchedule(filledTable, availSchools, ord);
@@ -895,9 +916,13 @@ System.out.println();
             availSchools.remove(sch);
             addNeedAdds(sch);
             iter++;
+            isSelect = true;
          }
-         //smallest = getSmallestSchool(availSchools);
-         //}while (smallest <= day.getSeats());
+      }
+      
+      if (!isSelect)
+      {
+         done = true;
       }
    }
 
@@ -925,18 +950,14 @@ System.out.println();
          //IF smallschool <= smallday, schedule must add
          if (smallSchool <= bigDay)
          {
-            schedule(needAdd.get(ord));
-
+            schedule(needAdd.get(ord));           
+            
             //IF num split schools == iter, remove from needadds
-            if (needAdd.get(ord).size() != iter)
+            if (needAdd.get(ord).size() != iter && !needAdd.get(ord).isEmpty())
             {
                removeScheduledSchool(needAdd.get(ord).get(0));
             }
             needAdd.remove(ord);
-         }
-         else
-         {
-            break;
          }
       }
    }
@@ -994,8 +1015,8 @@ System.out.println();
       {
          day.clearSchools();
       }
-      mainSchedule.clear();
       needAdd = new HashMap<>();
+      done = false;
    }
 
    /**
@@ -1079,6 +1100,7 @@ System.out.println();
          if (school.numStudents < smallest)
          {
             smallest = school.numStudents;
+            smallestSchool = school;
          }
       }
       return smallest;
@@ -1093,6 +1115,7 @@ System.out.println();
          if (day.seatsLeft >= big)
          {
             big = day.seatsLeft;
+            biggestDay = day;
          }
       }
       return big;
@@ -1132,6 +1155,11 @@ System.out.println();
       return uniqueSchools.size();
    }
 
+   public void setIterations(int iter)
+   {
+      this.iterations = iter;
+   }
+   
    /**
     * Removes a scheduled school from dayList and final schedule based on id.
     *
@@ -1139,6 +1167,9 @@ System.out.println();
     */
    public void removeScheduledSchool(School school)
    {
+      Iterator<School> scheduleIter = scheduledSchools.iterator();
+      School tempSchool;
+      
       //Remove schools from the daylist
       for (Day d : dayList.values())
       {
@@ -1146,11 +1177,12 @@ System.out.println();
       }
 
       //Remove schools from the scheduledschools
-      for (School scheduled : scheduledSchools)
+      while(scheduleIter.hasNext())
       {
-         if (scheduled.id == school.id)
+         tempSchool = scheduleIter.next();
+         if (tempSchool.id == school.id)
          {
-            scheduledSchools.remove(scheduled);
+            scheduleIter.remove();
          }
       }
    }

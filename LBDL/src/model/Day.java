@@ -69,11 +69,15 @@ public class Day
     */
    public void removeSchool(School newSchool)
    {     
-      for (School sch : schools)
+      Iterator<School> schoolIter = schools.iterator();
+      School tempSchool;
+      
+      while (schoolIter.hasNext())
       {
-         if (sch.id == newSchool.id)
+         tempSchool = schoolIter.next();
+         if (tempSchool.id == newSchool.id)
          {
-            schools.remove(sch);
+            schoolIter.remove();
          }
       }
    }
