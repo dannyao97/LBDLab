@@ -4,8 +4,6 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Observable;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
@@ -22,7 +20,7 @@ public class LogicModel extends Observable
    /** A list of all the schools */
    protected ArrayList<School> schoolList;
    /** A list of schools that MUST be added */
-   protected ArrayList<School> mustAdd;
+   //protected ArrayList<School> mustAdd;
    /** An object to perform operations on the excel file */
    private final ExcelHandler xlHandler;
    /** The total number of days */
@@ -32,21 +30,22 @@ public class LogicModel extends Observable
    /** A list of schools that can make each day, key=day index */
    protected HashMap<Integer, Day> mainSchedule;
    /** The smallest school size */
-   protected School smallestSchool;
+   //protected School smallestSchool;
    /** The number of students seated in total */
    private int seated;
    /** The temporary number of seated students */
-   private int tempSeated;
+   //private int tempSeated;
    /** The total number of schools scheduled */
    private int seatedSchools;
    /** Text to notify the GUI */
    public String notifyText;
+   public boolean fileRead = false;
 
    public LogicModel()
    {
       dayList = new HashMap<>();
       schoolList = new ArrayList<>();
-      mustAdd = new ArrayList<>();
+      //mustAdd = new ArrayList<>();
       mainSchedule = new HashMap<>();
       xlHandler = new ExcelHandler(this);
       seated = 0;
@@ -55,7 +54,7 @@ public class LogicModel extends Observable
 
    public enum NotifyCmd
    {
-      TEXT, LIST, PROG;
+      TEXT, LIST, PROG, ERROR;
    }
 
    /**
@@ -78,12 +77,14 @@ public class LogicModel extends Observable
    {
       try
       {
+         fileRead = false;
          xlHandler.readXLFile(filename);
+         fileRead = true;
       }
-      catch (IOException | InvalidFormatException e)
+      catch (InvalidFormatException e)
       {
-         notifyText = "Error: Could not open file.";
-         notify(NotifyCmd.TEXT);
+         notifyText = "Error: File contains an invalid format.";
+         notify(NotifyCmd.ERROR);
       }
    }
 
@@ -104,7 +105,7 @@ public class LogicModel extends Observable
          notify(NotifyCmd.TEXT);
       }
    }
-
+   
    /**
     * (NOT OPTIMAL) Fills up first available day with schools and then moves
     * onto the next day.
@@ -206,7 +207,7 @@ public class LogicModel extends Observable
    /**
     * Generates schedules using the knapsack algorithm.
     */
-   public void knapsack()
+   /*public void knapsack()
    {
       //The order in which to fill the days
       ArrayList<Integer> order;
@@ -270,7 +271,7 @@ public class LogicModel extends Observable
 
             //DEBUG
 //<editor-fold defaultstate="collapsed" desc="DEBUG Print DynTable">
-/*System.out.print(".........");
+System.out.print(".........");
 for (int k = 0; k <= TotalKids; k++)
 {
 System.out.printf("%7.2f|", new Double(k));
@@ -288,7 +289,7 @@ for (int j = 0; j <= TotalKids; j++)
 System.out.printf("%7.2f|", dynTable[i][j]);
 }
 System.out.println();
-}*/
+}
 //</editor-fold>
             //Add day schedule to the main schedule
             dayMap.put(ord, chooseSchedule(dynTable, availSchools, dayList.get(ord)));
@@ -367,9 +368,9 @@ System.out.println();
          }
       }
 //</editor-fold>      
-   }
+   }*/
 
-   private void updateSmallest(School curSchool, ArrayList<ArrayList<School>> unscheduled)
+   /*private void updateSmallest(School curSchool, ArrayList<ArrayList<School>> unscheduled)
    {
       int tempSmallestNum = Integer.MAX_VALUE;
 
@@ -388,7 +389,7 @@ System.out.println();
             }
          }
       }
-   }
+   }*/
 
    /**
     * Chooses which schools will be the most optimal solution
@@ -399,7 +400,7 @@ System.out.println();
     *
     * @return An ArrayList of schools that are scheduled for this day.
     */
-   private Day chooseSchedule(Double[][] dynTable, ArrayList<School> availSchools, Day day)
+   /*private Day chooseSchedule(Double[][] dynTable, ArrayList<School> availSchools, Day day)
    {
       School selected;
       int weights;
@@ -433,9 +434,9 @@ System.out.println();
       }
 
       return day;
-   }
+   }*/
 
-   private void scheduleMustAdds(int seed, HashMap<Integer, Day> dayMap)
+   /*private void scheduleMustAdds(int seed, HashMap<Integer, Day> dayMap)
    {
       int numItems;
       int numWeights;
@@ -505,7 +506,7 @@ System.out.println();
 
             //DEBUG
             //<editor-fold defaultstate="collapsed" desc="DEBUG Print DynTable">
-            /*System.out.print(".........");
+            System.out.print(".........");
    for (int k = 0; k <= numWeights; k++)
    {
    System.out.printf("%7.2f|", new Double(k));
@@ -523,7 +524,7 @@ System.out.println();
    System.out.printf("%7.2f|", dynTable[i][j]);
    }
    System.out.println();
-   }*/
+   }
             //</editor-fold>
             //Get current number of schools in this day
             scheduled = dayList.get(ord).getSchools().size();
@@ -563,7 +564,7 @@ System.out.println();
          //Select a completely random order if mustAdds not empty.
          order = randOrder(-1);
       }
-   }
+   }*/
 
    /**
     * Fills the dynamic table up.
@@ -669,7 +670,7 @@ System.out.println();
     *
     * @return A list of lists containing schools available for a day.
     */
-   private ArrayList<ArrayList<School>> listEachDay()
+   /*private ArrayList<ArrayList<School>> listEachDay()
    {
       ArrayList<ArrayList<School>> arr = new ArrayList<>();
       ArrayList<School> listSchools;
@@ -687,7 +688,7 @@ System.out.println();
          arr.add(listSchools);
       }
       return arr;
-   }
+   }*/
 
    /**
     * Returns a random order in which the days will be filled.
@@ -779,23 +780,23 @@ System.out.println();
    public int average = 0;
    public int iter;  //The number of schools scheduled per iteration
    public long constant = 0;
-   public Day biggestDay;
    public boolean done = false;
-   public int totalSeated, totalSchools;
+   public int totalSeated = 0, totalSchools = 0;
    public int iterations = 0;
    public int index = 0;
+   public Thread thread;
    
    public void Knapsack2()
    {
-      Thread thead = new Thread() {
+      thread = new Thread() {
          @Override
          public void run()
          {
             altKnapsack();
          }
       };
-      thead.start();
-      thead.interrupt();
+      thread.start();
+      thread.interrupt();
    }
    
    public void altKnapsack()
@@ -803,9 +804,6 @@ System.out.println();
       int i, numSchools, smallSchool, bigDay;
       ArrayList<School> newSplits, remaining, tempSchoolList;
       School tempSchool;
-      
-      totalSeated = 0;
-      totalSchools = 0;
 
       for (index = 0; index < iterations; index++)
       {
@@ -856,7 +854,7 @@ System.out.println();
          }while (smallSchool <= bigDay && !done);
 
          //Get most students
-         if (seated > totalSeated)
+         if (seated >= totalSeated)
          {
             totalSeated = seated;
             totalSchools = countSchools(scheduledSchools);
@@ -1100,7 +1098,6 @@ System.out.println();
          if (school.numStudents < smallest)
          {
             smallest = school.numStudents;
-            smallestSchool = school;
          }
       }
       return smallest;
@@ -1115,7 +1112,6 @@ System.out.println();
          if (day.seatsLeft >= big)
          {
             big = day.seatsLeft;
-            biggestDay = day;
          }
       }
       return big;
