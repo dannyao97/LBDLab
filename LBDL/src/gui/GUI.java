@@ -73,7 +73,6 @@ public class GUI extends javax.swing.JFrame implements Observer
             if (model.thread != null && model.thread.isAlive())
             {
                model.thread.interrupt();
-               System.out.println("interrupt");
             }
             System.exit(0);
          }
@@ -102,9 +101,8 @@ public class GUI extends javax.swing.JFrame implements Observer
       listSchools = new javax.swing.JList<>();
       lblList = new javax.swing.JLabel();
       btnRead = new javax.swing.JButton();
-      btnFastAlg = new javax.swing.JButton();
       lblDebug = new javax.swing.JLabel();
-      btnKnap2 = new javax.swing.JButton();
+      btnKnap = new javax.swing.JButton();
       btnWrite = new javax.swing.JButton();
       progressBar = new javax.swing.JProgressBar();
       spinIter = new javax.swing.JSpinner();
@@ -188,26 +186,16 @@ public class GUI extends javax.swing.JFrame implements Observer
          }
       });
 
-      btnFastAlg.setText("Brute Force Algorithm");
-      btnFastAlg.setEnabled(false);
-      btnFastAlg.addActionListener(new java.awt.event.ActionListener()
-      {
-         public void actionPerformed(java.awt.event.ActionEvent evt)
-         {
-            btnFastAlgActionPerformed(evt);
-         }
-      });
-
       lblDebug.setText("DEBUG:");
       lblDebug.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-      btnKnap2.setText("Knapsack 2");
-      btnKnap2.setEnabled(false);
-      btnKnap2.addActionListener(new java.awt.event.ActionListener()
+      btnKnap.setText("Knapsack");
+      btnKnap.setEnabled(false);
+      btnKnap.addActionListener(new java.awt.event.ActionListener()
       {
          public void actionPerformed(java.awt.event.ActionEvent evt)
          {
-            btnKnap2ActionPerformed(evt);
+            btnKnapActionPerformed(evt);
          }
       });
 
@@ -261,9 +249,7 @@ public class GUI extends javax.swing.JFrame implements Observer
                               .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                               .addComponent(spinIter)
                               .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                              .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                 .addComponent(btnKnap2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                 .addComponent(btnFastAlg, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                              .addComponent(btnKnap, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                            .addGroup(layout.createSequentialGroup()
                               .addComponent(lblDebug, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE)
                               .addGap(0, 0, Short.MAX_VALUE))
@@ -302,14 +288,12 @@ public class GUI extends javax.swing.JFrame implements Observer
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 353, javax.swing.GroupLayout.PREFERRED_SIZE)
                .addGroup(layout.createSequentialGroup()
-                  .addGap(54, 54, 54)
-                  .addComponent(btnFastAlg)
-                  .addGap(39, 39, 39)
+                  .addGap(122, 122, 122)
                   .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                     .addComponent(btnKnap2)
+                     .addComponent(btnKnap)
                      .addComponent(spinIter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                      .addComponent(lblIter))
-                  .addGap(33, 33, 33)
+                  .addGap(29, 29, 29)
                   .addComponent(lblDebug, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
                   .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                   .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -324,7 +308,6 @@ public class GUI extends javax.swing.JFrame implements Observer
       if (model.thread != null && model.thread.isAlive())
       {
          model.thread.interrupt();
-         System.out.println("interrupt");
       }
       System.exit(0);
    }//GEN-LAST:event_menuExitActionPerformed
@@ -349,25 +332,22 @@ public class GUI extends javax.swing.JFrame implements Observer
       populateSchoolList();
       if (model.fileRead)
       {
-         btnFastAlg.setEnabled(true);
-         btnKnap2.setEnabled(true);
+         btnKnap.setEnabled(true);
       }
    }//GEN-LAST:event_btnReadActionPerformed
 
-   private void btnFastAlgActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnFastAlgActionPerformed
-   {//GEN-HEADEREND:event_btnFastAlgActionPerformed
-      model.fastAlgorithm();
-   }//GEN-LAST:event_btnFastAlgActionPerformed
-
-   private void btnKnap2ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnKnap2ActionPerformed
-   {//GEN-HEADEREND:event_btnKnap2ActionPerformed
+   private void btnKnapActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnKnapActionPerformed
+   {//GEN-HEADEREND:event_btnKnapActionPerformed
       progress = (int) spinIter.getValue();
-
+      btnRead.setEnabled(false);
+      btnChooseFile.setEnabled(false);
+      btnKnap.setEnabled(false);
+      
       model.setIterations(progress);
       progressBar.setMaximum(progress);
       lblDebug.setText("<html><b>Running...</b></html>");
-      model.Knapsack2();
-   }//GEN-LAST:event_btnKnap2ActionPerformed
+      model.knapsack();
+   }//GEN-LAST:event_btnKnapActionPerformed
 
    private void btnWriteActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnWriteActionPerformed
    {//GEN-HEADEREND:event_btnWriteActionPerformed
@@ -382,6 +362,7 @@ public class GUI extends javax.swing.JFrame implements Observer
    private void populateSchoolList()
    {
       DefaultListModel<String> listModel = new DefaultListModel<>();
+      listSchools.setModel(listModel); //Clear out list
       for (School sch : model.getSchoolList())
       {
          listModel.addElement(sch.getName());
@@ -448,6 +429,7 @@ public class GUI extends javax.swing.JFrame implements Observer
             }
             listSchools.setModel(listModel);
             progressBar.setValue(progress);
+            btnKnap.setEnabled(true);
             break;
          case PROG:
             progressBar.setValue(model.index);
@@ -554,8 +536,7 @@ public class GUI extends javax.swing.JFrame implements Observer
 
    // Variables declaration - do not modify//GEN-BEGIN:variables
    private javax.swing.JButton btnChooseFile;
-   private javax.swing.JButton btnFastAlg;
-   private javax.swing.JButton btnKnap2;
+   private javax.swing.JButton btnKnap;
    private javax.swing.JButton btnOK;
    private javax.swing.JButton btnRead;
    private javax.swing.JButton btnWrite;

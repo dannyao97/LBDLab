@@ -58,6 +58,7 @@ public class ExcelHandler
          int numCols = 0; // Num of columns
          int tmp = 0;
 
+         model.resetModel();
          // This ensures that we get the data properly even if it doesn't start
          // from first few rows
          for (int i = 0; i < 10 || i < numRows; i++)
@@ -92,7 +93,7 @@ public class ExcelHandler
             @Override
             public int compare(School s1, School s2)
             {
-               return Double.compare(s1.priority, s2.priority);
+               return Double.compare(s2.priority, s1.priority);
             }
          });
 
@@ -446,7 +447,7 @@ public class ExcelHandler
          }
       }
 
-      model.schoolListAlt.add(school);
+      model.schoolList.add(school);
    }
 
 }
