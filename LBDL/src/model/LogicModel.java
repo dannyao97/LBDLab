@@ -1,9 +1,9 @@
 package model;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.Observable;
 import java.util.*;
+import java.util.Map.Entry;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
@@ -54,7 +54,7 @@ public class LogicModel extends Observable {
     }
 
     public enum NotifyCmd {
-        TEXT, LIST, PROG, ERROR;
+        TEXT, LIST, PROG, ERROR, LOG;
     }
 
     /**
@@ -95,100 +95,20 @@ public class LogicModel extends Observable {
         } catch (IOException e) {
             notifyText = "Error: Could not write to file.";
         }
-        notify(NotifyCmd.TEXT);
+        notify(NotifyCmd.LOG);
     }
 
-    /**
-     * (NOT OPTIMAL) Fills up first available day with schools and then moves
-     * onto the next day.
-     *
-     * @pre schoolList is already sorted by priority.
-     */
-    /*public void fastAlgorithm()
-   {
-      HashMap<Integer, Day> days = new HashMap<>(dayList);
-      ListIterator iter;
-      boolean scheduled;
-      Day curDay;
-      Day curSchoolDay;
-      seated = 0;
-      seatedSchools = 0;
-
-      //DEBUG LINE
-      ArrayList<School> unAdded = new ArrayList<>();
-
-      //FOR EACH school in the SchoolList
-      for (School curSchool : schoolList)
-      {
-         scheduled = false;
-         iter = curSchool.availDates.listIterator();
-
-         //WHILE school still has available days and hasn't been scheduled
-         while (iter.hasNext() && !scheduled)
-         {
-            curSchoolDay = (Day) iter.next();
-            curDay = days.get(curSchoolDay.index);
-
-            //IF day has enough seats remaining, add school
-            if (curSchool.numStudents <= curDay.getSeats())
-            {
-               curDay.addSchool(curSchool);
-               curSchool.actualDay = curDay.date;
-               scheduled = true;
-               seated += curSchool.numStudents;
-               seatedSchools += 1;
-            }
-         }
-
-         //DEBUG
-         if (!scheduled)
-         {
-            unAdded.add(curSchool);
-         }
-      }
-
-      //DEBUG PORTION
-//<editor-fold defaultstate="collapsed" desc="DEBUG Brute Force">
-      SimpleDateFormat formatter = new SimpleDateFormat("MM-dd");
-      for (School current : schoolList)
-      {
-         if (current.actualDay != null)
-         {
-            String date = formatter.format(current.actualDay.getTime());
-            System.out.println(current.name + "  :  " + date);
-         }
-      }
-      System.out.println("TOTAL SEATED: " + seated);
-      System.out.println("TOTAL SCHOOL: " + seatedSchools);
-
-      System.out.println("\n-----REMAINING DAYS-----");
-      for (Day d : days.values())
-      {
-         String date = formatter.format(d.date.getTime());
-         System.out.println(date + "  :  " + d.getSeats());
-      }
-
-      System.out.println("\n-----UNADDED-----");
-      for (School s : unAdded)
-      {
-         System.out.println(s.name + "  :  " + s.numStudents);
-      }
-
-      notifyText = "<br>-Seated Students: " + seated + "<br>-Schools: " + seatedSchools;
-      notify(NotifyCmd.TEXT);
-//</editor-fold>
-   }*/
     /**
      * Copies all keys and values from hash into a new HashMap
      *
      * @param hash
      * @return A new HashMap with duplicate values.
      */
-    private HashMap cloneHashMap(HashMap hash) {
-        HashMap newHash = new HashMap();
+    private HashMap<Integer, Day> cloneHashMap(HashMap<Integer, Day> hash) {
+        HashMap<Integer, Day> newHash = new HashMap<>();
 
-        for (Object key : hash.keySet()) {
-            newHash.put(key, hash.get(key));
+        for (Entry<Integer, Day> entry : hash.entrySet()) {
+            newHash.put(entry.getKey(), entry.getValue());
         }
         return newHash;
     }
@@ -357,6 +277,7 @@ System.out.println();
     public int iterations = 0;
     public int index = 0;
     public Thread thread;
+    public ArrayList<FinalDay> finalSchedule = new ArrayList<>();
 
     public void knapsack() {
         thread = new Thread() {
@@ -369,7 +290,7 @@ System.out.println();
         thread.interrupt();
     }
 
-    public void altKnapsack() {
+    protected void altKnapsack() {
         int i, numSchools, smallSchool, bigDay;
         ArrayList<School> newSplits, remaining, tempSchoolList;
         School tempSchool;
@@ -378,7 +299,7 @@ System.out.println();
             //Reset seated schools
             this.reset();
             remaining = new ArrayList<>();
-            seated = 0;
+            //seated = 0;
             //Recalculate average
             calculateAverage(schoolList);
 
@@ -415,14 +336,34 @@ System.out.println();
                 //System.out.printf("smallSchool: %3d | bigDay %3d\n", smallSchool, bigDay);
             } while (smallSchool <= bigDay && !done);
 
+            seated = 0;
+            for (Day d : dayList.values())
+            {
+                for (School s : d.getSchools())
+                {
+                    seated += s.numStudents;
+                }
+            }
+            System.out.println("seated... " + seated +"\n......Total Seated " + totalSeated);
+            
             //Get most students
             if (seated >= totalSeated) {
                 totalSeated = seated;
-                totalSchools = countSchools(scheduledSchools);
-                //System.out.println("\nindex: " + index);
-                //System.out.println("Seated: " + seated);
-                //System.out.println("totalsize: " + totalSchools);
+                totalSchools = 0;//countSchools(scheduledSchools);
                 mainSchedule = cloneHashMap(dayList);
+                finalSchedule.clear();
+                
+                totalSeated = 0;
+                for (Day d : mainSchedule.values())
+                {
+                    finalSchedule.add(new FinalDay(d.date, d.schools, d.index, d.seatsLeft));
+                    for (School s : d.getSchools())
+                    {
+                        totalSeated += s.numStudents;
+                        totalSchools++;
+                    }
+                }
+                System.out.println(".......................................................................NEW SEATS: " + totalSeated);
             }
 
             notify(NotifyCmd.PROG);
@@ -463,7 +404,7 @@ System.out.println();
 
             //FOR school in selected, remove
             for (School sch : selected) {
-                seated += sch.numStudents;
+                //seated += sch.numStudents;
                 scheduledSchools.add(sch);
                 unscheduled.remove(sch);
                 toSchedule.remove(sch);
@@ -672,6 +613,20 @@ System.out.println();
         return uniqueSchools.size();
     }
 
+    public int getTotalSeats()
+    {
+        int result = 0;
+        
+        for (FinalDay day : finalSchedule)
+        {
+            for (School school : day.getSchools())
+            {
+                result += school.numStudents;
+            }
+        }
+        return result;
+    }
+    
     public void setIterations(int iter) {
         this.iterations = iter;
     }

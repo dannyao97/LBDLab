@@ -26,7 +26,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
 import model.CustomComparator;
-import model.Day;
+import model.FinalDay;
 import model.LogicModel;
 import model.School;
 
@@ -109,6 +109,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
         progressBar = new javax.swing.JProgressBar();
         spinIter = new javax.swing.JSpinner();
         lblIter = new javax.swing.JLabel();
+        lblLog = new javax.swing.JLabel();
         menuBar = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         menuExit = new javax.swing.JMenuItem();
@@ -119,7 +120,6 @@ public class GUI extends javax.swing.JFrame implements Observer {
         dialogError.setAlwaysOnTop(true);
         dialogError.setMinimumSize(new java.awt.Dimension(307, 159));
         dialogError.setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
-        dialogError.setPreferredSize(new java.awt.Dimension(307, 159));
 
         lblError.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         lblError.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -159,7 +159,6 @@ public class GUI extends javax.swing.JFrame implements Observer {
 
         dialogAbout.setTitle("About");
         dialogAbout.setMinimumSize(new java.awt.Dimension(307, 169));
-        dialogAbout.setPreferredSize(new java.awt.Dimension(307, 169));
 
         btnAboutOK.setText("OK");
         btnAboutOK.addActionListener(new java.awt.event.ActionListener() {
@@ -202,6 +201,8 @@ public class GUI extends javax.swing.JFrame implements Observer {
         setIconImages(null);
         setMinimumSize(new java.awt.Dimension(654, 535));
 
+        txtFieldInput.setText("C:\\Users\\Daniel\\Documents\\NetBeansProjects\\LBDLab\\LBDL\\template.xlsx");
+
         btnChooseFile.setText("Choose File");
         btnChooseFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -227,7 +228,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
         lblDebug.setText("Results:");
         lblDebug.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        btnKnap.setText("Knapsack");
+        btnKnap.setText("Run");
         btnKnap.setEnabled(false);
         btnKnap.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -292,10 +293,12 @@ public class GUI extends javax.swing.JFrame implements Observer {
                                 .addComponent(spinIter)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(btnKnap, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(lblDebug, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 36, Short.MAX_VALUE))
-                            .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblDebug, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(lblLog, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(0, 36, Short.MAX_VALUE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtFieldInput, javax.swing.GroupLayout.PREFERRED_SIZE, 348, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -335,7 +338,9 @@ public class GUI extends javax.swing.JFrame implements Observer {
                             .addComponent(spinIter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(lblIter))
                         .addGap(29, 29, 29)
-                        .addComponent(lblDebug, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblDebug, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblLog, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(36, Short.MAX_VALUE))
@@ -377,6 +382,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
        model.setIterations(progress);
        progressBar.setMaximum(progress);
        lblDebug.setText("<html><b>Running...</b></html>");
+       lblLog.setText("");
        model.knapsack();
    }//GEN-LAST:event_btnKnapActionPerformed
 
@@ -470,11 +476,11 @@ public class GUI extends javax.swing.JFrame implements Observer {
                 break;
             case LIST:
                 DefaultListModel<String> listModel = new DefaultListModel<>();
-                ArrayList<Day> schedule = new ArrayList<>(model.getMainSchedule().values());
+                ArrayList<FinalDay> schedule = new ArrayList<>(model.finalSchedule);
                 //Sort schedule by index
                 Collections.sort(schedule, new CustomComparator());
 
-                for (Day day : schedule) {
+                for (FinalDay day : schedule) {
                     listModel.addElement("<html><b>" + day.toString() + "</b></html>");
                     for (School sch : day.getSchools()) {
                         listModel.addElement(sch.getName() + " " + sch.getNumStudents());
@@ -492,6 +498,9 @@ public class GUI extends javax.swing.JFrame implements Observer {
             case ERROR:
                 lblError.setText(model.notifyText);
                 dialogError.setVisible(true);
+                break;
+            case LOG:
+                lblLog.setText(model.notifyText);
                 break;
         }
     }
@@ -598,6 +607,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JLabel lblError;
     private javax.swing.JLabel lblIter;
     private javax.swing.JLabel lblList;
+    private javax.swing.JLabel lblLog;
     private javax.swing.JLabel lblTitle;
     private javax.swing.JList<String> listSchools;
     private javax.swing.JMenu menuAbout;

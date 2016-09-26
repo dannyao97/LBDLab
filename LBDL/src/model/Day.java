@@ -15,7 +15,7 @@ public class Day
    /** The date this day represents */
    protected Calendar date = Calendar.getInstance();
    /** The schools coming this day */
-   private ArrayList<School> schools;
+   protected ArrayList<School> schools;
    /** The max number of students that can attend */
    private int maxStudents;
    /** The dates column in the excel sheet */
@@ -23,7 +23,7 @@ public class Day
    /** Remaining seats left */
    protected int seatsLeft;
    /** Formats the date to a readable format */
-   private SimpleDateFormat formatter;
+   protected SimpleDateFormat formatter;
 
    /**
     * Creates a day object to hold schools.
@@ -42,7 +42,7 @@ public class Day
    public Day(Day newDay)
    {
       this.date = newDay.date;
-      this.schools = newDay.schools;
+      this.schools = new ArrayList<>(newDay.schools);
       this.maxStudents = newDay.maxStudents;
       this.index = newDay.index;
       this.seatsLeft = newDay.seatsLeft;
@@ -119,5 +119,16 @@ public class Day
    {
       schools.clear();
       this.seatsLeft = this.maxStudents;
+   }
+   
+   /**
+    * Sets the number of seats for this day.
+    * 
+    * @param numSeats The number of seats for this day. 
+    */
+   public void setMaxStudents(int numSeats)
+   {
+       this.maxStudents = numSeats;
+       this.seatsLeft = numSeats;
    }
 }

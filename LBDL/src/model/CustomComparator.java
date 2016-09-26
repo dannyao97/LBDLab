@@ -8,10 +8,10 @@ import java.util.Comparator;
  * @author Daniel Yao
  * @year 2016
  */
-public class CustomComparator implements Comparator<Day>
+public class CustomComparator implements Comparator<FinalDay>
 {
    @Override
-   public int compare(Day d1, Day d2)
+   public int compare(FinalDay d1, FinalDay d2)
    {
       return d1.index >= d2.index ? 1 : -1;
    }
