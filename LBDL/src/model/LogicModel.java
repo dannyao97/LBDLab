@@ -32,10 +32,6 @@ public class LogicModel extends Observable {
      */
     public final int TotalKids = 110;
     /**
-     * A list of schools that can make each day, key=day index
-     */
-    protected HashMap<Integer, Day> mainSchedule;
-    /**
      * The number of students seated in total
      */
     private int seated;
@@ -48,7 +44,6 @@ public class LogicModel extends Observable {
     public LogicModel() {
         dayList = new HashMap<>();
         schoolList = new ArrayList<>();
-        mainSchedule = new HashMap<>();
         xlHandler = new ExcelHandler(this);
         seated = 0;
     }
@@ -248,15 +243,6 @@ System.out.println();
     }
 
     /**
-     * Returns the main schedule.
-     *
-     * @return The main schedule.
-     */
-    public HashMap getMainSchedule() {
-        return mainSchedule;
-    }
-
-    /**
      * Reset the model. Clear all schools and days for reinitialization.
      */
     public void resetModel() {
@@ -269,6 +255,7 @@ System.out.println();
     public ArrayList<School> scheduledSchools = new ArrayList<>();
     public ArrayList<School> unscheduled;
     public HashMap<Integer, ArrayList<School>> needAdd = new HashMap<>();
+    public HashMap<Integer, ArrayList<School>> mustAdd = new HashMap<>();
     public int average = 0;
     public int iter;  //The number of schools scheduled per iteration
     public long constant = 0;
@@ -278,6 +265,7 @@ System.out.println();
     public int index = 0;
     public Thread thread;
     public ArrayList<FinalDay> finalSchedule = new ArrayList<>();
+    public ArrayList<School> finalUnscheduled = new ArrayList<>(); //Final unscheduled schools
 
     public void knapsack() {
         thread = new Thread() {
@@ -292,7 +280,7 @@ System.out.println();
 
     protected void altKnapsack() {
         int i, numSchools, smallSchool, bigDay;
-        ArrayList<School> newSplits, remaining, tempSchoolList;
+        ArrayList<School> newSplits, remaining, tempSchoolList, chosen;
         School tempSchool;
 
         for (index = 0; index < iterations; index++) {
@@ -306,7 +294,11 @@ System.out.println();
             tempSchoolList = new ArrayList<>(schoolList);
             //Get the remaining size
             numSchools = tempSchoolList.size();
-
+            
+            //Currently no schools are scheduled
+            unscheduled = new ArrayList<>(schoolList);
+            scheduleNeedAdds();
+            
             for (i = 0; i < numSchools; i++) {
                 //0 because removing top element each time, index will be 0
                 tempSchool = tempSchoolList.get(0);
@@ -317,7 +309,8 @@ System.out.println();
                     for (School newSchool : newSplits) {
                         remaining.add(newSchool);
                     }
-                } else {
+                } 
+                else {
                     remaining.add(tempSchool);
                 }
                 //Remove from school list
@@ -344,26 +337,32 @@ System.out.println();
                     seated += s.numStudents;
                 }
             }
-            System.out.println("seated... " + seated +"\n......Total Seated " + totalSeated);
             
             //Get most students
             if (seated >= totalSeated) {
                 totalSeated = seated;
                 totalSchools = 0;//countSchools(scheduledSchools);
-                mainSchedule = cloneHashMap(dayList);
                 finalSchedule.clear();
                 
+                chosen = new ArrayList<>(); //temp list of chosen schools
                 totalSeated = 0;
-                for (Day d : mainSchedule.values())
+                for (Day d : dayList.values())
                 {
                     finalSchedule.add(new FinalDay(d.date, d.schools, d.index, d.seatsLeft));
                     for (School s : d.getSchools())
                     {
+                        chosen.add(s);
                         totalSeated += s.numStudents;
                         totalSchools++;
                     }
                 }
-                System.out.println(".......................................................................NEW SEATS: " + totalSeated);
+                
+                //create list of unscheduled schools
+                finalUnscheduled = new ArrayList<>(schoolList);
+                for (School s : chosen)
+                {
+                    finalUnscheduled.remove(s);
+                }
             }
 
             notify(NotifyCmd.PROG);
@@ -372,6 +371,12 @@ System.out.println();
         notify(NotifyCmd.LIST);
         notifyText = "-Seated Students: " + totalSeated + "  -Schools: " + totalSchools;
         notify(NotifyCmd.TEXT);
+        
+        //DEBUG
+        for (School sch : finalUnscheduled)
+        {
+            System.out.println(500 - sch.priority + " " + sch.name + " " + sch.numStudents);
+        }
     }
 
     public void schedule(ArrayList<School> toSchedule) {
@@ -494,6 +499,7 @@ System.out.println();
             day.clearSchools();
         }
         needAdd = new HashMap<>();
+        needAdd.putAll(mustAdd);
         done = false;
     }
 

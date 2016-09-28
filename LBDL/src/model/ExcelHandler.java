@@ -31,10 +31,20 @@ public class ExcelHandler {
      * School id
      */
     private int id;
-    /** The start of the date column */
+    /**
+     * The start of the date column
+     */
     protected int dateStart = 7;
-    /** The end of the dates columns HARDCODED 27 dates. Last date col = 7 + 27*/
+    /**
+     * The end of the dates columns HARDCODED 27 dates. Last date col = 7 + 27
+     */
     protected int dateEnd = 33;
+    /**
+     * The # of important schools to schedule first.
+     */
+    protected int topPriority = 10;
+    /** The top priority counter */
+    protected int needAddCounter = 0;
 
     public ExcelHandler(LogicModel model) {
         this.model = model;
@@ -77,7 +87,7 @@ public class ExcelHandler {
             for (int row = 2; row < numRows; row++) {
                 xlrow = wkSheet.getRow(row);
                 if (xlrow != null) {
-                    parseAltSchool(xlrow, numCols);
+                    parseSchool(xlrow, numCols);
                 }
             }
 
@@ -204,8 +214,9 @@ public class ExcelHandler {
         wb.close();
     }
 
-    private void parseAltSchool(XSSFRow xlRow, int totalSchools) {
+    private void parseSchool(XSSFRow xlRow, int totalSchools) {
         XSSFCell cell;
+        ArrayList<School> newSplits;
         School school = new School(this.id++);
         int dayCount = 1;
 
@@ -277,6 +288,19 @@ public class ExcelHandler {
                         break;
                 }
             }
+        }
+
+        //Add school to needAdds
+        if (needAddCounter < topPriority) {
+            newSplits = new ArrayList<>();
+
+            if (school.split) {
+                newSplits = model.splitSchool(school);
+            } else {
+                newSplits.add(school);
+            }
+            model.mustAdd.put(school.id, newSplits);
+            needAddCounter++;
         }
 
         model.schoolList.add(school);
