@@ -28,10 +28,6 @@ public class ExcelHandler {
      */
     private int smallest = Integer.MAX_VALUE;
     /**
-     * School id
-     */
-    private int id;
-    /**
      * The start of the date column
      */
     protected int dateStart = 7;
@@ -49,7 +45,7 @@ public class ExcelHandler {
     public ExcelHandler(LogicModel model) {
         this.model = model;
         //this.totalStudents = 0;
-        this.id = 0;
+        LogicModel.schoolId = 0;
     }
 
     /**
@@ -67,6 +63,7 @@ public class ExcelHandler {
             numRows = wkSheet.getPhysicalNumberOfRows();
             int numCols = 0; // Num of columns
             int tmp = 0;
+            needAddCounter = 0;
 
             model.resetModel();
             // This ensures that we get the data properly even if it doesn't start
@@ -216,8 +213,7 @@ public class ExcelHandler {
 
     private void parseSchool(XSSFRow xlRow, int totalSchools) {
         XSSFCell cell;
-        ArrayList<School> newSplits;
-        School school = new School(this.id++);
+        School school = new School(LogicModel.schoolId++);
         int dayCount = 1;
 
         // For every column in the row
@@ -275,7 +271,7 @@ public class ExcelHandler {
                     case 35: //Last day of school
                         break;
                     case 36: //Comments
-                        school.comments = cell.getStringCellValue();
+                        //school.comments = cell.getStringCellValue();
                         break;
 
                     //Check available dates. Cols 7 - 333 inclusive
@@ -292,14 +288,8 @@ public class ExcelHandler {
 
         //Add school to needAdds
         if (needAddCounter < topPriority) {
-            newSplits = new ArrayList<>();
 
-            if (school.split) {
-                newSplits = model.splitSchool(school);
-            } else {
-                newSplits.add(school);
-            }
-            model.mustAdd.put(school.id, newSplits);
+            model.toAdd.add(school);
             needAddCounter++;
         }
 

@@ -32,6 +32,8 @@ public class School
    protected ArrayList<School> splitSchool;
    /** The id of the school */
    protected int id;
+   /** All split schools should have same splitId */
+   protected int splitId;
    
    
    /**
@@ -48,6 +50,7 @@ public class School
       this.split = false;
       this.actualDay = null;
       this.id = newId;
+      this.splitId = LogicModel.schoolSplitId++;
    }
    
    /**
@@ -61,7 +64,7 @@ public class School
       this.actualDay = old.actualDay;
       this.availDates = old.availDates;
       this.comments = old.comments;
-      this.id = old.id;
+      this.id = LogicModel.schoolId++;
       this.name = old.name;
       this.numStudents = splitNum;
       this.priority = old.priority;
@@ -69,6 +72,7 @@ public class School
       this.splitNums = null;
       this.splitSchool = null;
       this.visited = old.visited;
+      this.splitId = old.splitId;
    }
    
    /**
@@ -106,8 +110,7 @@ public class School
    {
       School compare = (School) obj;
       
-      return (Math.abs(priority - compare.priority) < .01) && name.equals(compare.name) 
-              && (numStudents == compare.numStudents) && (id == compare.id);
+      return id == compare.id;
    }
    
    public int getNumStudents()

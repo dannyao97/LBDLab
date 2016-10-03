@@ -39,6 +39,15 @@ public class LogicModel extends Observable {
      * Text to notify the GUI
      */
     public String notifyText;
+    /**
+     * An id counter for new schools
+     */
+    protected static int schoolId = 0;
+    /**
+     * An split id counter for split schools
+     */
+    protected static int schoolSplitId = 0;
+
     public boolean fileRead = false;
 
     public LogicModel() {
@@ -68,11 +77,13 @@ public class LogicModel extends Observable {
      * @param filename The name of the file.
      */
     public void readExcelFile(String filename) {
-        try {
+        try
+        {
             fileRead = false;
             xlHandler.readXLFile(filename);
             fileRead = true;
-        } catch (InvalidFormatException e) {
+        } catch (InvalidFormatException e)
+        {
             notifyText = "Error: File contains an invalid format.";
             notify(NotifyCmd.ERROR);
         }
@@ -84,10 +95,12 @@ public class LogicModel extends Observable {
      * @param outputFile The name of the output file.
      */
     public void writeExcelFile(String outputFile) {
-        try {
+        try
+        {
             xlHandler.writeXLFile(outputFile);
             notifyText = "File Written!";
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             notifyText = "Error: Could not write to file.";
         }
         notify(NotifyCmd.LOG);
@@ -99,11 +112,24 @@ public class LogicModel extends Observable {
      * @param hash
      * @return A new HashMap with duplicate values.
      */
-    private HashMap<Integer, Day> cloneHashMap(HashMap<Integer, Day> hash) {
+    private HashMap<Integer, Day> cloneDayList(HashMap<Integer, Day> hash) {
         HashMap<Integer, Day> newHash = new HashMap<>();
 
-        for (Entry<Integer, Day> entry : hash.entrySet()) {
+        for (Entry<Integer, Day> entry : hash.entrySet())
+        {
             newHash.put(entry.getKey(), entry.getValue());
+        }
+        return newHash;
+    }
+
+    private HashMap<Integer, ArrayList<School>> cloneHashMap(HashMap<Integer, ArrayList<School>> hash) {
+        HashMap<Integer, ArrayList<School>> newHash = new HashMap<>();
+        ArrayList<School> newSchoolList;
+
+        for (Integer key : hash.keySet())
+        {
+            newSchoolList = new ArrayList<>(hash.get(key));
+            newHash.put(key, newSchoolList);
         }
         return newHash;
     }
@@ -122,22 +148,30 @@ public class LogicModel extends Observable {
         //System.out.println("items: " + availSchools.size() + "\nweights: " + numWeights);
 
         //FOR all items starting at 1 (inclusive) and school in list starting at 0
-        for (item = 1, sIndex = 0; item <= availSchools.size(); item++, sIndex++) {
+        for (item = 1, sIndex = 0; item <= availSchools.size(); item++, sIndex++)
+        {
             sWeight = availSchools.get(sIndex).numStudents;
             sValue = availSchools.get(sIndex).priority;
 
             //FOR all weights
-            for (weight = 1; weight <= numWeights; weight++) {
+            for (weight = 1; weight <= numWeights; weight++)
+            {
                 //IF item can be part of solution
-                if (sWeight <= weight) {
+                if (sWeight <= weight)
+                {
                     newValue = dynTable[item - 1][weight - sWeight] + sValue;
                     prevValue = dynTable[item - 1][weight];
-                    if (newValue > prevValue) {
+                    if (newValue > prevValue)
+                    {
                         dynTable[item][weight] = newValue;
-                    } else {
+                    }
+                    else
+                    {
                         dynTable[item][weight] = prevValue;
                     }
-                } else {
+                }
+                else
+                {
                     dynTable[item][weight] = dynTable[item - 1][weight];
                 }
             }
@@ -183,11 +217,13 @@ System.out.println();
         int i;
 
         //Set top row to 0's
-        for (i = 0; i <= weights; i++) {
+        for (i = 0; i <= weights; i++)
+        {
             table[0][i] = 0.0;
         }
         //Set first column to 0's
-        for (i = 0; i <= items; i++) {
+        for (i = 0; i <= items; i++)
+        {
             table[i][0] = 0.0;
         }
         return table;
@@ -206,12 +242,14 @@ System.out.println();
         int randNum;
         boolean randExists;
 
-        switch (seed) {
+        switch (seed)
+        {
             case -1:
                 rand = new Random();
                 break;
             case 0:
-                for (int num = 1; num <= TotalDays; num++) {
+                for (int num = 1; num <= TotalDays; num++)
+                {
                     arr.add(num);
                 }
                 return arr;
@@ -220,11 +258,14 @@ System.out.println();
                 break;
         }
 
-        for (int i = 0; i < TotalDays; i++) {
+        for (int i = 0; i < TotalDays; i++)
+        {
             randExists = true;
-            do {
+            do
+            {
                 randNum = rand.nextInt(TotalDays) + 1;
-                if (!arr.contains(randNum)) {
+                if (!arr.contains(randNum))
+                {
                     arr.add(randNum);
                     randExists = false;
                 }
@@ -252,6 +293,8 @@ System.out.println();
 
     //Alternate variables
     public ArrayList<School> schoolList;
+    public ArrayList<School> schoolListSplit;
+    public ArrayList<School> toAdd = new ArrayList<>();
     public ArrayList<School> scheduledSchools = new ArrayList<>();
     public ArrayList<School> unscheduled;
     public HashMap<Integer, ArrayList<School>> needAdd = new HashMap<>();
@@ -266,6 +309,7 @@ System.out.println();
     public Thread thread;
     public ArrayList<FinalDay> finalSchedule = new ArrayList<>();
     public ArrayList<School> finalUnscheduled = new ArrayList<>(); //Final unscheduled schools
+    public ArrayList<School> excludedSchools = new ArrayList<>();
 
     public void knapsack() {
         thread = new Thread() {
@@ -278,57 +322,133 @@ System.out.println();
         thread.interrupt();
     }
 
-    protected void altKnapsack() {
-        int i, numSchools, smallSchool, bigDay;
-        ArrayList<School> newSplits, remaining, tempSchoolList, chosen;
+    //Create split school list
+    public void createSplitSchoolList() {
         School tempSchool;
+        Iterator schoolListIter = schoolList.iterator();
+        ArrayList<School> newSplits;
 
-        for (index = 0; index < iterations; index++) {
+        schoolListSplit = new ArrayList<>();
+        //Split up all the schools
+        while (schoolListIter.hasNext())
+        {
+            tempSchool = (School) schoolListIter.next();
+
+            //IF school can be split and numStudents > avg
+            if (tempSchool.split)
+            {
+                newSplits = splitSchool(tempSchool);
+
+                //Split up mustadd schools
+                if (toAdd.contains(tempSchool))
+                {
+                    mustAdd.put(tempSchool.id, newSplits);
+                }
+
+                //Add array of same school thats split up.
+                for (School newSchool : newSplits)
+                {
+                    schoolListSplit.add(newSchool);
+                }
+            }
+            else
+            {
+                //Add to must add if in toAdd
+                if (toAdd.contains(tempSchool))
+                {
+                    newSplits = new ArrayList<>();
+                    newSplits.add(tempSchool);
+                    mustAdd.put(tempSchool.id, newSplits);
+                }
+                schoolListSplit.add(tempSchool);
+            }
+        }
+    }
+
+    protected void altKnapsack() {
+        ArrayList<School> remaining, chosen, exclude;
+        Iterator unschedIter;
+        School temp;
+        createSplitSchoolList();
+
+        for (index = 0; index < iterations; index++)
+        {
             //Reset seated schools
             this.reset();
-            remaining = new ArrayList<>();
             //seated = 0;
             //Recalculate average
             calculateAverage(schoolList);
 
-            tempSchoolList = new ArrayList<>(schoolList);
-            //Get the remaining size
-            numSchools = tempSchoolList.size();
-            
             //Currently no schools are scheduled
-            unscheduled = new ArrayList<>(schoolList);
-            scheduleNeedAdds();
+            unscheduled = new ArrayList<>(schoolListSplit);
+            //Schedule top 10
+            //scheduleNeedAdds();
+
+            //for (School s : unscheduled)
+            //{
+            //    System.out.println(s.name + " " + s.id + " " + s.splitId);
+            //}
             
-            for (i = 0; i < numSchools; i++) {
-                //0 because removing top element each time, index will be 0
-                tempSchool = tempSchoolList.get(0);
-                //IF school can be split and numStudents > avg
-                if (tempSchool.split) {
-                    newSplits = splitSchool(tempSchool);
-                    //Add array of same school thats split up.
-                    for (School newSchool : newSplits) {
-                        remaining.add(newSchool);
-                    }
-                } 
-                else {
-                    remaining.add(tempSchool);
-                }
-                //Remove from school list
-                tempSchoolList.remove(0);
-            }
-
-            unscheduled = new ArrayList<>(remaining);
-
+            
+            remaining = new ArrayList<>(schoolListSplit);
             //Schedule remaining schools
-            //WHILE smallest school is smaller than smallest day. Can fit more students
-            do {
-                scheduleNeedAdds();
-                schedule(remaining);
-                smallSchool = getSmallestSchool(unscheduled);
-                bigDay = getBiggestDay();
-                //System.out.printf("smallSchool: %3d | bigDay %3d\n", smallSchool, bigDay);
-            } while (smallSchool <= bigDay && !done);
+            //while remaining is not empty
+            //runAlgorithm(unscheduled);
+            do
+            {
+                runAlgorithm(unscheduled);
 
+                exclude = new ArrayList<>();
+                //If a split school was scheduled.
+                for (School sch : scheduledSchools) 
+                {
+                    for (School uSch : unscheduled) 
+                    {
+                        if (sch.splitId == uSch.splitId)
+                        {
+                            exclude.add(sch);
+                        }
+                    }
+                }
+                
+                for (School toRemove : exclude)
+                {
+                    removeScheduledSchool(toRemove);
+                    unschedIter = unscheduled.iterator();
+                    while (unschedIter.hasNext()) 
+                    {
+                        temp = (School) unschedIter.next();
+                        if (temp.splitId == toRemove.splitId)
+                        {
+                            unschedIter.remove();
+                        }
+                    }
+                }
+                needAdd.clear();
+                
+                //IF there are no need adds, else exclude/remove from scheduled and try to find replacement
+                /*if (needAdd.values().isEmpty())
+                {
+                    break;
+                }
+                else
+                {
+                    //Make list of schools to exclude
+                    for (ArrayList<School> eList : needAdd.values())
+                    {
+                        for (School sch : eList)
+                        {
+                            excludedSchools.add(sch);
+                            remaining.remove(sch);
+                            removeScheduledSchool(sch);
+                        }
+                    }
+                    //Clear needAdd
+                    needAdd.clear();
+                }*/
+            } while (!exclude.isEmpty());
+
+            //Get number of seated students
             seated = 0;
             for (Day d : dayList.values())
             {
@@ -337,13 +457,14 @@ System.out.println();
                     seated += s.numStudents;
                 }
             }
-            
+
             //Get most students
-            if (seated >= totalSeated) {
+            if (seated >= totalSeated)
+            {
                 totalSeated = seated;
                 totalSchools = 0;//countSchools(scheduledSchools);
                 finalSchedule.clear();
-                
+
                 chosen = new ArrayList<>(); //temp list of chosen schools
                 totalSeated = 0;
                 for (Day d : dayList.values())
@@ -356,13 +477,14 @@ System.out.println();
                         totalSchools++;
                     }
                 }
-                
+
                 //create list of unscheduled schools
                 finalUnscheduled = new ArrayList<>(schoolList);
                 for (School s : chosen)
                 {
                     finalUnscheduled.remove(s);
                 }
+
             }
 
             notify(NotifyCmd.PROG);
@@ -371,12 +493,44 @@ System.out.println();
         notify(NotifyCmd.LIST);
         notifyText = "-Seated Students: " + totalSeated + "  -Schools: " + totalSchools;
         notify(NotifyCmd.TEXT);
-        
+
         //DEBUG
         for (School sch : finalUnscheduled)
         {
             System.out.println(500 - sch.priority + " " + sch.name + " " + sch.numStudents);
         }
+    }
+
+    public void runAlgorithm(ArrayList<School> notScheduled) {
+        int smallSchool, bigDay;
+        ArrayList<Integer> order;
+
+        //WHILE smallest school is smaller than smallest day. Can fit more students
+        do
+        {
+            //scheduleNeedAdds();
+
+            order = new ArrayList<>(needAdd.keySet());
+
+            //Sort order by priority
+            Collections.sort(order, new Comparator<Integer>() {
+                @Override
+                public int compare(Integer i1, Integer i2) {
+                    return Integer.compare(i1, i2);
+                }
+            });
+
+            for (int ord : order)
+            {
+                schedule(needAdd.get(ord));
+            }
+
+            schedule(unscheduled);
+
+            smallSchool = getSmallestSchool(unscheduled);
+            bigDay = getBiggestDay();
+            //System.out.printf("smallSchool: %3d | bigDay %3d\n", smallSchool, bigDay);
+        } while (smallSchool <= bigDay && !done);
     }
 
     public void schedule(ArrayList<School> toSchedule) {
@@ -386,20 +540,33 @@ System.out.println();
         boolean isSelect = false;
         Day day;
 
-        //IF topten is empty, break
-        if (toSchedule.isEmpty()) {
-            return;
-        }
-
         //Reset iter
         iter = 0;
 
-        for (int ord : order) {
+        for (int ord : order)
+        {
+            //IF topten is empty, break
+            if (toSchedule.isEmpty())
+            {
+                return;
+            }
+
             day = dayList.get(ord);
             availSchools = getAvail(toSchedule, day);
 
+            //DEBUG
+            //remove scheduled schools from avail schools
+            for (School s : scheduledSchools)
+            {
+                if (availSchools.contains(s))
+                {
+                    availSchools.remove(s);
+                }
+            }
+
             //IF day doesnt have enough seats
-            if (getSmallestSchool(availSchools) > day.getSeats()) {
+            if (getSmallestSchool(availSchools) > day.getSeats())
+            {
                 continue;
             }
 
@@ -408,19 +575,29 @@ System.out.println();
             selected = altChooseSchedule(filledTable, availSchools, ord);
 
             //FOR school in selected, remove
-            for (School sch : selected) {
-                //seated += sch.numStudents;
-                scheduledSchools.add(sch);
-                unscheduled.remove(sch);
-                toSchedule.remove(sch);
-                availSchools.remove(sch);
-                addNeedAdds(sch);
-                iter++;
-                isSelect = true;
+            for (School sch : selected)
+            {
+                if (scheduledSchools.contains(sch))
+                {
+                    day.removeSchool(sch);
+                    toSchedule.remove(sch);
+                }
+                else
+                {
+                    //seated += sch.numStudents;
+                    scheduledSchools.add(sch);
+                    unscheduled.remove(sch);
+                    toSchedule.remove(sch);
+                    //availSchools.remove(sch);
+                    addNeedAdds(sch);
+                    iter++;
+                    isSelect = true;
+                }
             }
         }
 
-        if (!isSelect) {
+        if (!isSelect)
+        {
             done = true;
         }
     }
@@ -428,6 +605,8 @@ System.out.println();
     public void scheduleNeedAdds() {
         int smallSchool, bigDay;
         ArrayList<Integer> order = new ArrayList<>(needAdd.keySet());
+        Iterator schedIter;
+        School temp;
 
         //Sort order by priority
         Collections.sort(order, new Comparator<Integer>() {
@@ -439,17 +618,31 @@ System.out.println();
         //NeedAdd should be hashmap with <id,array>. check array size to remove all duplicate schools.
 
         //while list is not empty, schedule need add
-        for (int ord : order) {
+        for (int ord : order)
+        {
             smallSchool = getSmallestSchool(needAdd.get(ord));
             bigDay = getBiggestDay();
 
             //IF smallschool <= smallday, schedule must add
-            if (smallSchool <= bigDay) {
+            if (smallSchool <= bigDay)
+            {
                 schedule(needAdd.get(ord));
 
                 //IF num split schools == iter, remove from needadds
-                if (needAdd.get(ord).size() != iter && !needAdd.get(ord).isEmpty()) {
+                if (needAdd.get(ord).size() != iter && !needAdd.get(ord).isEmpty())
+                {
+                    schedIter = scheduledSchools.iterator();
+                    while (schedIter.hasNext())
+                    {
+                        temp = (School) schedIter.next();
+                        if (temp.id == needAdd.get(ord).get(0).id)
+                        {
+                            unscheduled.add(temp);
+                        }
+                    }
                     removeScheduledSchool(needAdd.get(ord).get(0));
+                    
+                    
                 }
                 needAdd.remove(ord);
             }
@@ -465,28 +658,35 @@ System.out.println();
         boolean exists;
         ArrayList<School> temp;
 
-        for (School sch : unscheduled) {
+        for (School sch : unscheduled)
+        {
             exists = false;
             //IF id's match, not in needAdds, and not in final schedule
-            if ((sch.id == school.id) && !sch.equals(school) && !scheduledSchools.contains(sch)) {
+            if ((sch.splitId == school.splitId))
+            {
                 //Check if already in needAdds
-                for (ArrayList<School> need : needAdd.values()) {
-                    if (need.contains(sch)) {
+                for (ArrayList<School> need : needAdd.values())
+                {
+                    if (need.contains(sch))
+                    {
                         exists = true;
                         break;
                     }
                 }
 
                 //IF not in needAdds
-                if (!exists) {
+                if (!exists)
+                {
                     //IF needadd already has the key
-                    if (needAdd.containsKey(school.id)) {
-                        needAdd.get(school.id).add(sch);
+                    if (needAdd.containsKey(school.splitId))
+                    {
+                        needAdd.get(school.splitId).add(sch);
                     } //ELSE make a new mapping
-                    else {
+                    else
+                    {
                         temp = new ArrayList<>();
                         temp.add(sch);
-                        needAdd.put(school.id, temp);
+                        needAdd.put(school.splitId, temp);
                     }
                 }
             }
@@ -495,11 +695,12 @@ System.out.println();
 
     public void reset() {
         scheduledSchools.clear();
-        for (Day day : dayList.values()) {
+        for (Day day : dayList.values())
+        {
             day.clearSchools();
         }
-        needAdd = new HashMap<>();
-        needAdd.putAll(mustAdd);
+        //needAdd = new HashMap<>();
+        needAdd = cloneHashMap(mustAdd);
         done = false;
     }
 
@@ -513,8 +714,10 @@ System.out.println();
     public ArrayList<School> getAvail(ArrayList<School> arr, Day day) {
         ArrayList<School> avail = new ArrayList<>();
 
-        for (School school : arr) {
-            if (school.availDates.contains(day)) {
+        for (School school : arr)
+        {
+            if (school.availDates.contains(day))
+            {
                 avail.add(school);
             }
         }
@@ -524,7 +727,8 @@ System.out.println();
     public ArrayList<School> splitSchool(School school) {
         ArrayList<School> split = new ArrayList<>();
         //FOR each split num
-        for (int num : school.splitNums) {
+        for (int num : school.splitNums)
+        {
             split.add(new School(school, num));
         }
         return split;
@@ -546,15 +750,18 @@ System.out.println();
         Day day = dayList.get(dayIndex);
 
         //WHILE weight & items both > 0
-        while (numItems > 0 && day.getSeats() > 0) {
+        while (numItems > 0 && day.getSeats() > 0)
+        {
             weights = day.getSeats();
 
             //IF values are not equal with epsilon .01 Compare doubles to 2nd decimal
-            if (Math.abs(dynTable[numItems][weights] - dynTable[numItems - 1][weights]) >= .01) {
+            if (Math.abs(dynTable[numItems][weights] - dynTable[numItems - 1][weights]) >= .01)
+            {
                 selected = availSchools.get(numItems - 1);
                 day.addSchool(selected);
                 selected.actualDay = day.date;
                 chosen.add(selected);
+
             }
             numItems--;
         }
@@ -570,8 +777,10 @@ System.out.println();
      */
     public int getSmallestSchool(ArrayList<School> arr) {
         int smallest = Integer.MAX_VALUE;
-        for (School school : arr) {
-            if (school.numStudents < smallest) {
+        for (School school : arr)
+        {
+            if (school.numStudents < smallest)
+            {
                 smallest = school.numStudents;
             }
         }
@@ -581,8 +790,10 @@ System.out.println();
     public int getBiggestDay() {
         int big = Integer.MIN_VALUE;
 
-        for (Day day : dayList.values()) {
-            if (day.seatsLeft >= big) {
+        for (Day day : dayList.values())
+        {
+            if (day.seatsLeft >= big)
+            {
                 big = day.seatsLeft;
             }
         }
@@ -597,7 +808,8 @@ System.out.println();
     private void calculateAverage(ArrayList<School> arr) {
         int newAvg = 0;
 
-        for (School s : arr) {
+        for (School s : arr)
+        {
             newAvg += s.numStudents;
         }
         average = newAvg / arr.size();
@@ -612,17 +824,17 @@ System.out.println();
     public int countSchools(ArrayList<School> arr) {
         Set uniqueSchools = new HashSet();
 
-        for (School school : arr) {
+        for (School school : arr)
+        {
             uniqueSchools.add(school.id);
         }
 
         return uniqueSchools.size();
     }
 
-    public int getTotalSeats()
-    {
+    public int getTotalSeats() {
         int result = 0;
-        
+
         for (FinalDay day : finalSchedule)
         {
             for (School school : day.getSchools())
@@ -632,7 +844,7 @@ System.out.println();
         }
         return result;
     }
-    
+
     public void setIterations(int iter) {
         this.iterations = iter;
     }
@@ -647,14 +859,17 @@ System.out.println();
         School tempSchool;
 
         //Remove schools from the daylist
-        for (Day d : dayList.values()) {
+        for (Day d : dayList.values())
+        {
             d.removeSchool(school);
         }
 
         //Remove schools from the scheduledschools
-        while (scheduleIter.hasNext()) {
+        while (scheduleIter.hasNext())
+        {
             tempSchool = scheduleIter.next();
-            if (tempSchool.id == school.id) {
+            if (tempSchool.id == school.id)
+            {
                 scheduleIter.remove();
             }
         }

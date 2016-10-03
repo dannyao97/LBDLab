@@ -62,7 +62,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
         dialogError.setIconImage(img.getImage());
         dialogAbout.setIconImage(img.getImage());
 
-        spinIter.setValue(125000);
+        spinIter.setValue(55000);
         progressBar.setStringPainted(true);
         dialogError.setLocationRelativeTo(this);
         dialogAbout.setLocationRelativeTo(this);
