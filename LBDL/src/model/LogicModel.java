@@ -26,7 +26,7 @@ public class LogicModel extends Observable {
     /**
      * The total number of days
      */
-    public final int TotalDays = 27;
+    public final int TotalDays = 28;
     /**
      * The total number of students per day
      */
@@ -249,6 +249,12 @@ System.out.println();
                 break;
             case 0:
                 for (int num = 1; num <= TotalDays; num++)
+                {
+                    arr.add(num);
+                }
+                return arr;
+            case 1:
+                for (int num = TotalDays; num > 0; num--)
                 {
                     arr.add(num);
                 }

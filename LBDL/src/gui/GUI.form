@@ -282,9 +282,6 @@
   </Layout>
   <SubComponents>
     <Component class="javax.swing.JTextField" name="txtFieldInput">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="C:\u005cUsers\u005cDaniel\u005cDocuments\u005cNetBeansProjects\u005cLBDLab\u005cLBDL\u005ctemplate.xlsx" containsInvalidXMLChars="true"/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="btnChooseFile">
       <Properties>

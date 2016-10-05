@@ -32,14 +32,16 @@ public class ExcelHandler {
      */
     protected int dateStart = 7;
     /**
-     * The end of the dates columns HARDCODED 27 dates. Last date col = 7 + 27
+     * The end of the dates columns HARDCODED 28 dates. CHANGE
      */
-    protected int dateEnd = 33;
+    protected int dateEnd = 34;
     /**
      * The # of important schools to schedule first.
      */
     protected int topPriority = 10;
-    /** The top priority counter */
+    /**
+     * The top priority counter
+     */
     protected int needAddCounter = 0;
 
     public ExcelHandler(LogicModel model) {
@@ -55,24 +57,35 @@ public class ExcelHandler {
      * @throws InvalidFormatException If file is malformed.
      */
     protected void readXLFile(String filename) throws InvalidFormatException {
-        try {
+        try
+        {
             XSSFWorkbook wb = new XSSFWorkbook(new File(filename));
             XSSFSheet wkSheet = wb.getSheetAt(0);
             XSSFRow xlrow;
-            int numRows; // Num of rows
-            numRows = wkSheet.getPhysicalNumberOfRows();
+            XSSFCell cell;
+            int numRows = 2; // Schools start from row 2 and on
+            //numRows = wkSheet.getPhysicalNumberOfRows();
             int numCols = 0; // Num of columns
             int tmp = 0;
             needAddCounter = 0;
 
+            //Checks each row for a school name to calculate total number of schools
+            do
+            {
+                cell = wkSheet.getRow(numRows).getCell(1);
+                numRows++;
+            } while (cell != null);
+
             model.resetModel();
-            // This ensures that we get the data properly even if it doesn't start
-            // from first few rows
-            for (int i = 0; i < 10 || i < numRows; i++) {
+            // Get number of columns
+            for (int i = 0; i < 10 || i < numRows; i++)
+            {
                 xlrow = wkSheet.getRow(i);
-                if (xlrow != null) {
+                if (xlrow != null)
+                {
                     tmp = wkSheet.getRow(i).getPhysicalNumberOfCells();
-                    if (tmp > numCols) {
+                    if (tmp > numCols)
+                    {
                         numCols = tmp;
                     }
                 }
@@ -81,9 +94,11 @@ public class ExcelHandler {
             initializeDayList(wkSheet);
 
             // For every row in the sheet starting from the third row after seats per day
-            for (int row = 2; row < numRows; row++) {
+            for (int row = 2; row < numRows - 1; row++)
+            {
                 xlrow = wkSheet.getRow(row);
-                if (xlrow != null) {
+                if (xlrow != null)
+                {
                     parseSchool(xlrow, numCols);
                 }
             }
@@ -102,7 +117,8 @@ public class ExcelHandler {
                 System.out.printf("%6.2f | %s\n", s.priority, s.name);
             }*/
 //</editor-fold>
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new InvalidFormatException(e.toString());
         }
     }
@@ -126,19 +142,24 @@ public class ExcelHandler {
         //Array of month/day
         String[] dateArr;
 
-        try {
+        try
+        {
             //FOR each date in the sheet
-            for (dateStart = 7; dateStart <= dateEnd; dateStart++) {
+            for (dateStart = 7; dateStart <= dateEnd; dateStart++)
+            {
                 cell = xlRow.getCell(dateStart);
                 cellStr = cell.toString();
                 cellDate = cellStr.substring(cellStr.indexOf(" "), cellStr.length()).trim();
                 dateArr = cellDate.split("/");
-                if (dateArr.length != 2) {
+                if (dateArr.length != 2)
+                {
                     model.notifyText = "Bad cell format: Sheet: " + xlRow.getSheet().getSheetName()
                             + "| Cell(" + xlRow.getRowNum() + ", " + dateStart + ")";
                     model.notify(LogicModel.NotifyCmd.TEXT);
                     break;
-                } else {
+                }
+                else
+                {
                     Day newDay = new Day(++dayCount);
                     newDay.seatsLeft = Double.valueOf(sheet.getRow(1).getCell(dateStart).toString()).intValue();
                     //Get the month, subtract 1 because index starts at 0
@@ -153,7 +174,8 @@ public class ExcelHandler {
                     model.dayList.put(dayCount, newDay);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new InvalidFormatException(e.toString());
         }
     }
@@ -184,8 +206,10 @@ public class ExcelHandler {
         row2.createCell(0).setCellValue("Date");
         row2.createCell(1).setCellValue("Seats Left");
 
-        for (FinalDay day : schedule) {
-            for (School school : day.getSchools()) {
+        for (FinalDay day : schedule)
+        {
+            for (School school : day.getSchools())
+            {
                 row = sheet.createRow(count++);
                 row.createCell(0).setCellValue(school.name);
                 row.createCell(1).setCellValue(school.getNumStudents());
@@ -217,11 +241,14 @@ public class ExcelHandler {
         int dayCount = 1;
 
         // For every column in the row
-        for (int col = 0; col < totalSchools; col++) {
+        for (int col = 0; col < totalSchools; col++)
+        {
             cell = xlRow.getCell(col);
-            if (cell != null) {
+            if (cell != null)
+            {
                 //SWITCH over each column
-                switch (col) {
+                switch (col)
+                {
                     //Priority
                     case 0:
                         //Subtract from 100 to reorder priority. Lowest value is now biggest value/priority.
@@ -235,7 +262,8 @@ public class ExcelHandler {
 
                     //Previously visited
                     case 2:
-                        if (cell.toString().toLowerCase().contains("no")) {
+                        if (cell.toString().toLowerCase().contains("no"))
+                        {
                             school.visited = false;
                         }
                         break;
@@ -252,32 +280,27 @@ public class ExcelHandler {
 
                     //Split
                     case 5:
-                        if (new Double(cell.getNumericCellValue()).intValue() == 1) {
+                        if (new Double(cell.getNumericCellValue()).intValue() == 1)
+                        {
                             school.split = true;
                         }
                         break;
 
                     //Split
                     case 6:
-                        for (String num : cell.toString().split(",")) {
-                            if (!num.equals("")) {
+                        for (String num : cell.toString().split(","))
+                        {
+                            if (!num.equals(""))
+                            {
                                 school.splitNums.add(Double.valueOf(num.trim()).intValue());
                             }
                         }
                         break;
-
-                    case 34: //Spring break
-                        break;
-                    case 35: //Last day of school
-                        break;
-                    case 36: //Comments
-                        //school.comments = cell.getStringCellValue();
-                        break;
-
-                    //Check available dates. Cols 7 - 333 inclusive
+                    //Check available dates. Cols 7 - 33 inclusive
                     default:
-                        if ((col > 6 && col < 34) && !cell.toString().equals("")
-                                && (Double.valueOf(cell.getNumericCellValue()).intValue() == 1)) {
+                        if ((col > 6 && col < 35) && !cell.toString().equals("")
+                                && (Double.valueOf(cell.getNumericCellValue()).intValue() == 1))
+                        {
                             school.addDay(model.dayList.get(dayCount));
                         }
                         dayCount++;
@@ -287,7 +310,8 @@ public class ExcelHandler {
         }
 
         //Add school to needAdds
-        if (needAddCounter < topPriority) {
+        if (needAddCounter < topPriority)
+        {
 
             model.toAdd.add(school);
             needAddCounter++;

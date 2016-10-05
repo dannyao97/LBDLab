@@ -201,8 +201,6 @@ public class GUI extends javax.swing.JFrame implements Observer {
         setIconImages(null);
         setMinimumSize(new java.awt.Dimension(654, 535));
 
-        txtFieldInput.setText("C:\\Users\\Daniel\\Documents\\NetBeansProjects\\LBDLab\\LBDL\\template.xlsx");
-
         btnChooseFile.setText("Choose File");
         btnChooseFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -368,6 +366,8 @@ public class GUI extends javax.swing.JFrame implements Observer {
        populateSchoolList();
        if (model.fileRead) {
            btnKnap.setEnabled(true);
+           btnRead.setEnabled(false);
+           btnChooseFile.setEnabled(false);
        }
    }//GEN-LAST:event_btnReadActionPerformed
 
