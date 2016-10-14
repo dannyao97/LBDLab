@@ -1,13 +1,11 @@
 package gui;
 
 import java.awt.BorderLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
 import javax.swing.DefaultListModel;
@@ -54,11 +52,11 @@ public class GUI extends javax.swing.JFrame implements Observer {
         this.getContentPane().setLayout(springLayout);
         initComponents();
         this.setLocationRelativeTo(null);
-        this.getRootPane().setDefaultButton(btnRead);
+        this.getRootPane().setDefaultButton(btnChooseFile);
 
         ImageIcon img = new ImageIcon("logo.png");
         this.setIconImage(img.getImage());
-        Image blank = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB_PRE);
+        
         dialogError.setIconImage(img.getImage());
         dialogAbout.setIconImage(img.getImage());
 
@@ -201,7 +199,10 @@ public class GUI extends javax.swing.JFrame implements Observer {
         setIconImages(null);
         setMinimumSize(new java.awt.Dimension(654, 535));
 
+        txtFieldInput.setText("C:\\Users\\Daniel\\Desktop\\template.xlsx");
+
         btnChooseFile.setText("Choose File");
+        btnChooseFile.setToolTipText("Choose a File");
         btnChooseFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnChooseFileActionPerformed(evt);
@@ -217,6 +218,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
         lblList.setText("List of Schools:");
 
         btnRead.setText("Read File");
+        btnRead.setToolTipText("Read in the file for processing");
         btnRead.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnReadActionPerformed(evt);
@@ -235,6 +237,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
         });
 
         btnWrite.setText("Write To File");
+        btnWrite.setToolTipText("Write finished schedule to excel file");
         btnWrite.setEnabled(false);
         btnWrite.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -357,6 +360,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
 
        if (inputFileChooser.getSelectedFile() != null) {
            txtFieldInput.setText(inputFileChooser.getSelectedFile().getAbsolutePath());
+           this.getRootPane().setDefaultButton(btnRead);
        }
    }//GEN-LAST:event_btnChooseFileActionPerformed
 

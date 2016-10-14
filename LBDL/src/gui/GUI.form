@@ -282,10 +282,14 @@
   </Layout>
   <SubComponents>
     <Component class="javax.swing.JTextField" name="txtFieldInput">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="C:\u005cUsers\u005cDaniel\u005cDesktop\u005ctemplate.xlsx" containsInvalidXMLChars="true"/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="btnChooseFile">
       <Properties>
         <Property name="text" type="java.lang.String" value="Choose File"/>
+        <Property name="toolTipText" type="java.lang.String" value="Choose a File"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnChooseFileActionPerformed"/>
@@ -329,6 +333,7 @@
     <Component class="javax.swing.JButton" name="btnRead">
       <Properties>
         <Property name="text" type="java.lang.String" value="Read File"/>
+        <Property name="toolTipText" type="java.lang.String" value="Read in the file for processing"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReadActionPerformed"/>
@@ -352,6 +357,7 @@
     <Component class="javax.swing.JButton" name="btnWrite">
       <Properties>
         <Property name="text" type="java.lang.String" value="Write To File"/>
+        <Property name="toolTipText" type="java.lang.String" value="Write finished schedule to excel file"/>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>

@@ -34,6 +34,8 @@ public class School
    protected int id;
    /** All split schools should have same splitId */
    protected int splitId;
+   /** Total number of students including all splits*/
+   protected int totalNumStudents;
    
    
    /**

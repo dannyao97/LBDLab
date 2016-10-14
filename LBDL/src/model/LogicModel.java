@@ -26,7 +26,7 @@ public class LogicModel extends Observable {
     /**
      * The total number of days
      */
-    public final int TotalDays = 28;
+    public int TotalDays;
     /**
      * The total number of students per day
      */
@@ -372,7 +372,8 @@ System.out.println();
     }
 
     protected void altKnapsack() {
-        ArrayList<School> remaining, chosen, exclude;
+        ArrayList<School> leftover, chosen, exclude;
+        ArrayList<Integer> unschedExists;
         Iterator unschedIter;
         School temp;
         createSplitSchoolList();
@@ -381,25 +382,13 @@ System.out.println();
         {
             //Reset seated schools
             this.reset();
-            //seated = 0;
             //Recalculate average
             calculateAverage(schoolList);
 
             //Currently no schools are scheduled
             unscheduled = new ArrayList<>(schoolListSplit);
-            //Schedule top 10
-            //scheduleNeedAdds();
 
-            //for (School s : unscheduled)
-            //{
-            //    System.out.println(s.name + " " + s.id + " " + s.splitId);
-            //}
-            
-            
-            remaining = new ArrayList<>(schoolListSplit);
-            //Schedule remaining schools
-            //while remaining is not empty
-            //runAlgorithm(unscheduled);
+            //Schedule schools
             do
             {
                 runAlgorithm(unscheduled);
@@ -432,26 +421,6 @@ System.out.println();
                 }
                 needAdd.clear();
                 
-                //IF there are no need adds, else exclude/remove from scheduled and try to find replacement
-                /*if (needAdd.values().isEmpty())
-                {
-                    break;
-                }
-                else
-                {
-                    //Make list of schools to exclude
-                    for (ArrayList<School> eList : needAdd.values())
-                    {
-                        for (School sch : eList)
-                        {
-                            excludedSchools.add(sch);
-                            remaining.remove(sch);
-                            removeScheduledSchool(sch);
-                        }
-                    }
-                    //Clear needAdd
-                    needAdd.clear();
-                }*/
             } while (!exclude.isEmpty());
 
             //Get number of seated students
@@ -470,6 +439,7 @@ System.out.println();
                 totalSeated = seated;
                 totalSchools = 0;//countSchools(scheduledSchools);
                 finalSchedule.clear();
+                finalUnscheduled.clear();
 
                 chosen = new ArrayList<>(); //temp list of chosen schools
                 totalSeated = 0;
@@ -485,10 +455,25 @@ System.out.println();
                 }
 
                 //create list of unscheduled schools
-                finalUnscheduled = new ArrayList<>(schoolList);
-                for (School s : chosen)
+                leftover = new ArrayList<>(schoolListSplit);
+                for (School sch : chosen)
                 {
-                    finalUnscheduled.remove(s);
+                    if (leftover.contains(sch))
+                    {
+                        leftover.remove(sch);
+                    }
+                }
+                unschedExists = new ArrayList<>();
+                
+                totalSchools = schoolList.size();
+                for (School sch : leftover)
+                {
+                    if (!unschedExists.contains(sch.splitId))
+                    {
+                        unschedExists.add(sch.splitId);
+                        finalUnscheduled.add(sch);
+                        totalSchools--;
+                    }
                 }
 
             }
@@ -503,7 +488,7 @@ System.out.println();
         //DEBUG
         for (School sch : finalUnscheduled)
         {
-            System.out.println(500 - sch.priority + " " + sch.name + " " + sch.numStudents);
+            System.out.println(500 - sch.priority + " " + sch.name + " ");
         }
     }
 

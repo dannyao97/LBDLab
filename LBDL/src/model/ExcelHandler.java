@@ -77,7 +77,7 @@ public class ExcelHandler {
             } while (cell != null);
 
             model.resetModel();
-            // Get number of columns
+            // Get number of columns. Go through 10 rows to make sure
             for (int i = 0; i < 10 || i < numRows; i++)
             {
                 xlrow = wkSheet.getRow(i);
@@ -178,17 +178,22 @@ public class ExcelHandler {
         {
             throw new InvalidFormatException(e.toString());
         }
+        
+        //Set total number of days
+        model.TotalDays = dayCount;
     }
 
     protected void writeXLFile(String outputFile) throws IOException {
         XSSFWorkbook wb = new XSSFWorkbook();
         XSSFSheet sheet = wb.createSheet("Main Schedule");
         XSSFSheet sheet2 = wb.createSheet("Remaining Seats");
+        XSSFSheet sheet3 = wb.createSheet("Unscheduled Schools");
 
         ArrayList<FinalDay> schedule = new ArrayList<>(model.finalSchedule);
+        ArrayList<School> unscheduled = new ArrayList<>(model.finalUnscheduled);
 
-        XSSFRow row, row2;
-        int count = 0, countf = 0;
+        XSSFRow row, row2, row3;
+        int count = 0, countf = 0, countU = 0;
 
         sheet.setColumnWidth(0, 45 * 256);
         sheet.setColumnWidth(1, 10 * 256);
@@ -196,6 +201,10 @@ public class ExcelHandler {
 
         sheet2.setColumnWidth(0, 20 * 256);
         sheet2.setColumnWidth(1, 10 * 256);
+        
+        sheet3.setColumnWidth(0, 8 * 256);
+        sheet3.setColumnWidth(1, 45 * 256);
+        sheet3.setColumnWidth(2, 10 * 256);
 
         row = sheet.createRow(count++);
         row.createCell(0).setCellValue("School");
@@ -206,6 +215,11 @@ public class ExcelHandler {
         row2.createCell(0).setCellValue("Date");
         row2.createCell(1).setCellValue("Seats Left");
 
+        row3 = sheet3.createRow(countU++);
+        row3.createCell(0).setCellValue("Priority");
+        row3.createCell(1).setCellValue("School Name");
+        row3.createCell(2).setCellValue("Seats");
+        
         for (FinalDay day : schedule)
         {
             for (School school : day.getSchools())
@@ -228,6 +242,16 @@ public class ExcelHandler {
         row2.createCell(0).setCellValue("Total Schools");
         row2.createCell(1).setCellValue(model.totalSchools);
 
+        //Write unscheduled schools
+        for (School school : unscheduled)
+        {
+            row3 = sheet3.createRow(countU++);
+            row3.createCell(0).setCellValue(500 - school.priority);
+            row3.createCell(1).setCellValue(school.name);
+            row3.createCell(2).setCellValue(school.totalNumStudents);
+        }
+        
+        
         // Write the output to a file
         FileOutputStream fileOut = new FileOutputStream(outputFile);
         wb.write(fileOut);
@@ -235,13 +259,13 @@ public class ExcelHandler {
         wb.close();
     }
 
-    private void parseSchool(XSSFRow xlRow, int totalSchools) {
+    private void parseSchool(XSSFRow xlRow, int totalCols) {
         XSSFCell cell;
         School school = new School(LogicModel.schoolId++);
         int dayCount = 1;
 
         // For every column in the row
-        for (int col = 0; col < totalSchools; col++)
+        for (int col = 0; col < totalCols; col++)
         {
             cell = xlRow.getCell(col);
             if (cell != null)
@@ -276,6 +300,7 @@ public class ExcelHandler {
                     //Total num students
                     case 4:
                         school.numStudents = new Double(cell.getNumericCellValue()).intValue();
+                        school.totalNumStudents = new Double(cell.getNumericCellValue()).intValue();
                         break;
 
                     //Split
@@ -298,7 +323,7 @@ public class ExcelHandler {
                         break;
                     //Check available dates. Cols 7 - 33 inclusive
                     default:
-                        if ((col > 6 && col < 35) && !cell.toString().equals("")
+                        if ((col > 6 && col < 35) && !cell.toString().trim().equals("")
                                 && (Double.valueOf(cell.getNumericCellValue()).intValue() == 1))
                         {
                             school.addDay(model.dayList.get(dayCount));
