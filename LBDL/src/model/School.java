@@ -119,4 +119,9 @@ public class School
    {
       return numStudents;
    }
+   
+   public int getTotalStudents()
+   {
+       return totalNumStudents;
+   }
 }

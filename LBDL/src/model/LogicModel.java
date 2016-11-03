@@ -76,11 +76,11 @@ public class LogicModel extends Observable {
      *
      * @param filename The name of the file.
      */
-    public void readExcelFile(String filename) {
+    public void readExcelFile(String filename, String start, String end) {
         try
         {
             fileRead = false;
-            xlHandler.readXLFile(filename);
+            xlHandler.readXLFile(filename, start, end);
             fileRead = true;
         } catch (InvalidFormatException e)
         {
@@ -310,6 +310,7 @@ System.out.println();
     public long constant = 0;
     public boolean done = false;
     public int totalSeated = 0, totalSchools = 0;
+    public int totalStudents = 0;
     public int iterations = 0;
     public int index = 0;
     public Thread thread;
@@ -339,7 +340,8 @@ System.out.println();
         while (schoolListIter.hasNext())
         {
             tempSchool = (School) schoolListIter.next();
-
+            totalStudents += tempSchool.totalNumStudents;
+            
             //IF school can be split and numStudents > avg
             if (tempSchool.split)
             {
@@ -482,7 +484,8 @@ System.out.println();
         }
 
         notify(NotifyCmd.LIST);
-        notifyText = "-Seated Students: " + totalSeated + "  -Schools: " + totalSchools;
+        notifyText = "# of Seated Students: " + "<b>" + totalSeated + "</b>" + "<br/>Total # of Students: " + "<b>" + totalStudents + "</b>" 
+                     + "<br/><br/># of Scheduled Schools: " + "<b>" + totalSchools + "</b>" + "<br/>Total # of Schools: " + "<b>" + schoolList.size() + "</b>";
         notify(NotifyCmd.TEXT);
 
         //DEBUG
