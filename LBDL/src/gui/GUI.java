@@ -3,13 +3,12 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -62,12 +61,14 @@ public class GUI extends javax.swing.JFrame implements Observer {
       dialogError.setIconImage(img.getImage());
       dialogAbout.setIconImage(img.getImage());
       dialogOption.setIconImage(img.getImage());
+      dialogHow.setIconImage(img.getImage());
 
       spinIter.setValue(55000);
       progressBar.setStringPainted(true);
       dialogError.setLocationRelativeTo(this);
       dialogAbout.setLocationRelativeTo(this);
       dialogOption.setLocationRelativeTo(this);
+      dialogHow.setLocationRelativeTo(this);
 
       WindowListener exitListener = new WindowAdapter() {
          @Override
@@ -108,6 +109,11 @@ public class GUI extends javax.swing.JFrame implements Observer {
       comboEndDate = new javax.swing.JComboBox<>();
       lblstartDate = new javax.swing.JLabel();
       lblendDate = new javax.swing.JLabel();
+      dialogHow = new javax.swing.JDialog();
+      jScrollPane2 = new javax.swing.JScrollPane();
+      textHow = new javax.swing.JTextArea();
+      lblHow = new javax.swing.JLabel();
+      btnHowOk = new javax.swing.JButton();
       txtFieldInput = new javax.swing.JTextField();
       lblTitle = new javax.swing.JLabel();
       jScrollPane1 = new javax.swing.JScrollPane();
@@ -129,6 +135,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
       menuExit = new javax.swing.JMenuItem();
       menuAbout = new javax.swing.JMenu();
       menuInfo = new javax.swing.JMenuItem();
+      menuHow = new javax.swing.JMenuItem();
 
       dialogError.setTitle("Warning");
       dialogError.setAlwaysOnTop(true);
@@ -311,6 +318,57 @@ public class GUI extends javax.swing.JFrame implements Observer {
             .addContainerGap())
       );
 
+      dialogHow.setTitle("How To Use");
+      dialogHow.setMinimumSize(new java.awt.Dimension(429, 340));
+
+      textHow.setBackground(new java.awt.Color(245, 245, 245));
+      textHow.setColumns(20);
+      textHow.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+      textHow.setRows(5);
+      textHow.setText(" 1. Pick a file using the \"Choose File\" button.\n 2. Set file parameters using the \"Set Options button.\n 3. Read in the file using the \"Read File\" button.\n     Note: File will NOT be read until options have been set.\n 4. Set number of iterations.\n     -Higher = Better results, longer time\n     -Slower = Worse results, shorter time\n 5. Run\n 6. Write to file will create an output excel file.");
+      textHow.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+      textHow.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+      textHow.setEnabled(false);
+      jScrollPane2.setViewportView(textHow);
+
+      lblHow.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
+      lblHow.setText("How To Use");
+
+      btnHowOk.setText("OK");
+      btnHowOk.addActionListener(new java.awt.event.ActionListener() {
+         public void actionPerformed(java.awt.event.ActionEvent evt) {
+            btnHowOkActionPerformed(evt);
+         }
+      });
+
+      javax.swing.GroupLayout dialogHowLayout = new javax.swing.GroupLayout(dialogHow.getContentPane());
+      dialogHow.getContentPane().setLayout(dialogHowLayout);
+      dialogHowLayout.setHorizontalGroup(
+         dialogHowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+         .addGroup(dialogHowLayout.createSequentialGroup()
+            .addGroup(dialogHowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+               .addComponent(btnHowOk, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
+               .addGroup(dialogHowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                  .addGroup(dialogHowLayout.createSequentialGroup()
+                     .addContainerGap()
+                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 385, javax.swing.GroupLayout.PREFERRED_SIZE))
+                  .addGroup(dialogHowLayout.createSequentialGroup()
+                     .addContainerGap()
+                     .addComponent(lblHow))))
+            .addContainerGap(25, Short.MAX_VALUE))
+      );
+      dialogHowLayout.setVerticalGroup(
+         dialogHowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+         .addGroup(dialogHowLayout.createSequentialGroup()
+            .addGap(18, 18, 18)
+            .addComponent(lblHow)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addComponent(btnHowOk, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
+            .addContainerGap())
+      );
+
       setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
       setTitle("Learn by Doing Lab Scheduler");
       setIconImage(null);
@@ -318,7 +376,6 @@ public class GUI extends javax.swing.JFrame implements Observer {
       setMinimumSize(new java.awt.Dimension(654, 535));
 
       txtFieldInput.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
-      txtFieldInput.setText("C:\\Users\\Daniel\\Desktop\\template.xlsx");
 
       lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
       lblTitle.setText("Learn by Doing Lab Scheduler");
@@ -357,8 +414,10 @@ public class GUI extends javax.swing.JFrame implements Observer {
       });
 
       btnOption.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-      btnOption.setText("Options");
+      btnOption.setText("Set Options");
       btnOption.setToolTipText("Set the options for reading in a file");
+      btnOption.setEnabled(false);
+      btnOption.setMargin(new java.awt.Insets(2, 2, 2, 2));
       btnOption.addActionListener(new java.awt.event.ActionListener() {
          public void actionPerformed(java.awt.event.ActionEvent evt) {
             btnOptionActionPerformed(evt);
@@ -389,6 +448,12 @@ public class GUI extends javax.swing.JFrame implements Observer {
 
       spinIter.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
       spinIter.setToolTipText("<html>Set the number of iterations.<br/> Higher = more students seated but longer run time</html>");
+      spinIter.setEnabled(false);
+      spinIter.addKeyListener(new java.awt.event.KeyAdapter() {
+         public void keyPressed(java.awt.event.KeyEvent evt) {
+            spinIterKeyPressed(evt);
+         }
+      });
 
       lblIter.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
       lblIter.setText("# of Iterations");
@@ -462,15 +527,23 @@ public class GUI extends javax.swing.JFrame implements Observer {
 
       menuBar.add(menuFile);
 
-      menuAbout.setText("About");
+      menuAbout.setText("Info");
 
-      menuInfo.setText("Info");
+      menuInfo.setText("About");
       menuInfo.addActionListener(new java.awt.event.ActionListener() {
          public void actionPerformed(java.awt.event.ActionEvent evt) {
             menuInfoActionPerformed(evt);
          }
       });
       menuAbout.add(menuInfo);
+
+      menuHow.setText("How To Use");
+      menuHow.addActionListener(new java.awt.event.ActionListener() {
+         public void actionPerformed(java.awt.event.ActionEvent evt) {
+            menuHowActionPerformed(evt);
+         }
+      });
+      menuAbout.add(menuHow);
 
       menuBar.add(menuAbout);
 
@@ -528,7 +601,8 @@ public class GUI extends javax.swing.JFrame implements Observer {
       if (inputFileChooser.getSelectedFile() != null)
       {
          txtFieldInput.setText(inputFileChooser.getSelectedFile().getAbsolutePath());
-         this.getRootPane().setDefaultButton(btnRead);
+         btnOption.setEnabled(true);
+         this.getRootPane().setDefaultButton(btnOption);
       }
    }//GEN-LAST:event_btnChooseFileActionPerformed
 
@@ -543,6 +617,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
          btnKnap.setEnabled(true);
          btnRead.setEnabled(false);
          btnChooseFile.setEnabled(false);
+         spinIter.setEnabled(true);
       }
    }//GEN-LAST:event_btnReadActionPerformed
 
@@ -615,7 +690,24 @@ public class GUI extends javax.swing.JFrame implements Observer {
     private void btnOptionOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOptionOKActionPerformed
        dialogOption.dispose();
        btnRead.setEnabled(true);
+       this.getRootPane().setDefaultButton(btnRead);
     }//GEN-LAST:event_btnOptionOKActionPerformed
+
+   private void menuHowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuHowActionPerformed
+      dialogHow.setVisible(true);
+      this.getRootPane().setDefaultButton(btnHowOk);
+   }//GEN-LAST:event_menuHowActionPerformed
+
+   private void btnHowOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHowOkActionPerformed
+      dialogHow.dispose();
+   }//GEN-LAST:event_btnHowOkActionPerformed
+
+   private void spinIterKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_spinIterKeyPressed
+      if (evt.getKeyCode() == KeyEvent.VK_ENTER)
+      {
+         btnKnapActionPerformed(null);
+      }
+   }//GEN-LAST:event_spinIterKeyPressed
 
    private void populateSchoolList() {
       DefaultListModel<String> listModel = new DefaultListModel<>();
@@ -815,6 +907,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
    // Variables declaration - do not modify//GEN-BEGIN:variables
    private javax.swing.JButton btnAboutOK;
    private javax.swing.JButton btnChooseFile;
+   private javax.swing.JButton btnHowOk;
    private javax.swing.JButton btnKnap;
    private javax.swing.JButton btnOK;
    private javax.swing.JButton btnOption;
@@ -825,13 +918,16 @@ public class GUI extends javax.swing.JFrame implements Observer {
    private javax.swing.JComboBox<String> comboStartDate;
    private javax.swing.JDialog dialogAbout;
    private javax.swing.JDialog dialogError;
+   private javax.swing.JDialog dialogHow;
    private javax.swing.JDialog dialogOption;
    private javax.swing.JFileChooser inputFileChooser;
    private javax.swing.JLabel jLabel1;
    private javax.swing.JScrollPane jScrollPane1;
+   private javax.swing.JScrollPane jScrollPane2;
    private javax.swing.JLabel lblAboutError;
    private javax.swing.JLabel lblDebug;
    private javax.swing.JLabel lblError;
+   private javax.swing.JLabel lblHow;
    private javax.swing.JLabel lblIter;
    private javax.swing.JLabel lblList;
    private javax.swing.JLabel lblLog;
@@ -844,12 +940,14 @@ public class GUI extends javax.swing.JFrame implements Observer {
    private javax.swing.JMenuBar menuBar;
    private javax.swing.JMenuItem menuExit;
    private javax.swing.JMenu menuFile;
+   private javax.swing.JMenuItem menuHow;
    private javax.swing.JMenuItem menuInfo;
    private javax.swing.JFileChooser outputFileChooser;
    private javax.swing.JPanel panelActions;
    private javax.swing.JPanel panelOption;
    private javax.swing.JProgressBar progressBar;
    private javax.swing.JSpinner spinIter;
+   private javax.swing.JTextArea textHow;
    private javax.swing.JTextField txtFieldInput;
    // End of variables declaration//GEN-END:variables
 }

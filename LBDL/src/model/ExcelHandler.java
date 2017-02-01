@@ -47,7 +47,11 @@ public class ExcelHandler {
     * Total number of students count
     */
    protected int totalStudentCount = 0;
-
+   /**
+    * Total number of seats available
+    */
+   protected int totalSeats = 0;
+   
    public ExcelHandler(LogicModel model) {
       this.model = model;
       //this.totalStudents = 0;
@@ -61,17 +65,17 @@ public class ExcelHandler {
     * @throws InvalidFormatException If file is malformed.
     */
    protected void readXLFile(String filename, String start, String end) throws InvalidFormatException {
-      
+
       dateStart = convertColumn(start);
       dateEnd = convertColumn(end);
-      
+
       if (dateEnd < dateStart)
       {
          model.notifyText = "Errr: Invalid column dates selected";
          model.notify(LogicModel.NotifyCmd.ERROR);
          return;
       }
-      
+
       try
       {
          XSSFWorkbook wb = new XSSFWorkbook(new File(filename));
@@ -129,7 +133,7 @@ public class ExcelHandler {
          });
 
          //Temp # of avail seats
-         model.notifyText = "Total # of Schools: " + "<b>" + schoolCount + "</b>" + "<br/>Total # of Available Seats: " + "<b>" + 110 * 27 + "</b>"
+         model.notifyText = "Total # of Schools: " + "<b>" + schoolCount + "</b>" + "<br/>Total # of Available Seats: " + "<b>" + totalSeats + "</b>"
                  + "<br/>Total # of Students: " + "<b>" + totalStudentCount + "</b>";
          ;
          model.notify(LogicModel.NotifyCmd.TEXT);
@@ -164,27 +168,34 @@ public class ExcelHandler {
       String cellDate;
       //Array of month/day
       String[] dateArr;
+      //The begin date
+      int beginDate;
+      //The max students for that school
+      int maxStudents;
 
       try
       {
+         beginDate = dateStart;
+         totalSeats = 0;
          //FOR each date in the sheet
-         while (dateStart <= dateEnd)
+         while (beginDate <= dateEnd)
          {
-            cell = xlRow.getCell(dateStart);
+            cell = xlRow.getCell(beginDate);
             cellStr = cell.toString();
             cellDate = cellStr.substring(cellStr.indexOf(" "), cellStr.length()).trim();
             dateArr = cellDate.split("/");
             if (dateArr.length != 2)
             {
                model.notifyText = "Bad cell format: Sheet: " + xlRow.getSheet().getSheetName()
-                       + "| Cell(" + xlRow.getRowNum() + ", " + dateStart + ")";
+                       + "| Cell(" + xlRow.getRowNum() + ", " + beginDate + ")";
                model.notify(LogicModel.NotifyCmd.TEXT);
                break;
             }
             else
             {
-               Day newDay = new Day(++dayCount);
-               newDay.seatsLeft = Double.valueOf(sheet.getRow(1).getCell(dateStart).toString()).intValue();
+               maxStudents = Double.valueOf(sheet.getRow(1).getCell(beginDate).toString()).intValue();
+               Day newDay = new Day(++dayCount, maxStudents); 
+               totalSeats += newDay.seatsLeft;
                //Get the month, subtract 1 because index starts at 0
                int month = Integer.valueOf(cellDate.split("/")[0]) - 1;
                //Get the day
@@ -196,7 +207,7 @@ public class ExcelHandler {
                //Add date to the map
                model.dayList.put(dayCount, newDay);
             }
-            dateStart++;
+            beginDate++;
          }
       } catch (Exception e)
       {
@@ -347,8 +358,9 @@ public class ExcelHandler {
                   break;
                //Check available dates. Cols 7 - 33 inclusive
                default:
-                  if ((col > 6 && col < 35) && !cell.toString().trim().equals("")
-                          && (Double.valueOf(cell.getNumericCellValue()).intValue() == 1))
+                  if ((col >= dateStart && col <= dateEnd) && !cell.toString().trim().equals("")
+                          && (cell.toString().toLowerCase().equals("y")
+                          || cell.toString().equals("1")))
                   {
                      school.addDay(model.dayList.get(dayCount));
                   }

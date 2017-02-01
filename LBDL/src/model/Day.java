@@ -42,10 +42,10 @@ public class Day {
      *
      * @param index The index of the day in LogicModel's dayList.
      */
-    public Day(int index) {
+    public Day(int index, int maxStudents) {
         this.schools = new ArrayList<>();
-        this.maxStudents = 110;
-        this.seatsLeft = this.maxStudents;
+        this.maxStudents = maxStudents;
+        this.seatsLeft = maxStudents;
         this.index = index;
         this.formatter = new SimpleDateFormat("EEE. MMM d, yyyy");
     }
