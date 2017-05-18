@@ -9,6 +9,8 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.*;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -24,10 +26,8 @@ import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
-import model.CustomComparator;
-import model.FinalDay;
-import model.LogicModel;
-import model.School;
+import model.*;
+
 
 /**
  * GUI for user interactions. Collects user parameters and runs application.
@@ -39,6 +39,8 @@ public class GUI extends javax.swing.JFrame implements Observer {
 
    private final LogicModel model;
    private int progress = 0;
+   //Key is index in options, value is Day.index
+   private HashMap<Integer, Integer> optSchoolMap = new HashMap<>(); 
 
    /**
     * Creates new form GUI
@@ -62,6 +64,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
       dialogAbout.setIconImage(img.getImage());
       dialogOption.setIconImage(img.getImage());
       dialogHow.setIconImage(img.getImage());
+      dialogSchoolOptions.setIconImage(img.getImage());
 
       spinIter.setValue(55000);
       progressBar.setStringPainted(true);
@@ -69,6 +72,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
       dialogAbout.setLocationRelativeTo(this);
       dialogOption.setLocationRelativeTo(this);
       dialogHow.setLocationRelativeTo(this);
+      dialogSchoolOptions.setLocationRelativeTo(this);
 
       WindowListener exitListener = new WindowAdapter() {
          @Override
@@ -109,11 +113,25 @@ public class GUI extends javax.swing.JFrame implements Observer {
       comboEndDate = new javax.swing.JComboBox<>();
       lblstartDate = new javax.swing.JLabel();
       lblendDate = new javax.swing.JLabel();
+      jLabel2 = new javax.swing.JLabel();
+      btnShowSchoolOptions = new javax.swing.JButton();
+      lblSchoolOptionStatus = new javax.swing.JLabel();
       dialogHow = new javax.swing.JDialog();
       jScrollPane2 = new javax.swing.JScrollPane();
       textHow = new javax.swing.JTextArea();
       lblHow = new javax.swing.JLabel();
       btnHowOk = new javax.swing.JButton();
+      dialogSchoolOptions = new javax.swing.JDialog();
+      panelSchoolOptions = new javax.swing.JPanel();
+      jScrollPane3 = new javax.swing.JScrollPane();
+      listOptSchools = new javax.swing.JList<>();
+      comboOptDays = new javax.swing.JComboBox<>();
+      jScrollPane4 = new javax.swing.JScrollPane();
+      jList2 = new javax.swing.JList<>();
+      lblSchooltOptDate = new javax.swing.JLabel();
+      lblSchoolOptions = new javax.swing.JLabel();
+      btnSchoolOk = new javax.swing.JButton();
+      btnSchoolCancel = new javax.swing.JButton();
       txtFieldInput = new javax.swing.JTextField();
       lblTitle = new javax.swing.JLabel();
       jScrollPane1 = new javax.swing.JScrollPane();
@@ -217,11 +235,12 @@ public class GUI extends javax.swing.JFrame implements Observer {
       );
 
       dialogOption.setTitle("Options");
-      dialogOption.setMinimumSize(new java.awt.Dimension(540, 425));
+      dialogOption.setMinimumSize(new java.awt.Dimension(605, 425));
       dialogOption.setModal(true);
 
       btnOptionOK.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
       btnOptionOK.setText("OK");
+      btnOptionOK.setToolTipText("Select OK to finish setting options");
       btnOptionOK.addActionListener(new java.awt.event.ActionListener() {
          public void actionPerformed(java.awt.event.ActionEvent evt) {
             btnOptionOKActionPerformed(evt);
@@ -256,6 +275,21 @@ public class GUI extends javax.swing.JFrame implements Observer {
       lblendDate.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
       lblendDate.setText("End Column:");
 
+      jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+      jLabel2.setText("<html><u>Set specific date/school options (Optional):</u></html>");
+
+      btnShowSchoolOptions.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+      btnShowSchoolOptions.setText("School/Date Options");
+      btnShowSchoolOptions.setEnabled(false);
+      btnShowSchoolOptions.addActionListener(new java.awt.event.ActionListener() {
+         public void actionPerformed(java.awt.event.ActionEvent evt) {
+            btnShowSchoolOptionsActionPerformed(evt);
+         }
+      });
+
+      lblSchoolOptionStatus.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
+      lblSchoolOptionStatus.setText("Read in schools before setting additional options!");
+
       javax.swing.GroupLayout panelOptionLayout = new javax.swing.GroupLayout(panelOption);
       panelOption.setLayout(panelOptionLayout);
       panelOptionLayout.setHorizontalGroup(
@@ -273,8 +307,16 @@ public class GUI extends javax.swing.JFrame implements Observer {
                   .addComponent(comboEndDate, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE))
                .addGroup(panelOptionLayout.createSequentialGroup()
                   .addContainerGap()
-                  .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)))
-            .addContainerGap(366, Short.MAX_VALUE))
+                  .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE))
+               .addGroup(panelOptionLayout.createSequentialGroup()
+                  .addContainerGap()
+                  .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+               .addGroup(panelOptionLayout.createSequentialGroup()
+                  .addGap(32, 32, 32)
+                  .addComponent(btnShowSchoolOptions)
+                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                  .addComponent(lblSchoolOptionStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 338, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addContainerGap(42, Short.MAX_VALUE))
       );
       panelOptionLayout.setVerticalGroup(
          panelOptionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -287,7 +329,13 @@ public class GUI extends javax.swing.JFrame implements Observer {
                .addComponent(comboStartDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                .addComponent(comboEndDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                .addComponent(lblendDate))
-            .addContainerGap(238, Short.MAX_VALUE))
+            .addGap(27, 27, 27)
+            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addGroup(panelOptionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+               .addComponent(btnShowSchoolOptions)
+               .addComponent(lblSchoolOptionStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addContainerGap(156, Short.MAX_VALUE))
       );
 
       javax.swing.GroupLayout dialogOptionLayout = new javax.swing.GroupLayout(dialogOption.getContentPane());
@@ -366,6 +414,109 @@ public class GUI extends javax.swing.JFrame implements Observer {
             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
             .addComponent(btnHowOk, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
+            .addContainerGap())
+      );
+
+      dialogSchoolOptions.setTitle("Specific School/Date Options");
+      dialogSchoolOptions.setAlwaysOnTop(true);
+      dialogSchoolOptions.setMinimumSize(new java.awt.Dimension(600, 489));
+      dialogSchoolOptions.setPreferredSize(new java.awt.Dimension(600, 489));
+      dialogSchoolOptions.setSize(589, 460);
+
+      panelSchoolOptions.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+      panelSchoolOptions.setMinimumSize(new java.awt.Dimension(550, 362));
+
+      listOptSchools.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+      listOptSchools.setModel(new javax.swing.AbstractListModel<String>() {
+         String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+         public int getSize() { return strings.length; }
+         public String getElementAt(int i) { return strings[i]; }
+      });
+      jScrollPane3.setViewportView(listOptSchools);
+
+      comboOptDays.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+      comboOptDays.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+      jList2.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+      jList2.setModel(new javax.swing.AbstractListModel<String>() {
+         String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+         public int getSize() { return strings.length; }
+         public String getElementAt(int i) { return strings[i]; }
+      });
+      jScrollPane4.setViewportView(jList2);
+
+      lblSchooltOptDate.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+      lblSchooltOptDate.setText("Select a Date:");
+
+      javax.swing.GroupLayout panelSchoolOptionsLayout = new javax.swing.GroupLayout(panelSchoolOptions);
+      panelSchoolOptions.setLayout(panelSchoolOptionsLayout);
+      panelSchoolOptionsLayout.setHorizontalGroup(
+         panelSchoolOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+         .addGroup(panelSchoolOptionsLayout.createSequentialGroup()
+            .addContainerGap()
+            .addGroup(panelSchoolOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+               .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE)
+               .addComponent(lblSchooltOptDate, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+               .addComponent(comboOptDays, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 45, Short.MAX_VALUE)
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addContainerGap())
+      );
+      panelSchoolOptionsLayout.setVerticalGroup(
+         panelSchoolOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelSchoolOptionsLayout.createSequentialGroup()
+            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(lblSchooltOptDate, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(comboOptDays, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addGroup(panelSchoolOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+               .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
+               .addComponent(jScrollPane3))
+            .addContainerGap())
+      );
+
+      lblSchoolOptions.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
+      lblSchoolOptions.setText("School Options:");
+
+      btnSchoolOk.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+      btnSchoolOk.setText("OK");
+
+      btnSchoolCancel.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+      btnSchoolCancel.setText("Cancel");
+      btnSchoolCancel.addActionListener(new java.awt.event.ActionListener() {
+         public void actionPerformed(java.awt.event.ActionEvent evt) {
+            btnSchoolCancelActionPerformed(evt);
+         }
+      });
+
+      javax.swing.GroupLayout dialogSchoolOptionsLayout = new javax.swing.GroupLayout(dialogSchoolOptions.getContentPane());
+      dialogSchoolOptions.getContentPane().setLayout(dialogSchoolOptionsLayout);
+      dialogSchoolOptionsLayout.setHorizontalGroup(
+         dialogSchoolOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+         .addGroup(dialogSchoolOptionsLayout.createSequentialGroup()
+            .addGap(21, 21, 21)
+            .addGroup(dialogSchoolOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+               .addGroup(dialogSchoolOptionsLayout.createSequentialGroup()
+                  .addComponent(btnSchoolCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
+                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                  .addComponent(btnSchoolOk, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
+               .addGroup(dialogSchoolOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                  .addComponent(lblSchoolOptions, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                  .addComponent(panelSchoolOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addContainerGap(29, Short.MAX_VALUE))
+      );
+      dialogSchoolOptionsLayout.setVerticalGroup(
+         dialogSchoolOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+         .addGroup(dialogSchoolOptionsLayout.createSequentialGroup()
+            .addContainerGap()
+            .addComponent(lblSchoolOptions, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(panelSchoolOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addGroup(dialogSchoolOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+               .addComponent(btnSchoolOk, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+               .addComponent(btnSchoolCancel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addContainerGap())
       );
 
@@ -602,7 +753,9 @@ public class GUI extends javax.swing.JFrame implements Observer {
       {
          txtFieldInput.setText(inputFileChooser.getSelectedFile().getAbsolutePath());
          btnOption.setEnabled(true);
-         this.getRootPane().setDefaultButton(btnOption);
+         dialogOption.setVisible(true);
+         dialogOption.getRootPane().setDefaultButton(btnOptionOK);
+         btnOptionOK.requestFocus();
       }
    }//GEN-LAST:event_btnChooseFileActionPerformed
 
@@ -616,6 +769,8 @@ public class GUI extends javax.swing.JFrame implements Observer {
       {
          btnKnap.setEnabled(true);
          btnRead.setEnabled(false);
+         btnShowSchoolOptions.setEnabled(true);
+         lblSchoolOptionStatus.setVisible(false);
          btnChooseFile.setEnabled(false);
          spinIter.setEnabled(true);
       }
@@ -664,6 +819,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
 
    private void btnOKActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnOKActionPerformed
    {//GEN-HEADEREND:event_btnOKActionPerformed
+      btnKnap.setEnabled(false);
       dialogError.dispose();
    }//GEN-LAST:event_btnOKActionPerformed
 
@@ -691,11 +847,13 @@ public class GUI extends javax.swing.JFrame implements Observer {
        dialogOption.dispose();
        btnRead.setEnabled(true);
        this.getRootPane().setDefaultButton(btnRead);
+       btnRead.requestFocus();
     }//GEN-LAST:event_btnOptionOKActionPerformed
 
    private void menuHowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuHowActionPerformed
       dialogHow.setVisible(true);
       this.getRootPane().setDefaultButton(btnHowOk);
+      btnHowOk.requestFocus();
    }//GEN-LAST:event_menuHowActionPerformed
 
    private void btnHowOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHowOkActionPerformed
@@ -708,6 +866,18 @@ public class GUI extends javax.swing.JFrame implements Observer {
          btnKnapActionPerformed(null);
       }
    }//GEN-LAST:event_spinIterKeyPressed
+
+   private void btnShowSchoolOptionsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShowSchoolOptionsActionPerformed
+      createOptDays();
+      
+      dialogSchoolOptions.setVisible(true);
+      dialogOption.dispose();
+      btnSchoolOk.requestFocus();
+   }//GEN-LAST:event_btnShowSchoolOptionsActionPerformed
+
+   private void btnSchoolCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSchoolCancelActionPerformed
+      dialogSchoolOptions.dispose();
+   }//GEN-LAST:event_btnSchoolCancelActionPerformed
 
    private void populateSchoolList() {
       DefaultListModel<String> listModel = new DefaultListModel<>();
@@ -816,93 +986,14 @@ public class GUI extends javax.swing.JFrame implements Observer {
       }
    }
 
-   /**
-    * A small calendar for picking dates. Code was copied and modified from
-    * http://www.javacodex.com/Swing/Swing-Calendar
-    *
-    * @author Daniel Yao, JavaCodex
-    * @year 2016
-    */
-   class SwingCalendar extends JFrame {
-
-      private static final long serialVersionUID = 1L;
-      DefaultTableModel model;
-      Calendar cal = new GregorianCalendar();
-      JLabel label;
-
-      SwingCalendar() {
-
-         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-         this.setTitle("Swing Calandar");
-         this.setSize(300, 200);
-         getContentPane().setLayout(new BorderLayout());
-         this.setVisible(true);
-
-         label = new JLabel();
-         label.setHorizontalAlignment(SwingConstants.CENTER);
-
-         JButton b1 = new JButton("<-");
-         b1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-               cal.add(Calendar.MONTH, -1);
-               updateMonth();
-            }
-         });
-
-         JButton b2 = new JButton("->");
-         b2.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-               cal.add(Calendar.MONTH, +1);
-               updateMonth();
-            }
-         });
-
-         JPanel panel = new JPanel();
-         panel.setLayout(new BorderLayout());
-         panel.add(b1, BorderLayout.WEST);
-         panel.add(label, BorderLayout.CENTER);
-         panel.add(b2, BorderLayout.EAST);
-
-         String[] columns
-                 =
-                 {
-                    "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
-                 };
-         model = new DefaultTableModel(null, columns);
-         JTable table = new JTable(model);
-         JScrollPane pane = new JScrollPane(table);
-
-         getContentPane().add(panel, BorderLayout.NORTH);
-         getContentPane().add(pane, BorderLayout.CENTER);
-
-         this.updateMonth();
-
+   private void createOptDays() {
+      DefaultComboBoxModel<String> comboModel = new DefaultComboBoxModel<>();
+      for (Day d : model.dayList.values()) {
+         optSchoolMap.put(comboModel.getSize(), d.index);
+         comboModel.addElement(d.toString());
       }
-
-      void updateMonth() {
-         cal.set(Calendar.DAY_OF_MONTH, 1);
-
-         String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.US);
-         int year = cal.get(Calendar.YEAR);
-         label.setText(month + " " + year);
-
-         int startDay = cal.get(Calendar.DAY_OF_WEEK);
-         int numberOfDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-         int weeks = cal.getActualMaximum(Calendar.WEEK_OF_MONTH);
-
-         model.setRowCount(0);
-         model.setRowCount(weeks);
-
-         int i = startDay - 1;
-         for (int day = 1; day <= numberOfDays; day++)
-         {
-            model.setValueAt(day, i / 7, i % 7);
-            i = i + 1;
-         }
-
-      }
+      comboOptDays.setModel(comboModel);
    }
-
 
    // Variables declaration - do not modify//GEN-BEGIN:variables
    private javax.swing.JButton btnAboutOK;
@@ -913,17 +1004,26 @@ public class GUI extends javax.swing.JFrame implements Observer {
    private javax.swing.JButton btnOption;
    private javax.swing.JButton btnOptionOK;
    private javax.swing.JButton btnRead;
+   private javax.swing.JButton btnSchoolCancel;
+   private javax.swing.JButton btnSchoolOk;
+   private javax.swing.JButton btnShowSchoolOptions;
    private javax.swing.JButton btnWrite;
    private javax.swing.JComboBox<String> comboEndDate;
+   private javax.swing.JComboBox<String> comboOptDays;
    private javax.swing.JComboBox<String> comboStartDate;
    private javax.swing.JDialog dialogAbout;
    private javax.swing.JDialog dialogError;
    private javax.swing.JDialog dialogHow;
    private javax.swing.JDialog dialogOption;
+   private javax.swing.JDialog dialogSchoolOptions;
    private javax.swing.JFileChooser inputFileChooser;
    private javax.swing.JLabel jLabel1;
+   private javax.swing.JLabel jLabel2;
+   private javax.swing.JList<String> jList2;
    private javax.swing.JScrollPane jScrollPane1;
    private javax.swing.JScrollPane jScrollPane2;
+   private javax.swing.JScrollPane jScrollPane3;
+   private javax.swing.JScrollPane jScrollPane4;
    private javax.swing.JLabel lblAboutError;
    private javax.swing.JLabel lblDebug;
    private javax.swing.JLabel lblError;
@@ -932,9 +1032,13 @@ public class GUI extends javax.swing.JFrame implements Observer {
    private javax.swing.JLabel lblList;
    private javax.swing.JLabel lblLog;
    private javax.swing.JLabel lblOptions;
+   private javax.swing.JLabel lblSchoolOptionStatus;
+   private javax.swing.JLabel lblSchoolOptions;
+   private javax.swing.JLabel lblSchooltOptDate;
    private javax.swing.JLabel lblTitle;
    private javax.swing.JLabel lblendDate;
    private javax.swing.JLabel lblstartDate;
+   private javax.swing.JList<String> listOptSchools;
    private javax.swing.JList<String> listSchools;
    private javax.swing.JMenu menuAbout;
    private javax.swing.JMenuBar menuBar;
@@ -945,6 +1049,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
    private javax.swing.JFileChooser outputFileChooser;
    private javax.swing.JPanel panelActions;
    private javax.swing.JPanel panelOption;
+   private javax.swing.JPanel panelSchoolOptions;
    private javax.swing.JProgressBar progressBar;
    private javax.swing.JSpinner spinIter;
    private javax.swing.JTextArea textHow;

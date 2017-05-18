@@ -71,7 +71,7 @@ public class ExcelHandler {
 
       if (dateEnd < dateStart)
       {
-         model.notifyText = "Errr: Invalid column dates selected";
+         model.notifyText = "Error: Invalid column dates selected";
          model.notify(LogicModel.NotifyCmd.ERROR);
          return;
       }

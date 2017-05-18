@@ -18,7 +18,7 @@ public class LogicModel extends Observable {
    /**
     * The map of available days. Column index is the key
     */
-   protected HashMap<Integer, Day> dayList;
+   public HashMap<Integer, Day> dayList;
    /**
     * An object to perform operations on the excel file
     */
@@ -324,12 +324,19 @@ System.out.println();
    public ArrayList<School> excludedSchools = new ArrayList<>();
 
    public void knapsack() {
+
       thread = new Thread() {
          @Override
          public void run() {
+            long startTime;
+            long endTime;
+            startTime = System.currentTimeMillis();
             altKnapsack();
+            endTime = System.currentTimeMillis();
+            System.out.println("Run Time: " + ((endTime - startTime)/1000.0) + " seconds");
          }
       };
+      
       thread.start();
       thread.interrupt();
    }

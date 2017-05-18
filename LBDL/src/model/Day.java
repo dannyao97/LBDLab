@@ -27,7 +27,7 @@ public class Day {
     /**
      * The dates column in the excel sheet
      */
-    protected int index;
+    public int index;
     /**
      * Remaining seats left
      */
