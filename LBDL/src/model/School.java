@@ -21,7 +21,7 @@ public class School
    /** Holds how school will divide up students */
    protected ArrayList<Integer> splitNums;
    /** Priority of the school */
-   protected double priority;
+   public double priority;
    /** Any comments left by the school */
    protected String comments;
    /** If school has visited before. Default is true */
@@ -31,7 +31,7 @@ public class School
    /** A list of schools that are split from this school */
    protected ArrayList<School> splitSchool;
    /** The id of the school */
-   protected int id;
+   public int id;
    /** All split schools should have same splitId */
    protected int splitId;
    /** Total number of students including all splits*/
