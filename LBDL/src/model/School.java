@@ -15,7 +15,7 @@ public class School
    /** The list of available dates */
    protected ArrayList<Day> availDates;
    /** The School name */
-   protected String name;
+   public String name;
    /** Determine if the school can split. Default is false */
    protected boolean split;
    /** Holds how school will divide up students */

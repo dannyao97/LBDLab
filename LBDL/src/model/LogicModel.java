@@ -307,6 +307,7 @@ System.out.println();
    public ArrayList<School> schoolListSplit;
    public ArrayList<School> toAdd = new ArrayList<>();
    public ArrayList<School> scheduledSchools = new ArrayList<>();
+   public ArrayList<School> preScheduled = new ArrayList();
    public ArrayList<School> unscheduled;
    public HashMap<Integer, ArrayList<School>> needAdd = new HashMap<>();
    public HashMap<Integer, ArrayList<School>> mustAdd = new HashMap<>();
@@ -705,7 +706,7 @@ System.out.println();
    }
 
    public void reset() {
-      scheduledSchools.clear();
+      scheduledSchools = new ArrayList<>(preScheduled);
       for (Day day : dayList.values())
       {
          day.clearSchools();
@@ -769,7 +770,7 @@ System.out.println();
          if (Math.abs(dynTable[numItems][weights] - dynTable[numItems - 1][weights]) >= .01)
          {
             selected = availSchools.get(numItems - 1);
-            day.addSchool(selected);
+            day.addSchool(selected, false);
             selected.actualDay = day.date;
             chosen.add(selected);
 
