@@ -592,7 +592,7 @@ System.out.println();
          {
             if (scheduledSchools.contains(sch))
             {
-               day.removeSchool(sch);
+               day.removeSchool(sch, false);
                toSchedule.remove(sch);
             }
             else
@@ -873,7 +873,7 @@ System.out.println();
       //Remove schools from the daylist
       for (Day d : dayList.values())
       {
-         d.removeSchool(school);
+         d.removeSchool(school, false);
       }
 
       //Remove schools from the scheduledschools
