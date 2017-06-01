@@ -428,6 +428,11 @@ public class GUI extends javax.swing.JFrame implements Observer {
       dialogSchoolOptions.setMinimumSize(new java.awt.Dimension(655, 565));
       dialogSchoolOptions.setPreferredSize(new java.awt.Dimension(655, 565));
       dialogSchoolOptions.setSize(589, 460);
+      dialogSchoolOptions.addWindowListener(new java.awt.event.WindowAdapter() {
+         public void windowClosing(java.awt.event.WindowEvent evt) {
+            dialogSchoolOptionsWindowClosing(evt);
+         }
+      });
 
       panelSchoolOptions.setBorder(javax.swing.BorderFactory.createEtchedBorder());
       panelSchoolOptions.setMinimumSize(new java.awt.Dimension(550, 362));
@@ -864,9 +869,6 @@ public class GUI extends javax.swing.JFrame implements Observer {
       spinIter.setEnabled(false);
       btnOption.setEnabled(false);
       btnWrite.setEnabled(false);
-      btnShowSchoolOptions.setEnabled(false);
-      lblSchoolOptionStatus.setVisible(true);
-      lblSchoolOptionStatus.setText("<html><i><b>Options have already been set! Restart to reset options!</b></i></html>");
 
       model.setIterations(progress);
       progressBar.setMaximum(progress);
@@ -1059,8 +1061,9 @@ public class GUI extends javax.swing.JFrame implements Observer {
          School school = day.getSchools().get(schoolIndex);
          DefaultListModel<String> listDayModel = new DefaultListModel<>();
 
-         addedSchools.remove(school);
-         remSchoolMap.put(school, day.index);
+         if (!addedSchools.contains(school)) {
+            remSchoolMap.put(school, day.index);
+         }
          day.removeSchool(school, true);
          model.preScheduled.remove(school);
          model.schoolList.add(school);
@@ -1073,6 +1076,10 @@ public class GUI extends javax.swing.JFrame implements Observer {
          createOptSchools();
       }
    }//GEN-LAST:event_btnRemoveActionPerformed
+
+   private void dialogSchoolOptionsWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogSchoolOptionsWindowClosing
+      btnSchoolCancelActionPerformed(null);
+   }//GEN-LAST:event_dialogSchoolOptionsWindowClosing
 
    private void populateSchoolList() {
       DefaultListModel<String> listModel = new DefaultListModel<>();

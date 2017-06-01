@@ -569,6 +569,9 @@
           <Connection code="589, 460" type="code"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="windowClosing" listener="java.awt.event.WindowListener" parameters="java.awt.event.WindowEvent" handler="dialogSchoolOptionsWindowClosing"/>
+      </Events>
 
       <Layout>
         <DimensionLayout dim="0">

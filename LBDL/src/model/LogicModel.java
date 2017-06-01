@@ -116,7 +116,7 @@ public class LogicModel extends Observable {
     * @param hash
     * @return A new HashMap with duplicate values.
     */
-   private HashMap<Integer, Day> cloneDayList(HashMap<Integer, Day> hash) {
+   /*private HashMap<Integer, Day> cloneDayList(HashMap<Integer, Day> hash) {
       HashMap<Integer, Day> newHash = new HashMap<>();
 
       for (Entry<Integer, Day> entry : hash.entrySet())
@@ -124,7 +124,7 @@ public class LogicModel extends Observable {
          newHash.put(entry.getKey(), entry.getValue());
       }
       return newHash;
-   }
+   }*/
 
    private HashMap<Integer, ArrayList<School>> cloneHashMap(HashMap<Integer, ArrayList<School>> hash) {
       HashMap<Integer, ArrayList<School>> newHash = new HashMap<>();
@@ -503,8 +503,8 @@ System.out.println();
       System.out.println(highestSeed);
       
       notify(NotifyCmd.LIST);
-      notifyText = "# of Seated Students: " + "<b>" + totalSeated + "</b>" + "<br/>Empty Seats: " + "<b>" + (xlHandler.totalSeats - totalSeated) + "</b>"
-              + "<br/>Total Seats: " + "<b>" + xlHandler.totalSeats + "</b>" + "<br/>Total # of Students: " + "<b>" + totalStudents + "</b>"
+      notifyText = "# of Seated Students: " + "<b>" + totalSeated + "</b>" + "<br/>Total Seats: " + "<b>" + xlHandler.totalSeats + "</b>" 
+              + "<br/>Empty Seats: " + "<b>" + (xlHandler.totalSeats - totalSeated) + "</b>" + "<br/>Total # of Students: " + "<b>" + totalStudents + "</b>"
               + "<br/><br/># of Scheduled Schools: " + "<b>" + totalSchools + "</b>" + "<br/>Total # of Schools: " + "<b>" + schoolList.size() + "</b>";
       notify(NotifyCmd.TEXT);
 
