@@ -504,15 +504,15 @@ System.out.println();
       
       notify(NotifyCmd.LIST);
       notifyText = "# of Seated Students: " + "<b>" + totalSeated + "</b>" + "<br/>Empty Seats: " + "<b>" + (xlHandler.totalSeats - totalSeated) + "</b>"
-              + "<br/>Total # of Students: " + "<b>" + totalStudents + "</b>"
+              + "<br/>Total Seats: " + "<b>" + xlHandler.totalSeats + "</b>" + "<br/>Total # of Students: " + "<b>" + totalStudents + "</b>"
               + "<br/><br/># of Scheduled Schools: " + "<b>" + totalSchools + "</b>" + "<br/>Total # of Schools: " + "<b>" + schoolList.size() + "</b>";
       notify(NotifyCmd.TEXT);
 
       //DEBUG
-      for (School sch : finalUnscheduled)
+      /*for (School sch : finalUnscheduled)
       {
          System.out.println(500 - sch.priority + " " + sch.name + " ");
-      }
+      }*/
    }
 
    public void runAlgorithm(ArrayList<School> notScheduled) {

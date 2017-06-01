@@ -233,9 +233,10 @@ public class ExcelHandler {
       sheet.setColumnWidth(0, 45 * 256);
       sheet.setColumnWidth(1, 10 * 256);
       sheet.setColumnWidth(2, 20 * 256);
-
+      
       sheet2.setColumnWidth(0, 20 * 256);
       sheet2.setColumnWidth(1, 10 * 256);
+      sheet2.setColumnWidth(2, 18 * 256);
 
       sheet3.setColumnWidth(0, 8 * 256);
       sheet3.setColumnWidth(1, 45 * 256);
@@ -249,6 +250,7 @@ public class ExcelHandler {
       row2 = sheet2.createRow(countf++);
       row2.createCell(0).setCellValue("Date");
       row2.createCell(1).setCellValue("Seats Left");
+      row2.createCell(2).setCellValue("Extra Seats Needed");
 
       row3 = sheet3.createRow(countU++);
       row3.createCell(0).setCellValue("Priority");
@@ -267,6 +269,9 @@ public class ExcelHandler {
          row2 = sheet2.createRow(countf++);
          row2.createCell(0).setCellValue(day.toString());
          row2.createCell(1).setCellValue(day.seatsLeft);
+         if (day.getSeats() < 0) {
+               row2.createCell(2).setCellValue(Math.abs(day.getSeats()) + " seats");
+         }
       }
 
       countf++;
